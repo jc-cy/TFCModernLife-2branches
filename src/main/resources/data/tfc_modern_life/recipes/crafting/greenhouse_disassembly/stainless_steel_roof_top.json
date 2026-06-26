@@ -1,0 +1,21 @@
+{
+  "type": "tfc_modern_life:greenhouse_disassembly",
+  "input": {
+    "tag": "tfc_modern_life:greenhouse_disassembly/stainless_steel/roof_top"
+  },
+  "input_count": 8,
+  "tool": {
+    "item": "tfc:gem_saw"
+  },
+  "result": {
+    "item": "firmalife:metal/rod/stainless_steel",
+    "count": 3
+  },
+  "extra_products": [
+    {
+      "item": "minecraft:glass",
+      "count": 3
+    }
+  ]
+}
+

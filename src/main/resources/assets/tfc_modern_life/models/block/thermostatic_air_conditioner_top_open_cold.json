@@ -1,0 +1,7 @@
+{
+	"parent": "tfc_modern_life:block/thermostatic_air_conditioner_top",
+	"textures": {
+		"1": "tfc_modern_life:block/thermostatic_air_conditioner_open_cold",
+		"particle": "tfc_modern_life:block/thermostatic_air_conditioner_particle"
+	}
+}

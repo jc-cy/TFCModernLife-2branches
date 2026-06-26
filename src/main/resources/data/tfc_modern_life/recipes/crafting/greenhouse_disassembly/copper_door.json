@@ -1,0 +1,21 @@
+{
+  "type": "tfc_modern_life:greenhouse_disassembly",
+  "input": {
+    "tag": "tfc_modern_life:greenhouse_disassembly/copper/door"
+  },
+  "input_count": 2,
+  "tool": {
+    "item": "tfc:gem_saw"
+  },
+  "result": {
+    "item": "tfc:metal/rod/copper",
+    "count": 3
+  },
+  "extra_products": [
+    {
+      "item": "minecraft:glass",
+      "count": 3
+    }
+  ]
+}
+

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "firmalife:copper_greenhouse_port",
+    "firmalife:exposed_copper_greenhouse_port",
+    "firmalife:weathered_copper_greenhouse_port",
+    "firmalife:oxidized_copper_greenhouse_port"
+  ]
+}

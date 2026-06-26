@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "tfc_modern_life:thermostatic_air_conditioner"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "tfc_modern_life:thermostatic_air_conditioner",
+          "properties": {
+            "half": "lower"
+          }
+        }
+      ]
+    }
+  ]
+}

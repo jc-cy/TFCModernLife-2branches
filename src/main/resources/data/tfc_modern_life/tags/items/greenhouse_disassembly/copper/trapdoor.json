@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "firmalife:copper_greenhouse_trapdoor",
+    "firmalife:exposed_copper_greenhouse_trapdoor",
+    "firmalife:weathered_copper_greenhouse_trapdoor",
+    "firmalife:oxidized_copper_greenhouse_trapdoor"
+  ]
+}

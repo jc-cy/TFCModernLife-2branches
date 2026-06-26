@@ -1,0 +1,34 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.jccy.tfcmodernlife.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "tfc_modern_life.refmap.json",
+  "mixins": [
+    "CellarAbstractContainerMenuMixin",
+    "CellarCallbackSlotMixin",
+    "CellarContainerMixin",
+    "CellarFoodShelfBlockEntityMixin",
+    "CellarFoodTraitMixin",
+    "CellarImmersiveEngineeringCrateBlockEntityMixin",
+    "CellarSlotMixin",
+    "CellarTFCChestBlockEntityMixin",
+    "BaseBeehiveBlockMixin",
+    "ClimateStationBlockEntityMixin",
+    "ClimateStationBlockMixin",
+    "CropHelpersMixin",
+    "FarmlandBlockMixin",
+    "FLBeehiveBlockEntityMixin",
+    "GreenhouseDisassemblyResultSlotMixin",
+    "InventoryBlockEntityMixin",
+    "JarringStationBlockEntityMixin",
+    "TFCBlockEntityClimateMixin",
+    "TfeBananaPlantBlockMixin",
+    "TfeFruitTreeSaplingBlockMixin",
+    "TfeSeasonalPlantBlockAccessor",
+    "TfeStationaryBerryBushBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

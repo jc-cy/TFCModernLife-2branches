@@ -1,0 +1,21 @@
+{
+  "type": "tfc_modern_life:greenhouse_disassembly",
+  "input": {
+    "tag": "tfc_modern_life:greenhouse_disassembly/treated_wood/panel_wall"
+  },
+  "input_count": 8,
+  "tool": {
+    "item": "tfc:gem_saw"
+  },
+  "result": {
+    "item": "firmalife:treated_lumber",
+    "count": 6
+  },
+  "extra_products": [
+    {
+      "item": "firmalife:reinforced_glass",
+      "count": 3
+    }
+  ]
+}
+

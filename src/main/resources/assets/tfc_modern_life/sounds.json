@@ -1,0 +1,38 @@
+{
+  "block.electric_oven.open": {
+    "subtitle": "subtitles.block.tfc_modern_life.electric_oven.open",
+    "sounds": [
+      {
+        "name": "tfc_modern_life:block/electric_oven/open",
+        "type": "file"
+      }
+    ]
+  },
+  "block.electric_oven.close": {
+    "subtitle": "subtitles.block.tfc_modern_life.electric_oven.close",
+    "sounds": [
+      {
+        "name": "tfc_modern_life:block/electric_oven/close",
+        "type": "file"
+      }
+    ]
+  },
+  "block.electric_soup_pot.open": {
+    "subtitle": "subtitles.block.tfc_modern_life.electric_soup_pot.open",
+    "sounds": [
+      {
+        "name": "tfc_modern_life:block/electric_soup_pot/open",
+        "type": "file"
+      }
+    ]
+  },
+  "block.electric_soup_pot.close": {
+    "subtitle": "subtitles.block.tfc_modern_life.electric_soup_pot.close",
+    "sounds": [
+      {
+        "name": "tfc_modern_life:block/electric_soup_pot/close",
+        "type": "file"
+      }
+    ]
+  }
+}

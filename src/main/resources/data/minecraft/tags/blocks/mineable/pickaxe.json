@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "tfc_modern_life:electric_oven",
+    "tfc_modern_life:electric_soup_pot",
+    "tfc_modern_life:thermostatic_air_conditioner",
+    "tfc_modern_life:refrigerator"
+  ]
+}
