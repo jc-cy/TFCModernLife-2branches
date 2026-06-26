@@ -60,6 +60,8 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     public static final int DATA_POWER_MULTIPLIER = 12;
     public static final int DATA_BASE_TEMPERATURE_DELTA = 13;
     public static final int DATA_COUNT = 14;
+    private static final int NETWORK_DATA_ENERGY_HIGH = DATA_COUNT;
+    private static final int NETWORK_DATA_COUNT = DATA_COUNT + 1;
     public static final int STRUCTURE_NONE = 0;
     public static final int STRUCTURE_GREENHOUSE = 1;
     public static final int STRUCTURE_CELLAR = 2;
@@ -91,6 +93,8 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     private long localLastAutoUpdateDay = Long.MIN_VALUE;
     private long nextStructureRefreshTick;
     private final int[] syncedData = new int[DATA_COUNT];
+    private int syncedEnergyLow;
+    private int syncedEnergyHigh;
     private boolean removing;
 
     private final ContainerData syncData = new ContainerData()
@@ -150,6 +154,48 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         public int getCount()
         {
             return DATA_COUNT;
+        }
+    };
+
+    // Vanilla menu data values travel as 16-bit shorts, so split large FE values for multiplayer clients.
+    private final ContainerData networkSyncData = new ContainerData()
+    {
+        @Override
+        public int get(int index)
+        {
+            if (index == DATA_ENERGY)
+            {
+                return syncData.get(DATA_ENERGY) & 0xFFFF;
+            }
+            if (index == NETWORK_DATA_ENERGY_HIGH)
+            {
+                return (syncData.get(DATA_ENERGY) >>> 16) & 0xFFFF;
+            }
+            return syncData.get(index);
+        }
+
+        @Override
+        public void set(int index, int value)
+        {
+            if (index == DATA_ENERGY)
+            {
+                syncedEnergyLow = value & 0xFFFF;
+                syncedData[DATA_ENERGY] = (syncedEnergyHigh << 16) | syncedEnergyLow;
+                return;
+            }
+            if (index == NETWORK_DATA_ENERGY_HIGH)
+            {
+                syncedEnergyHigh = value & 0xFFFF;
+                syncedData[DATA_ENERGY] = (syncedEnergyHigh << 16) | syncedEnergyLow;
+                return;
+            }
+            syncData.set(index, value);
+        }
+
+        @Override
+        public int getCount()
+        {
+            return NETWORK_DATA_COUNT;
         }
     };
 
@@ -528,6 +574,11 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     public ContainerData getSyncData()
     {
         return syncData;
+    }
+
+    public ContainerData getNetworkSyncData()
+    {
+        return networkSyncData;
     }
 
     public int getDisplayStructureTypeForTooltip()

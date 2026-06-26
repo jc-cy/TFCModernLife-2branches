@@ -26,7 +26,7 @@ public class ElectricOvenScreen extends AbstractContainerScreen<ElectricOvenCont
     private static final int TARGET_SLIDER_Y = 21;
     private static final int TARGET_SLIDER_WIDTH = 14;
     private static final int TARGET_SLIDER_HEIGHT = 66;
-    private static final int TARGET_SLIDER_RANGE = 49;
+    private static final int TARGET_SLIDER_RANGE = ElectricOvenContainer.TARGET_SLIDER_STEPS;
     private static final int TARGET_SLIDER_BOTTOM = 71;
 
     private static final int TARGET_HANDLE_X = 9;
@@ -221,10 +221,12 @@ public class ElectricOvenScreen extends AbstractContainerScreen<ElectricOvenCont
         }
 
         final int clamped = Mth.clamp(temperature, 0, ElectricOvenBlockEntity.MAX_TEMPERATURE);
-        sliderTemperature = clamped;
-        pendingTargetTemperature = clamped;
+        final int sliderStep = ElectricOvenContainer.temperatureToSliderStep(clamped);
+        final int mappedTemperature = ElectricOvenContainer.sliderStepToTemperature(sliderStep);
+        sliderTemperature = mappedTemperature;
+        pendingTargetTemperature = mappedTemperature;
         pendingTargetTicks = 0;
-        minecraft.gameMode.handleInventoryButtonClick(menu.containerId, clamped);
+        minecraft.gameMode.handleInventoryButtonClick(menu.containerId, sliderStep);
     }
 
     private void renderCustomTooltips(GuiGraphics graphics, int mouseX, int mouseY)

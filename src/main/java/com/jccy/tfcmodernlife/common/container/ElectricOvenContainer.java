@@ -6,15 +6,28 @@ import com.jccy.tfcmodernlife.common.blockentity.ElectricOvenBlockEntity;
 import net.dries007.tfc.common.capabilities.Capabilities;
 import net.dries007.tfc.common.container.BlockEntityContainer;
 import net.dries007.tfc.common.container.CallbackSlot;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class ElectricOvenContainer extends BlockEntityContainer<ElectricOvenBlockEntity>
 {
+    public static final int TARGET_SLIDER_STEPS = 49;
+
     public static ElectricOvenContainer create(ElectricOvenBlockEntity oven, Inventory playerInv, int windowId)
     {
         return new ElectricOvenContainer(oven, windowId).init(playerInv, 20);
+    }
+
+    public static int temperatureToSliderStep(int temperature)
+    {
+        return Math.round(Mth.clamp(temperature, 0, ElectricOvenBlockEntity.MAX_TEMPERATURE) * TARGET_SLIDER_STEPS / (float) ElectricOvenBlockEntity.MAX_TEMPERATURE);
+    }
+
+    public static int sliderStepToTemperature(int step)
+    {
+        return Math.round(Mth.clamp(step, 0, TARGET_SLIDER_STEPS) * ElectricOvenBlockEntity.MAX_TEMPERATURE / (float) TARGET_SLIDER_STEPS);
     }
 
     private ElectricOvenContainer(ElectricOvenBlockEntity oven, int windowId)
@@ -50,9 +63,10 @@ public class ElectricOvenContainer extends BlockEntityContainer<ElectricOvenBloc
     @Override
     public boolean clickMenuButton(Player player, int id)
     {
-        if (id >= 0 && id <= ElectricOvenBlockEntity.MAX_TEMPERATURE)
+        // Vanilla menu button ids travel as a byte; send the slider step, not the 0-800 C target.
+        if (id >= 0 && id <= TARGET_SLIDER_STEPS)
         {
-            blockEntity.setTargetTemperature(id);
+            blockEntity.setTargetTemperature(sliderStepToTemperature(id));
             return true;
         }
         return false;

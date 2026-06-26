@@ -14,6 +14,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class ElectricSoupPotContainer extends BlockEntityContainer<ElectricSoupPotBlockEntity>
 {
+    public static final int BUTTON_STOP = 0;
+    public static final int BUTTON_START = 1;
+    public static final int POWER_ON_TEMPERATURE = 350;
+
     private static final int HIDDEN_FIREPIT_SLOT_COUNT = ElectricSoupPotBlockEntity.SLOT_EXTRA_INPUT_START;
     private static final int POT_MENU_SLOT_START = HIDDEN_FIREPIT_SLOT_COUNT;
     private static final int POT_MENU_SLOT_END = POT_MENU_SLOT_START + ElectricSoupPotBlockEntity.INPUT_SLOT_COUNT;
@@ -68,9 +72,14 @@ public class ElectricSoupPotContainer extends BlockEntityContainer<ElectricSoupP
     @Override
     public boolean clickMenuButton(Player player, int id)
     {
-        if (id >= 0 && id <= ElectricSoupPotBlockEntity.MAX_TEMPERATURE)
+        if (id == BUTTON_STOP)
         {
-            blockEntity.setTargetTemperature(id);
+            blockEntity.setTargetTemperature(0);
+            return true;
+        }
+        if (id == BUTTON_START)
+        {
+            blockEntity.setTargetTemperature(POWER_ON_TEMPERATURE);
             return true;
         }
         return false;

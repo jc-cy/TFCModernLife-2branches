@@ -19,7 +19,7 @@ public abstract class ClimateControlContainer<T extends ClimateControlBlockEntit
         super(type, windowId);
         this.blockEntity = blockEntity;
         this.step = step;
-        addDataSlots(blockEntity.getSyncData());
+        addDataSlots(blockEntity.getNetworkSyncData());
         addPlayerInventorySlots(playerInventory);
     }
 

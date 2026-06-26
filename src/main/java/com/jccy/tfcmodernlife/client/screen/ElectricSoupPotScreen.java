@@ -30,7 +30,6 @@ public class ElectricSoupPotScreen extends AbstractContainerScreen<ElectricSoupP
 
     private static final int GUI_WIDTH = 176;
     private static final int GUI_HEIGHT = 186;
-    private static final int POWER_ON_TEMPERATURE = 350;
 
     private static final int POWER_BUTTON_X = 8;
     private static final int POWER_BUTTON_Y = 80;
@@ -152,7 +151,7 @@ public class ElectricSoupPotScreen extends AbstractContainerScreen<ElectricSoupP
         if (button == 0 && isInside(mouseX, mouseY, POWER_BUTTON_X, POWER_BUTTON_Y, POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT))
         {
             final int targetTemperature = menu.getBlockEntity().getSyncData().get(1);
-            sendTargetTemperature(targetTemperature > 0 ? 0 : POWER_ON_TEMPERATURE);
+            sendTargetTemperature(targetTemperature > 0 ? 0 : ElectricSoupPotContainer.POWER_ON_TEMPERATURE);
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -343,9 +342,10 @@ public class ElectricSoupPotScreen extends AbstractContainerScreen<ElectricSoupP
         }
 
         final int clamped = Mth.clamp(temperature, 0, ElectricSoupPotBlockEntity.MAX_TEMPERATURE);
-        if (menu.clickMenuButton(minecraft.player, clamped))
+        final int buttonId = clamped > 0 ? ElectricSoupPotContainer.BUTTON_START : ElectricSoupPotContainer.BUTTON_STOP;
+        if (menu.clickMenuButton(minecraft.player, buttonId))
         {
-            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, clamped);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, buttonId);
         }
     }
 
