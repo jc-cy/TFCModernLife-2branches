@@ -54,6 +54,8 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
     private static final String STRUCTURE_TYPE = "StructureType";
     private static final String STRUCTURE_TIER = "StructureTier";
     private static final String BASE_TEMPERATURE_DELTA = "BaseTemperatureDelta";
+    private static final String SET_TEMPERATURE = "SetTemperature";
+    private static final String HAS_SET_TEMPERATURE = "HasSetTemperature";
 
     @Override
     public void register(IWailaCommonRegistration registry)
@@ -237,6 +239,8 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
             final int structureType;
             final int structureTier;
             final int baseTemperatureDeltaTenths;
+            final int setTemperatureTenths;
+            final boolean hasSetTemperature;
             final float preservationMultiplier;
 
             if (!data.isEmpty())
@@ -247,6 +251,8 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 structureType = data.getInt(STRUCTURE_TYPE);
                 structureTier = data.getInt(STRUCTURE_TIER);
                 baseTemperatureDeltaTenths = data.getInt(BASE_TEMPERATURE_DELTA);
+                setTemperatureTenths = data.getInt(SET_TEMPERATURE);
+                hasSetTemperature = data.getBoolean(HAS_SET_TEMPERATURE);
                 preservationMultiplier = data.getFloat(PRESERVATION_MULTIPLIER);
             }
             else if (access.getBlockEntity() instanceof ClimateControlBlockEntity control)
@@ -259,18 +265,24 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 {
                     effectiveSpace = airConditioner.getConnectedEffectiveSpace();
                     indoorTemperatureTenths = GreenhouseTemperatureHelper.toTenths(airConditioner.getIndoorTemperature());
+                    hasSetTemperature = structureType == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE;
+                    setTemperatureTenths = hasSetTemperature ? GreenhouseTemperatureHelper.toTenths(airConditioner.getTarget()) : 0;
                     preservationMultiplier = airConditioner.getPreservationMultiplier();
                 }
                 else if (control instanceof RefrigeratorBlockEntity refrigerator)
                 {
                     effectiveSpace = refrigerator.getConnectedEffectiveSpace();
                     indoorTemperatureTenths = GreenhouseTemperatureHelper.toTenths(refrigerator.getIndoorTemperature());
+                    hasSetTemperature = false;
+                    setTemperatureTenths = 0;
                     preservationMultiplier = refrigerator.getPreservationMultiplier();
                 }
                 else
                 {
                     effectiveSpace = 0;
                     indoorTemperatureTenths = 0;
+                    hasSetTemperature = false;
+                    setTemperatureTenths = 0;
                     preservationMultiplier = 0f;
                 }
             }
@@ -294,6 +306,10 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
             tooltip.add(Component.translatable("tfc_modern_life.jade.effective_space", effectiveSpace));
             if (effectiveSpace > 0)
             {
+                if (hasSetTemperature)
+                {
+                    tooltip.add(Component.translatable("tfc_modern_life.jade.set_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(setTemperatureTenths)));
+                }
                 tooltip.add(Component.translatable("tfc_modern_life.jade.indoor_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(indoorTemperatureTenths)));
             }
             if (preservationMultiplier > 0f)
@@ -316,12 +332,17 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 {
                     data.putInt(EFFECTIVE_SPACE, airConditioner.getConnectedEffectiveSpace());
                     data.putInt(INDOOR_TEMPERATURE, GreenhouseTemperatureHelper.toTenths(airConditioner.getIndoorTemperature()));
+                    final boolean hasSetTemperature = control.getDisplayStructureTypeForTooltip() == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE;
+                    data.putBoolean(HAS_SET_TEMPERATURE, hasSetTemperature);
+                    data.putInt(SET_TEMPERATURE, hasSetTemperature ? GreenhouseTemperatureHelper.toTenths(airConditioner.getTarget()) : 0);
                     data.putFloat(PRESERVATION_MULTIPLIER, airConditioner.getPreservationMultiplier());
                 }
                 else if (control instanceof RefrigeratorBlockEntity refrigerator)
                 {
                     data.putInt(EFFECTIVE_SPACE, refrigerator.getConnectedEffectiveSpace());
                     data.putInt(INDOOR_TEMPERATURE, GreenhouseTemperatureHelper.toTenths(refrigerator.getIndoorTemperature()));
+                    data.putBoolean(HAS_SET_TEMPERATURE, false);
+                    data.putInt(SET_TEMPERATURE, 0);
                     data.putFloat(PRESERVATION_MULTIPLIER, refrigerator.getPreservationMultiplier());
                 }
             }

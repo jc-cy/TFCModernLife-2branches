@@ -21,6 +21,6 @@ public abstract class GrowingFruitTreeBranchBlockMixin
     )
     private float tfcml$useControlledAverageTemperature(Level level, BlockPos pos)
     {
-        return GreenhouseTemperatureHelper.getControlledTemperature(level, pos, Climate.getAverageTemperature(level, pos));
+        return GreenhouseTemperatureHelper.getControlledTemperature(level, pos, Climate.getTemperature(level, pos));
     }
 }

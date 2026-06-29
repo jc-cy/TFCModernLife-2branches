@@ -1,5 +1,6 @@
 package com.jccy.tfcmodernlife.client.screen;
 
+import com.jccy.tfcmodernlife.TFCModernLife;
 import com.jccy.tfcmodernlife.common.blockentity.ClimateControlBlockEntity;
 import com.jccy.tfcmodernlife.common.climate.GreenhouseTemperatureHelper;
 import com.jccy.tfcmodernlife.common.container.ClimateControlContainer;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, C extends ClimateControlContainer<T>> extends AbstractContainerScreen<C>
 {
+    private static final ResourceLocation SOUP_POT_BACKGROUND = new ResourceLocation(TFCModernLife.MOD_ID, "textures/gui/electric_soup_pot.png");
     private static final int GUI_WIDTH = 176;
     private static final int GUI_HEIGHT = 186;
 
@@ -122,6 +124,14 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
     private static final int[] BUTTON_W = {9, 6, 6, 9};
     private static final int[] BUTTON_SRC_X = {80, 91, 104, 112};
 
+    private static final int POWER_BUTTON_X = 96;
+    private static final int POWER_BUTTON_Y = 68;
+    private static final int POWER_BUTTON_WIDTH = 17;
+    private static final int POWER_BUTTON_HEIGHT = 17;
+    private static final int POWER_BUTTON_SRC_X = 239;
+    private static final int POWER_BUTTON_OFF_SRC_Y = 0;
+    private static final int POWER_BUTTON_ON_SRC_Y = 19;
+
     private static final int ENERGY_X = 123;
     private static final int ENERGY_Y = 16;
     private static final int ENERGY_WIDTH = 17;
@@ -162,6 +172,7 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
             drawModeIcons(graphics);
         }
         drawButtons(graphics);
+        drawPowerButton(graphics);
         drawEnergy(graphics);
     }
 
@@ -185,6 +196,12 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
     {
         if (button == 0)
         {
+            if (isInside(mouseX, mouseY, POWER_BUTTON_X, POWER_BUTTON_Y, POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT))
+            {
+                pressedButton = ClimateControlContainer.BUTTON_TOGGLE_POWER;
+                sendButton(ClimateControlContainer.BUTTON_TOGGLE_POWER);
+                return true;
+            }
             final int buttonId = getButtonAt(mouseX, mouseY);
             if (buttonId >= 0)
             {
@@ -220,8 +237,10 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         {
             return;
         }
-        final int afterTemperature = menu.getSyncData().get(ClimateControlBlockEntity.DATA_AFTER_TEMPERATURE);
-        final int beforeTemperature = menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE);
+        final int afterTemperature = isGreenhouseSetTemperatureMode()
+            ? menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE)
+            : menu.getSyncData().get(ClimateControlBlockEntity.DATA_AFTER_TEMPERATURE);
+        final int beforeTemperature = menu.getSyncData().get(getBaseTemperatureDataIndex());
         if (afterTemperature < beforeTemperature)
         {
             graphics.blit(getBackground(), leftPos + COLD_ICON_X, topPos + COLD_ICON_Y, COLD_ICON_SRC_X, COLD_ICON_SRC_Y, COLD_ICON_W, COLD_ICON_H);
@@ -288,6 +307,12 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         graphics.blit(getBackground(), leftPos + BUTTON_X[id], topPos + BUTTON_Y, BUTTON_SRC_X[id], pressedButton == id ? BUTTON_PRESSED_SRC_Y : BUTTON_SRC_Y, BUTTON_W[id], BUTTON_H);
     }
 
+    private void drawPowerButton(GuiGraphics graphics)
+    {
+        final boolean enabled = menu.getSyncData().get(ClimateControlBlockEntity.DATA_ENABLED) != 0;
+        graphics.blit(SOUP_POT_BACKGROUND, leftPos + POWER_BUTTON_X, topPos + POWER_BUTTON_Y, POWER_BUTTON_SRC_X, enabled ? POWER_BUTTON_ON_SRC_Y : POWER_BUTTON_OFF_SRC_Y, POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT);
+    }
+
     private void drawEnergy(GuiGraphics graphics)
     {
         graphics.blit(getBackground(), leftPos + ENERGY_X, topPos + ENERGY_Y, ENERGY_FRAME_SRC_X, ENERGY_FRAME_SRC_Y, ENERGY_WIDTH, ENERGY_HEIGHT);
@@ -313,28 +338,34 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
             ), java.util.Optional.empty(), mouseX, mouseY);
             return;
         }
+        if (isInside(mouseX, mouseY, POWER_BUTTON_X, POWER_BUTTON_Y, POWER_BUTTON_WIDTH, POWER_BUTTON_HEIGHT))
+        {
+            final boolean enabled = menu.getSyncData().get(ClimateControlBlockEntity.DATA_ENABLED) != 0;
+            graphics.renderTooltip(font, Component.translatable(enabled ? "tfc_modern_life.tooltip.running" : "tfc_modern_life.tooltip.stopped"), mouseX, mouseY);
+            return;
+        }
 
         final int target = menu.getSyncData().get(0);
         final int minTarget = menu.getSyncData().get(7);
         final int maxTarget = menu.getSyncData().get(8);
         if (isInsideButton(mouseX, mouseY, 0))
         {
-            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 5);
+            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 5, isGreenhouseSetTemperatureMode());
             return;
         }
         if (isInsideButton(mouseX, mouseY, 1))
         {
-            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 1);
+            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 1, isGreenhouseSetTemperatureMode());
             return;
         }
         if (isInsideButton(mouseX, mouseY, 2))
         {
-            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 1);
+            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 1, isGreenhouseSetTemperatureMode());
             return;
         }
         if (isInsideButton(mouseX, mouseY, 3))
         {
-            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 5);
+            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 5, isGreenhouseSetTemperatureMode());
             return;
         }
         if (isInside(mouseX, mouseY, DISPLAY_X, DISPLAY_Y, DISPLAY_WIDTH, DISPLAY_HEIGHT))
@@ -343,16 +374,30 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         }
     }
 
-    private void renderDecreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int minTarget, int step)
+    private void renderDecreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int minTarget, int step, boolean setTemperatureMode)
     {
         final int available = Math.max(0, target - minTarget);
-        graphics.renderTooltip(font, Component.translatable("tfc_modern_life.tooltip.decrease_step", Math.min(step, available), available), mouseX, mouseY);
+        graphics.renderTooltip(
+            font,
+            setTemperatureMode
+                ? Component.translatable("tfc_modern_life.tooltip.greenhouse_decrease_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMinimumReachableGreenhouseTemperature()))
+                : Component.translatable("tfc_modern_life.tooltip.decrease_step", Math.min(step, available), available),
+            mouseX,
+            mouseY
+        );
     }
 
-    private void renderIncreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int maxTarget, int step)
+    private void renderIncreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int maxTarget, int step, boolean setTemperatureMode)
     {
         final int available = Math.max(0, maxTarget - target);
-        graphics.renderTooltip(font, Component.translatable("tfc_modern_life.tooltip.increase_step", Math.min(step, available), available), mouseX, mouseY);
+        graphics.renderTooltip(
+            font,
+            setTemperatureMode
+                ? Component.translatable("tfc_modern_life.tooltip.greenhouse_increase_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMaximumReachableGreenhouseTemperature()))
+                : Component.translatable("tfc_modern_life.tooltip.increase_step", Math.min(step, available), available),
+            mouseX,
+            mouseY
+        );
     }
 
     private List<Component> createInfoTooltip()
@@ -364,18 +409,27 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         {
             final int minTarget = menu.getSyncData().get(ClimateControlBlockEntity.DATA_MIN_TARGET);
             final int maxTarget = menu.getSyncData().get(ClimateControlBlockEntity.DATA_MAX_TARGET);
+            final boolean setTemperatureMode = isGreenhouseSetTemperatureMode();
             lines.add(Component.translatable("tfc_modern_life.tooltip.power_multiplier", getPowerMultiplier()));
             lines.add(Component.translatable(
                 "tfc_modern_life.tooltip.greenhouse_with_base_temperature",
                 getStructureName(structureType, tier),
                 GreenhouseTemperatureHelper.formatSignedTemperatureDeltaTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_BASE_TEMPERATURE_DELTA))
             ));
-            lines.add(Component.translatable(hasHeatIndicator() ? "tfc_modern_life.tooltip.temperature_adjust_range" : "tfc_modern_life.tooltip.cooling_adjust_range", Math.max(Math.abs(minTarget), Math.abs(maxTarget))));
+            if (setTemperatureMode)
+            {
+                lines.add(Component.translatable("tfc_modern_life.tooltip.set_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_AFTER_TEMPERATURE))));
+                lines.add(Component.translatable("tfc_modern_life.tooltip.temperature_adjust_range", menu.getSyncData().get(ClimateControlBlockEntity.DATA_CONTROL_RANGE)));
+            }
+            else
+            {
+                lines.add(Component.translatable(hasHeatIndicator() ? "tfc_modern_life.tooltip.temperature_adjust_range" : "tfc_modern_life.tooltip.cooling_adjust_range", Math.max(Math.abs(minTarget), Math.abs(maxTarget))));
+            }
             addCommonInfo(lines);
         }
         else if (structureType == ClimateControlBlockEntity.STRUCTURE_CELLAR)
         {
-            final int minimumTemperature = menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE)
+            final int minimumTemperature = menu.getSyncData().get(getBaseTemperatureDataIndex())
                 + menu.getSyncData().get(ClimateControlBlockEntity.DATA_MIN_TARGET) * GreenhouseTemperatureHelper.TEMPERATURE_SCALE;
             lines.add(getStructureName(structureType, tier));
             lines.add(Component.translatable("tfc_modern_life.tooltip.power_multiplier", getPowerMultiplier()));
@@ -399,10 +453,55 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
 
     private void addCommonInfo(List<Component> lines)
     {
-        lines.add(Component.translatable("tfc_modern_life.tooltip.controlled_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_AFTER_TEMPERATURE))));
-        lines.add(Component.translatable("tfc_modern_life.tooltip.base_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE))));
+        if (isGreenhouseSetTemperatureMode())
+        {
+            lines.add(Component.translatable("tfc_modern_life.tooltip.controlled_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE))));
+        }
+        else
+        {
+            lines.add(Component.translatable("tfc_modern_life.tooltip.controlled_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_AFTER_TEMPERATURE))));
+        }
+        lines.add(Component.translatable("tfc_modern_life.tooltip.base_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(getBaseTemperatureDataIndex()))));
         lines.add(Component.translatable("tfc_modern_life.tooltip.effective_space", menu.getSyncData().get(ClimateControlBlockEntity.DATA_EFFECTIVE_SPACE)));
         lines.add(Component.translatable("tfc_modern_life.tooltip.energy_per_tick", menu.getSyncData().get(ClimateControlBlockEntity.DATA_ENERGY_PER_TICK)));
+    }
+
+    private boolean isGreenhouseSetTemperatureMode()
+    {
+        return hasHeatIndicator() && menu.getSyncData().get(ClimateControlBlockEntity.DATA_STRUCTURE_TYPE) == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE;
+    }
+
+    private int getBaseTemperatureDataIndex()
+    {
+        return isGreenhouseSetTemperatureMode() ? ClimateControlBlockEntity.DATA_BASE_TEMPERATURE : ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE;
+    }
+
+    private float getReachableGreenhouseTemperature(int setTemperature)
+    {
+        final int baseTemperatureTenths = menu.getSyncData().get(getBaseTemperatureDataIndex());
+        final float baseTemperature = GreenhouseTemperatureHelper.fromTenths(baseTemperatureTenths);
+        final int range = menu.getSyncData().get(ClimateControlBlockEntity.DATA_CONTROL_RANGE);
+        return GreenhouseTemperatureHelper.fromTenths(baseTemperatureTenths + GreenhouseTemperatureHelper.getManualAdjustmentTowardTargetTenths(baseTemperature, setTemperature, range));
+    }
+
+    private float getMinimumReachableGreenhouseTemperature()
+    {
+        return getGreenhouseBaseTemperature() - getGreenhouseControlRange();
+    }
+
+    private float getMaximumReachableGreenhouseTemperature()
+    {
+        return getGreenhouseBaseTemperature() + getGreenhouseControlRange();
+    }
+
+    private float getGreenhouseBaseTemperature()
+    {
+        return GreenhouseTemperatureHelper.fromTenths(menu.getSyncData().get(getBaseTemperatureDataIndex()));
+    }
+
+    private int getGreenhouseControlRange()
+    {
+        return Math.max(0, menu.getSyncData().get(ClimateControlBlockEntity.DATA_CONTROL_RANGE));
     }
 
     private float getPowerMultiplier()
@@ -438,7 +537,7 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
 
     private boolean hasPanelPower()
     {
-        return menu.getSyncData().get(1) > 0;
+        return menu.getSyncData().get(ClimateControlBlockEntity.DATA_ENABLED) != 0 && menu.getSyncData().get(ClimateControlBlockEntity.DATA_ENERGY) > 0;
     }
 
     private void sendButton(int id)

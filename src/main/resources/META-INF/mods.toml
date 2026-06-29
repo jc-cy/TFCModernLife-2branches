@@ -57,8 +57,8 @@ TFC Modern Life / 群峦现代化生活
 - 储能: 4000000 FE。
 - 最大输入: 4096 FE/t。
 - 启动阈值: 电量大于 25%，即 1000000 FE。
-- 耗电公式: round(有效空间 * 等级耗电倍率 * 温差 * 0.002)。
-- 最低运行耗电: 有控温需求时至少 50 FE/t。
+- 耗电公式: round(有效空间 * 等级耗电倍率 * 温差 * 0.001)。
+- 最低运行耗电: 有控温需求时至少 20 FE/t。
 - GUI 调节步长: -5 / -1 / +1 / +5°C。
 - 只消耗 FE，不输出电力；挖下后保留电量。
 
@@ -121,8 +121,8 @@ Climate Control Device Parameters
 - Energy capacity: 4000000 FE.
 - Max input: 4096 FE/t.
 - Start threshold: energy must be above 25%, equal to 1000000 FE.
-- Energy formula: round(effective space * tier power multiplier * temperature delta * 0.002).
-- Minimum running cost: at least 50 FE/t when climate control is needed.
+- Energy formula: round(effective space * tier power multiplier * temperature delta * 0.001).
+- Minimum running cost: at least 20 FE/t when climate control is needed.
 - GUI adjustment steps: -5 / -1 / +1 / +5°C.
 - Devices consume FE only, do not output power, and keep stored energy when broken.
 

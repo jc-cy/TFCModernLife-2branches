@@ -145,6 +145,54 @@ public final class GreenhouseTemperatureHelper
         return Mth.clamp(adjustment, -range, range);
     }
 
+    public static int clampGreenhouseManualAdjustmentTenths(@Nullable ClimateStationAccess station, int adjustmentTenths)
+    {
+        final int rangeTenths = getGreenhouseManualRange(station) * TEMPERATURE_SCALE;
+        return Mth.clamp(adjustmentTenths, -rangeTenths, rangeTenths);
+    }
+
+    public static int getGreenhouseManualAdjustmentTowardTarget(@Nullable ClimateStationAccess station, float baseTemperature, int targetTemperature)
+    {
+        return getManualAdjustmentTowardTarget(baseTemperature, targetTemperature, getGreenhouseManualRange(station));
+    }
+
+    public static int getGreenhouseManualAdjustmentTowardTargetTenths(@Nullable ClimateStationAccess station, float baseTemperature, int targetTemperature)
+    {
+        return getManualAdjustmentTowardTargetTenths(baseTemperature, targetTemperature, getGreenhouseManualRange(station));
+    }
+
+    public static int getManualAdjustmentTowardTarget(float baseTemperature, int targetTemperature, int maxDelta)
+    {
+        final float delta = targetTemperature - baseTemperature;
+        final int adjustment;
+        if (delta > 0)
+        {
+            adjustment = (int) Math.floor(delta);
+        }
+        else if (delta < 0)
+        {
+            adjustment = (int) Math.ceil(delta);
+        }
+        else
+        {
+            adjustment = 0;
+        }
+        final int range = Math.max(0, maxDelta);
+        return Mth.clamp(adjustment, -range, range);
+    }
+
+    public static int getManualAdjustmentTowardTargetTenths(float baseTemperature, int targetTemperature, int maxDelta)
+    {
+        final int deltaTenths = toTenths(targetTemperature) - toTenths(baseTemperature);
+        final int rangeTenths = Math.max(0, maxDelta) * TEMPERATURE_SCALE;
+        return Mth.clamp(deltaTenths, -rangeTenths, rangeTenths);
+    }
+
+    public static float getGreenhouseTemperatureTowardTarget(@Nullable ClimateStationAccess station, float baseTemperature, int targetTemperature)
+    {
+        return clampTemperature(fromTenths(toTenths(baseTemperature) + getGreenhouseManualAdjustmentTowardTargetTenths(station, baseTemperature, targetTemperature)));
+    }
+
     public static int clampAirConditionerCellarTarget(@Nullable ClimateStationAccess station, int temperature)
     {
         return Mth.clamp(temperature, -DEFAULT_MANUAL_RANGE, DEFAULT_MANUAL_RANGE);

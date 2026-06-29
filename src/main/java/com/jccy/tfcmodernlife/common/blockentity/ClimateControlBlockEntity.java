@@ -45,6 +45,8 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     public static final int ENERGY_CAPACITY = 4_000_000;
     public static final int ENERGY_MAX_INPUT = 4096;
     public static final int START_ENERGY_THRESHOLD = ENERGY_CAPACITY / 4;
+    private static final int MIN_ENERGY_USE = 20;
+    private static final float ENERGY_USE_SCALE = 0.001f;
     public static final int DATA_TARGET = 0;
     public static final int DATA_ENERGY = 1;
     public static final int DATA_RUNNING = 2;
@@ -59,7 +61,10 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     public static final int DATA_TIER = 11;
     public static final int DATA_POWER_MULTIPLIER = 12;
     public static final int DATA_BASE_TEMPERATURE_DELTA = 13;
-    public static final int DATA_COUNT = 14;
+    public static final int DATA_CONTROL_RANGE = 14;
+    public static final int DATA_BASE_TEMPERATURE = 15;
+    public static final int DATA_ENABLED = 16;
+    public static final int DATA_COUNT = 17;
     private static final int NETWORK_DATA_ENERGY_HIGH = DATA_COUNT;
     private static final int NETWORK_DATA_COUNT = DATA_COUNT + 1;
     public static final int STRUCTURE_NONE = 0;
@@ -72,9 +77,11 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     private static final String LOCAL_POSITIONS_KEY = "localClimatePositions";
     private static final String LOCAL_AUTO_TEMPERATURE_KEY = "localAutoTemperature";
     private static final String LOCAL_MANUAL_TEMPERATURE_KEY = "localManualTemperature";
+    private static final String LOCAL_MANUAL_TEMPERATURE_TENTHS_KEY = "localManualTemperatureTenths";
     private static final String LOCAL_CELLAR_TEMPERATURE_KEY = "localCellarTemperature";
     private static final String LOCAL_CELLAR_HEATING_KEY = "localCellarHeating";
     private static final String LOCAL_LAST_AUTO_DAY_KEY = "localLastAutoDay";
+    private static final String ENABLED_KEY = "enabled";
 
     private final InputOnlyEnergyStorage energyStorage = new InputOnlyEnergyStorage();
     private final LazyOptional<IEnergyStorage> energyCapability = LazyOptional.of(() -> energyStorage);
@@ -82,12 +89,13 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     protected int target;
     protected boolean running;
     protected int energyPerTick;
+    protected boolean enabled;
     @Nullable private Set<BlockPos> localClimatePositions;
     @Nullable private ClimateType localClimateType;
     @Nullable private GreenhouseStructureData localGreenhouseStructureData;
     @Nullable private CellarStructureData localCellarStructureData;
     private float localAutoTemperature = GreenhouseTemperatureHelper.DEFAULT_TEMPERATURE;
-    private int localManualTemperatureAdjustment;
+    private int localManualTemperatureAdjustmentTenths;
     private int localCellarTemperature;
     private boolean localCellarHeating;
     private long localLastAutoUpdateDay = Long.MIN_VALUE;
@@ -121,6 +129,9 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
                 case DATA_TIER -> getDisplayTier();
                 case DATA_POWER_MULTIPLIER -> getDisplayPowerMultiplier();
                 case DATA_BASE_TEMPERATURE_DELTA -> getDisplayBaseTemperatureDelta();
+                case DATA_CONTROL_RANGE -> getDisplayControlRange();
+                case DATA_BASE_TEMPERATURE -> getDisplayBaseTemperature();
+                case DATA_ENABLED -> enabled ? 1 : 0;
                 default -> 0;
             };
         }
@@ -143,8 +154,10 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
                 case DATA_RUNNING -> running = value != 0;
                 case DATA_ENERGY_PER_TICK -> energyPerTick = Math.max(0, value);
                 case DATA_EFFECTIVE_SPACE, DATA_AFTER_TEMPERATURE, DATA_PRESERVATION_TENTHS, DATA_MIN_TARGET, DATA_MAX_TARGET,
-                    DATA_BEFORE_TEMPERATURE, DATA_STRUCTURE_TYPE, DATA_TIER, DATA_POWER_MULTIPLIER, DATA_BASE_TEMPERATURE_DELTA -> {
+                    DATA_BEFORE_TEMPERATURE, DATA_STRUCTURE_TYPE, DATA_TIER, DATA_POWER_MULTIPLIER, DATA_BASE_TEMPERATURE_DELTA,
+                    DATA_CONTROL_RANGE, DATA_BASE_TEMPERATURE -> {
                 }
+                case DATA_ENABLED -> enabled = value != 0;
                 default -> {
                 }
             }
@@ -215,7 +228,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         final int previousEnergyUse = energyPerTick;
         final boolean wasRunning = running;
 
-        energyPerTick = calculateEnergyUse();
+        energyPerTick = enabled ? calculateEnergyUse() : 0;
         running = energyPerTick > 0 && hasEnoughEnergyToRun(energyPerTick);
         if (running)
         {
@@ -300,6 +313,16 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         return 0;
     }
 
+    protected int getDisplayControlRange()
+    {
+        return 0;
+    }
+
+    protected int getDisplayBaseTemperature()
+    {
+        return getDisplayBeforeTemperature();
+    }
+
     protected int getGreenhouseDisplayTier(GreenhouseStructureData data)
     {
         final String key = data.displayNameKey();
@@ -330,7 +353,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         {
             return 0;
         }
-        return Math.max(50, Math.round(effectiveSpace * multiplier * temperatureDelta * 0.002f));
+        return Math.max(MIN_ENERGY_USE, Math.round(effectiveSpace * multiplier * temperatureDelta * ENERGY_USE_SCALE));
     }
 
     public void refreshStructure(boolean force)
@@ -399,7 +422,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         localCellarStructureData = null;
         localCellarTemperature = 0;
         localCellarHeating = false;
-        localManualTemperatureAdjustment = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustment(this, localManualTemperatureAdjustment);
+        localManualTemperatureAdjustmentTenths = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustmentTenths(this, localManualTemperatureAdjustmentTenths);
         tfcml$refreshAutoTemperature(true);
         updateClimateReceivers(level, positions, true, result.firmalifeTier(), ClimateType.GREENHOUSE);
         clearObsoleteClimateReceivers(level, oldPositions, positions, oldType);
@@ -430,7 +453,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         localClimatePositions = positions;
         localClimateType = ClimateType.CELLAR;
         localGreenhouseStructureData = null;
-        localManualTemperatureAdjustment = 0;
+        localManualTemperatureAdjustmentTenths = 0;
         localCellarStructureData = result.structureData();
         localCellarTemperature = clampCellarAdjustment(localCellarTemperature, localCellarHeating);
         updateClimateReceivers(level, positions, true, 0, ClimateType.CELLAR);
@@ -450,7 +473,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         localClimateType = null;
         localGreenhouseStructureData = null;
         localCellarStructureData = null;
-        localManualTemperatureAdjustment = 0;
+        localManualTemperatureAdjustmentTenths = 0;
         localCellarTemperature = 0;
         localCellarHeating = false;
         ClimateStationRegistry.unregister(this, this);
@@ -546,6 +569,33 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         setChanged();
     }
 
+    public void setEnabled(boolean enabled)
+    {
+        if (this.enabled == enabled)
+        {
+            return;
+        }
+        this.enabled = enabled;
+        if (!enabled)
+        {
+            energyPerTick = 0;
+            running = false;
+            applyClimateControl(false);
+        }
+        updateBlockState();
+        setChanged();
+    }
+
+    public void toggleEnabled()
+    {
+        setEnabled(!enabled);
+    }
+
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
+
     public void adjustTarget(int delta)
     {
         setTarget(target + delta);
@@ -624,22 +674,36 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     @Override
     public int tfcml$getManualTemperatureAdjustment()
     {
-        return localManualTemperatureAdjustment;
+        return Math.round(GreenhouseTemperatureHelper.fromTenths(localManualTemperatureAdjustmentTenths));
+    }
+
+    @Override
+    public int tfcml$getManualTemperatureAdjustmentTenths()
+    {
+        return localManualTemperatureAdjustmentTenths;
     }
 
     @Override
     public float tfcml$getEffectiveTemperature()
     {
-        return GreenhouseTemperatureHelper.clampTemperature(localAutoTemperature + localManualTemperatureAdjustment);
+        return GreenhouseTemperatureHelper.clampTemperature(GreenhouseTemperatureHelper.fromTenths(
+            GreenhouseTemperatureHelper.toTenths(localAutoTemperature) + localManualTemperatureAdjustmentTenths
+        ));
     }
 
     @Override
     public void tfcml$setManualTemperatureAdjustment(int adjustment)
     {
-        final int clamped = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustment(this, adjustment);
-        if (clamped != localManualTemperatureAdjustment)
+        tfcml$setManualTemperatureAdjustmentTenths(GreenhouseTemperatureHelper.toTenths(adjustment));
+    }
+
+    @Override
+    public void tfcml$setManualTemperatureAdjustmentTenths(int adjustmentTenths)
+    {
+        final int clamped = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustmentTenths(this, adjustmentTenths);
+        if (clamped != localManualTemperatureAdjustmentTenths)
         {
-            localManualTemperatureAdjustment = clamped;
+            localManualTemperatureAdjustmentTenths = clamped;
             markClimateDataChanged();
         }
     }
@@ -726,7 +790,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         if (data != null)
         {
             localClimateType = ClimateType.GREENHOUSE;
-            localManualTemperatureAdjustment = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustment(this, localManualTemperatureAdjustment);
+            localManualTemperatureAdjustmentTenths = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustmentTenths(this, localManualTemperatureAdjustmentTenths);
             localCellarHeating = false;
             tfcml$refreshAutoTemperature(true);
         }
@@ -784,8 +848,9 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     {
         tag.put("energy", energyStorage.serializeNBT());
         tag.putInt("target", target);
+        tag.putBoolean(ENABLED_KEY, enabled);
         tag.putFloat(LOCAL_AUTO_TEMPERATURE_KEY, localAutoTemperature);
-        tag.putInt(LOCAL_MANUAL_TEMPERATURE_KEY, localManualTemperatureAdjustment);
+        tag.putInt(LOCAL_MANUAL_TEMPERATURE_TENTHS_KEY, localManualTemperatureAdjustmentTenths);
         tag.putInt(LOCAL_CELLAR_TEMPERATURE_KEY, localCellarTemperature);
         tag.putBoolean(LOCAL_CELLAR_HEATING_KEY, localCellarHeating);
         tag.putLong(LOCAL_LAST_AUTO_DAY_KEY, localLastAutoUpdateDay);
@@ -817,10 +882,13 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
             energyStorage.deserializeNBT(tag.get("energy"));
         }
         final int loadedTarget = tag.getInt("target");
+        enabled = tag.getBoolean(ENABLED_KEY);
         localAutoTemperature = tag.contains(LOCAL_AUTO_TEMPERATURE_KEY)
             ? GreenhouseTemperatureHelper.clampTemperature(tag.getFloat(LOCAL_AUTO_TEMPERATURE_KEY))
             : GreenhouseTemperatureHelper.DEFAULT_TEMPERATURE;
-        localManualTemperatureAdjustment = tag.getInt(LOCAL_MANUAL_TEMPERATURE_KEY);
+        localManualTemperatureAdjustmentTenths = tag.contains(LOCAL_MANUAL_TEMPERATURE_TENTHS_KEY)
+            ? tag.getInt(LOCAL_MANUAL_TEMPERATURE_TENTHS_KEY)
+            : GreenhouseTemperatureHelper.toTenths(tag.getInt(LOCAL_MANUAL_TEMPERATURE_KEY));
         localCellarTemperature = tag.getInt(LOCAL_CELLAR_TEMPERATURE_KEY);
         localCellarHeating = tag.getBoolean(LOCAL_CELLAR_HEATING_KEY);
         localLastAutoUpdateDay = tag.contains(LOCAL_LAST_AUTO_DAY_KEY) ? tag.getLong(LOCAL_LAST_AUTO_DAY_KEY) : Long.MIN_VALUE;
@@ -834,7 +902,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         localCellarStructureData = tag.contains(LOCAL_CELLAR_STRUCTURE_KEY)
             ? CellarStructureData.fromTag(tag.getCompound(LOCAL_CELLAR_STRUCTURE_KEY))
             : null;
-        localManualTemperatureAdjustment = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustment(this, localManualTemperatureAdjustment);
+        localManualTemperatureAdjustmentTenths = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustmentTenths(this, localManualTemperatureAdjustmentTenths);
         localCellarTemperature = clampCellarAdjustment(localCellarTemperature, localCellarHeating);
         if (localClimateType != ClimateType.CELLAR)
         {

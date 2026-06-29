@@ -17,9 +17,19 @@ public interface ClimateStationAccess
 
     int tfcml$getManualTemperatureAdjustment();
 
+    default int tfcml$getManualTemperatureAdjustmentTenths()
+    {
+        return GreenhouseTemperatureHelper.toTenths(tfcml$getManualTemperatureAdjustment());
+    }
+
     float tfcml$getEffectiveTemperature();
 
     void tfcml$setManualTemperatureAdjustment(int adjustment);
+
+    default void tfcml$setManualTemperatureAdjustmentTenths(int adjustmentTenths)
+    {
+        tfcml$setManualTemperatureAdjustment(Math.round(GreenhouseTemperatureHelper.fromTenths(adjustmentTenths)));
+    }
 
     void tfcml$refreshAutoTemperature(boolean force);
 

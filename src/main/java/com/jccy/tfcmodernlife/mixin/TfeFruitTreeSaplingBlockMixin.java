@@ -5,8 +5,6 @@ import com.jccy.tfcmodernlife.common.compat.TfeClimateCompat;
 import java.util.List;
 import java.util.function.Supplier;
 import net.dries007.tfc.common.blockentities.TickCounterBlockEntity;
-import net.dries007.tfc.common.blocks.TFCBlocks;
-import net.dries007.tfc.common.blocks.plant.Plant;
 import net.dries007.tfc.common.blocks.plant.fruit.FruitTreeSaplingBlock;
 import net.dries007.tfc.common.blocks.plant.fruit.Lifecycle;
 import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
@@ -48,10 +46,10 @@ public abstract class TfeFruitTreeSaplingBlockMixin
 
         final ClimateRange range = climateRange.get();
         final int hydration = TfeClimateCompat.getFruitBushHydrationFromRootPos(level, stemPos.below());
-        final float temperature = GreenhouseTemperatureHelper.getControlledTemperature(level, stemPos, Climate.getAverageTemperature(level, stemPos));
+        final float temperature = GreenhouseTemperatureHelper.getControlledTemperature(level, stemPos, Climate.getTemperature(level, stemPos));
 
+        text.add(FarmlandBlock.getTemperatureTooltip(level, stemPos, range, temperature, false, "tfc.tooltip.farmland.temperature"));
         text.add(FarmlandBlock.getHydrationTooltip(level, stemPos, range, false, hydration));
-        text.add(FarmlandBlock.getTemperatureTooltip(level, stemPos, range, temperature, false, "tfc.tooltip.climate_average_temperature"));
         text.add(Component.translatable("tfc.tooltip.fruit_tree.growing"));
         if (FruitTreeSaplingBlock.maySplice(level, pos, state))
         {
@@ -77,12 +75,8 @@ public abstract class TfeFruitTreeSaplingBlockMixin
             if (elapsedTicks > ticksToGrow)
             {
                 final int hydration = TfeClimateCompat.getFruitBushHydrationFromRootPos(level, stemPos.below());
-                final float temperature = GreenhouseTemperatureHelper.getControlledTemperature(level, stemPos, Climate.getAverageTemperature(level, stemPos));
-                if (!climateRange.get().checkBoth(hydration, temperature, false))
-                {
-                    level.setBlockAndUpdate(pos, TFCBlocks.PLANTS.get(Plant.DEAD_BUSH).get().defaultBlockState());
-                }
-                else
+                final float temperature = GreenhouseTemperatureHelper.getControlledTemperature(level, stemPos, Climate.getTemperature(level, stemPos));
+                if (climateRange.get().checkBoth(hydration, temperature, false))
                 {
                     createTree(level, pos, state, random);
                     final long carriedTicks = elapsedTicks - ticksToGrow;

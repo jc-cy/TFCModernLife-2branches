@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 public abstract class ClimateControlContainer<T extends ClimateControlBlockEntity> extends AbstractContainerMenu
 {
+    public static final int BUTTON_TOGGLE_POWER = 4;
     protected final T blockEntity;
     private final int step;
 
@@ -42,7 +43,7 @@ public abstract class ClimateControlContainer<T extends ClimateControlBlockEntit
             case 1 -> blockEntity.adjustTarget(-step);
             case 2 -> blockEntity.adjustTarget(step);
             case 3 -> blockEntity.adjustTarget(5 * step);
-            case 4 -> blockEntity.setTarget(0);
+            case BUTTON_TOGGLE_POWER -> blockEntity.toggleEnabled();
             default -> {
                 return false;
             }

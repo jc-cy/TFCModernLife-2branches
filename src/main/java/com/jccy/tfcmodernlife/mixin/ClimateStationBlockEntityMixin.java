@@ -178,6 +178,12 @@ public abstract class ClimateStationBlockEntityMixin implements ClimateStationAc
     }
 
     @Override
+    public int tfcml$getManualTemperatureAdjustmentTenths()
+    {
+        return 0;
+    }
+
+    @Override
     public float tfcml$getEffectiveTemperature()
     {
         return tfcml$autoTemperature;

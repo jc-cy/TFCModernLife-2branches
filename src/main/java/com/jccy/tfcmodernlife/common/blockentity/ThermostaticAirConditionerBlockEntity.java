@@ -10,6 +10,7 @@ import com.jccy.tfcmodernlife.common.climate.GreenhouseTemperatureHelper;
 import com.jccy.tfcmodernlife.common.container.ThermostaticAirConditionerContainer;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -21,8 +22,12 @@ import org.jetbrains.annotations.Nullable;
 public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEntity
 {
     public static final int MAX_MANUAL_ADJUSTMENT = 70;
+    private static final int MIN_GREENHOUSE_SET_TEMPERATURE = -99;
+    private static final int MAX_GREENHOUSE_SET_TEMPERATURE = 99;
     private static final int BASE_CELLAR_TEMPERATURE = 0;
+    private static final String GREENHOUSE_SET_TEMPERATURE_MODE_KEY = "greenhouseSetTemperatureMode";
     @Nullable private ClimateStationAccess appliedStation;
+    private boolean greenhouseSetTemperatureInitialized;
 
     public ThermostaticAirConditionerBlockEntity(BlockPos pos, BlockState state)
     {
@@ -40,8 +45,9 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
         final GreenhouseStructureData data = station.tfcml$getGreenhouseStructureData();
         if (data != null)
         {
-            target = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustment(station, target);
-            return roundedEnergyUse(data.effectiveSpace(), data.tier().powerMultiplier(), Math.abs(target));
+            initializeGreenhouseSetTemperature(station);
+            target = clampGreenhouseSetTemperature(target);
+            return roundedEnergyUse(data.effectiveSpace(), data.tier().powerMultiplier(), Math.abs(getGreenhouseTargetAdjustment(station)));
         }
 
         final CellarStructureData cellarData = station.tfcml$getCellarStructureData();
@@ -66,7 +72,7 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
         {
             if (station.tfcml$getGreenhouseStructureData() != null)
             {
-                return GreenhouseTemperatureHelper.clampGreenhouseManualAdjustment(station, value);
+                return clampGreenhouseSetTemperature(value);
             }
             if (station.tfcml$getCellarStructureData() != null)
             {
@@ -89,7 +95,7 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
         {
             if (station.tfcml$getGreenhouseStructureData() != null)
             {
-                station.tfcml$setManualTemperatureAdjustment(target);
+                station.tfcml$setManualTemperatureAdjustmentTenths(getGreenhouseTargetAdjustmentTenths(station));
             }
             else if (station.tfcml$getCellarStructureData() != null)
             {
@@ -119,6 +125,27 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
         final float delta = running ? getControlTemperatureDelta() : 0f;
         final ClimateControlMode mode = delta > 0 ? ClimateControlMode.HEAT : delta < 0 ? ClimateControlMode.COLD : ClimateControlMode.IDLE;
         ThermostaticAirConditionerBlock.setMode(level, worldPosition, getBlockState(), running, mode);
+    }
+
+    @Override
+    protected void onStructureRefreshed()
+    {
+        final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getGreenhouseStructureData() != null)
+        {
+            initializeGreenhouseSetTemperature(station);
+        }
+    }
+
+    @Override
+    public void setTarget(int value)
+    {
+        final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getGreenhouseStructureData() != null)
+        {
+            greenhouseSetTemperatureInitialized = true;
+        }
+        super.setTarget(value);
     }
 
     @Override
@@ -218,11 +245,27 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
     @Override
     protected int getDisplayIndoorTemperature()
     {
+        final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getGreenhouseStructureData() != null)
+        {
+            return GreenhouseTemperatureHelper.toTenths(target);
+        }
         return GreenhouseTemperatureHelper.toTenths(getIndoorTemperature());
     }
 
     @Override
     protected int getDisplayBeforeTemperature()
+    {
+        final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getGreenhouseStructureData() != null)
+        {
+            return GreenhouseTemperatureHelper.toTenths(getIndoorTemperature());
+        }
+        return GreenhouseTemperatureHelper.toTenths(getBaseTemperature());
+    }
+
+    @Override
+    protected int getDisplayBaseTemperature()
     {
         return GreenhouseTemperatureHelper.toTenths(getBaseTemperature());
     }
@@ -237,6 +280,10 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
     protected int getDisplayMinimumTarget()
     {
         final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getGreenhouseStructureData() != null)
+        {
+            return MIN_GREENHOUSE_SET_TEMPERATURE;
+        }
         if (station != null && station.tfcml$getCellarStructureData() != null)
         {
             return GreenhouseTemperatureHelper.getMinimumAirConditionerCellarAdjustment(station, getBaseCellarTemperature());
@@ -251,7 +298,7 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
         final ClimateStationAccess station = findStation();
         if (station != null && station.tfcml$getGreenhouseStructureData() != null)
         {
-            return GreenhouseTemperatureHelper.getGreenhouseManualRange(station);
+            return MAX_GREENHOUSE_SET_TEMPERATURE;
         }
         if (station != null && station.tfcml$getCellarStructureData() != null)
         {
@@ -316,9 +363,18 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
     }
 
     @Override
+    protected int getDisplayControlRange()
+    {
+        final ClimateStationAccess station = findStation();
+        return station != null && station.tfcml$getGreenhouseStructureData() != null
+            ? GreenhouseTemperatureHelper.getGreenhouseManualRange(station)
+            : Math.max(Math.abs(getDisplayMinimumTarget()), Math.abs(getDisplayMaximumTarget()));
+    }
+
+    @Override
     protected void clearAppliedClimateControl()
     {
-        final ClimateStationAccess station = appliedStation != null ? appliedStation : target != 0 ? findStation() : null;
+        final ClimateStationAccess station = appliedStation != null ? appliedStation : findStation();
         if (station != null)
         {
             clearStation(station);
@@ -360,7 +416,56 @@ public class ThermostaticAirConditionerBlockEntity extends ClimateControlBlockEn
             final float before = getBaseCellarTemperature();
             return GreenhouseTemperatureHelper.getAirConditionerCellarTemperature(station, before, target) - before;
         }
-        return station.tfcml$getGreenhouseStructureData() != null ? target : 0;
+        return station.tfcml$getGreenhouseStructureData() != null ? getGreenhouseTargetAdjustment(station) : 0;
+    }
+
+    private float getGreenhouseTargetAdjustment(ClimateStationAccess station)
+    {
+        return GreenhouseTemperatureHelper.fromTenths(getGreenhouseTargetAdjustmentTenths(station));
+    }
+
+    private int getGreenhouseTargetAdjustmentTenths(ClimateStationAccess station)
+    {
+        return GreenhouseTemperatureHelper.getGreenhouseManualAdjustmentTowardTargetTenths(station, station.tfcml$getAutoTemperature(), target);
+    }
+
+    private static int clampGreenhouseSetTemperature(int value)
+    {
+        return Math.max(MIN_GREENHOUSE_SET_TEMPERATURE, Math.min(MAX_GREENHOUSE_SET_TEMPERATURE, value));
+    }
+
+    private void initializeGreenhouseSetTemperature(ClimateStationAccess station)
+    {
+        if (greenhouseSetTemperatureInitialized)
+        {
+            return;
+        }
+        target = clampGreenhouseSetTemperature(Math.round(station.tfcml$getAutoTemperature() + target));
+        greenhouseSetTemperatureInitialized = true;
+        setChanged();
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag)
+    {
+        super.saveAdditional(tag);
+        if (greenhouseSetTemperatureInitialized)
+        {
+            tag.putBoolean(GREENHOUSE_SET_TEMPERATURE_MODE_KEY, true);
+        }
+    }
+
+    @Override
+    public void load(CompoundTag tag)
+    {
+        super.load(tag);
+        greenhouseSetTemperatureInitialized = tag.getBoolean(GREENHOUSE_SET_TEMPERATURE_MODE_KEY);
+        final ClimateStationAccess station = findStation();
+        if (!greenhouseSetTemperatureInitialized && station != null && station.tfcml$getGreenhouseStructureData() != null)
+        {
+            target = clampGreenhouseSetTemperature(Math.round(station.tfcml$getAutoTemperature() + target));
+            greenhouseSetTemperatureInitialized = true;
+        }
     }
 
     private static void clearStation(ClimateStationAccess station)

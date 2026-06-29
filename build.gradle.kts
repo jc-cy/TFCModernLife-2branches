@@ -18,7 +18,7 @@ val immersiveEngineeringCurseVersion = "4782975"
 val patchouliVersion = "1.20.1-81-FORGE"
 
 val modId = "tfc_modern_life"
-val modVersion = System.getenv("VERSION") ?: "2.0.1"
+val modVersion = System.getenv("VERSION") ?: "1.0.0"
 val tfcSourceDir = "../TerraFirmaCraft-3.2.21-1.20"
 val configuredModsDir = "C:/Users/g1739/Desktop/PCL/.minecraft/versions/TerraFirmaFarHorizons/mods"
 
@@ -133,6 +133,7 @@ tasks.withType<ProcessResources>().configureEach {
 }
 
 tasks.processResources {
+    inputs.property("jarVersion", project.version)
     filesMatching("META-INF/mods.toml") {
         expand("file" to mapOf("jarVersion" to project.version))
     }
