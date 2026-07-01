@@ -1,6 +1,7 @@
 package com.jccy.tfcmodernlife.common.blockentity;
 
 import com.jccy.tfcmodernlife.common.ModBlocks;
+import com.jccy.tfcmodernlife.common.ModConfig;
 import com.jccy.tfcmodernlife.common.automation.AutomationFluidHandler;
 import com.jccy.tfcmodernlife.common.automation.AutomationItemHandler;
 import com.jccy.tfcmodernlife.common.automation.JarringStationAutomationBridge;
@@ -76,7 +77,6 @@ public class ElectricSoupPotBlockEntity extends TickableInventoryBlockEntity<Ele
     public static final int SPEED_MULTIPLIER = 4;
     public static final int ENERGY_CAPACITY = 16000;
     public static final int ENERGY_MAX_IO = 256;
-    public static final int ENERGY_PER_TICK = 20;
     public static final int MAX_TEMPERATURE = 800;
     private static final int SUGAR_WATER_AMOUNT = 500;
     private static final int SUGAR_WATER_PER_JAM = 100;
@@ -247,11 +247,12 @@ public class ElectricSoupPotBlockEntity extends TickableInventoryBlockEntity<Ele
         }
 
         final boolean wasPowered = getBlockState().getValue(com.jccy.tfcmodernlife.common.block.ElectricSoupPotBlock.POWERED);
-        final boolean shouldPower = targetTemperature > 0 && energyStorage.getEnergyStored() >= ENERGY_PER_TICK;
+        final int energyPerTick = getEnergyPerTick();
+        final boolean shouldPower = targetTemperature > 0 && energyStorage.getEnergyStored() >= energyPerTick;
 
-        if (shouldPower)
+        if (shouldPower && energyPerTick > 0)
         {
-            energyStorage.extractEnergy(ENERGY_PER_TICK, false);
+            energyStorage.extractEnergy(energyPerTick, false);
         }
 
         if (wasPowered != shouldPower)
@@ -815,6 +816,11 @@ public class ElectricSoupPotBlockEntity extends TickableInventoryBlockEntity<Ele
     public EnergyStorage getEnergyStorage()
     {
         return energyStorage;
+    }
+
+    public static int getEnergyPerTick()
+    {
+        return ModConfig.ELECTRIC_SOUP_POT_ENERGY_PER_TICK.get();
     }
 
     public float getTemperature()

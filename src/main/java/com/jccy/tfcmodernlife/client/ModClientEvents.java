@@ -37,6 +37,8 @@ public final class ModClientEvents
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.ELECTRIC_SOUP_POT.get(), RenderType.cutout());
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.THERMOSTATIC_AIR_CONDITIONER.get(), RenderType.cutout());
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.REFRIGERATOR.get(), RenderType.cutout());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.STAINLESS_STEEL_REINFORCED_SEALED_BRICK_DOOR.get(), RenderType.cutout());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.STAINLESS_STEEL_REINFORCED_SEALED_BRICK_TRAPDOOR.get(), RenderType.cutout());
         });
     }
 

@@ -4,6 +4,7 @@ import com.eerussianguy.firmalife.common.blockentities.ClimateType;
 import com.eerussianguy.firmalife.common.blockentities.ClimateReceiver;
 import com.jccy.tfcmodernlife.common.climate.CellarPreservationHelper;
 import com.jccy.tfcmodernlife.common.climate.CellarStructureData;
+import com.jccy.tfcmodernlife.common.climate.ClimateControlConfig;
 import com.jccy.tfcmodernlife.common.climate.ClimateStationAccess;
 import com.jccy.tfcmodernlife.common.climate.ClimateStationRegistry;
 import com.jccy.tfcmodernlife.common.climate.ConfiguredCellarDetector;
@@ -45,8 +46,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     public static final int ENERGY_CAPACITY = 4_000_000;
     public static final int ENERGY_MAX_INPUT = 4096;
     public static final int START_ENERGY_THRESHOLD = ENERGY_CAPACITY / 4;
-    private static final int MIN_ENERGY_USE = 20;
-    private static final float ENERGY_USE_SCALE = 0.001f;
+    protected static final int NO_CONTROL_NEEDED = -1;
     public static final int DATA_TARGET = 0;
     public static final int DATA_ENERGY = 1;
     public static final int DATA_RUNNING = 2;
@@ -228,8 +228,9 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         final int previousEnergyUse = energyPerTick;
         final boolean wasRunning = running;
 
-        energyPerTick = enabled ? calculateEnergyUse() : 0;
-        running = energyPerTick > 0 && hasEnoughEnergyToRun(energyPerTick);
+        final int requiredEnergy = enabled ? calculateEnergyUse() : NO_CONTROL_NEEDED;
+        energyPerTick = Math.max(0, requiredEnergy);
+        running = requiredEnergy >= 0 && hasEnoughEnergyToRun(energyPerTick);
         if (running)
         {
             energyStorage.consumeEnergy(energyPerTick);
@@ -337,8 +338,21 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         return data.tier().ordinal() + 1;
     }
 
+    protected int getCellarDisplayTier(CellarStructureData data)
+    {
+        if (data.mixedThermalWalls())
+        {
+            return 3;
+        }
+        return data.tier() == com.jccy.tfcmodernlife.common.climate.CellarTier.STAINLESS_STEEL_REINFORCED ? 2 : 1;
+    }
+
     private boolean hasEnoughEnergyToRun(int requiredEnergy)
     {
+        if (requiredEnergy <= 0)
+        {
+            return true;
+        }
         final int stored = energyStorage.getEnergyStored();
         if (stored < requiredEnergy)
         {
@@ -349,11 +363,13 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
 
     protected int roundedEnergyUse(int effectiveSpace, float multiplier, float temperatureDelta)
     {
-        if (effectiveSpace <= 0 || multiplier <= 0 || temperatureDelta <= 0)
+        if (effectiveSpace <= 0 || temperatureDelta <= 0)
         {
-            return 0;
+            return NO_CONTROL_NEEDED;
         }
-        return Math.max(MIN_ENERGY_USE, Math.round(effectiveSpace * multiplier * temperatureDelta * ENERGY_USE_SCALE));
+        final int calculated = Math.round((float) (effectiveSpace * multiplier * temperatureDelta * ClimateControlConfig.CLIMATE_CONTROL_ENERGY_USE_SCALE.get()));
+        final int minimum = ClimateControlConfig.CLIMATE_CONTROL_MIN_ENERGY_USE.get();
+        return minimum <= 0 ? calculated : Math.max(minimum, calculated);
     }
 
     public void refreshStructure(boolean force)

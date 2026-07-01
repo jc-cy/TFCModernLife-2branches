@@ -12,16 +12,16 @@ description = '''
 TFC Modern Life / 群峦现代化生活
 注：本模组是 FirmalifeEnhance / firmalife 增强 与 TFC Electric Cooking / 群峦电力烹饪 的合并重置版，请勿与这两个旧模组同时安装。
 
-面向 TerraFirmaCraft 中后期流程的现代化生活扩展，包含电热烤箱、电热高压锅、电力温室控温、电力冷库保鲜、地窖保鲜兼容和温室建材拆解。
+面向 TerraFirmaCraft 中后期流程的现代化生活扩展，包含电热烤箱、电热高压锅、温室用的恒温空调、地窖/冷库用的制冷器、新的不锈钢强化冷库和温室建材拆解。
 
-全设备结构参数功能介绍.
+功能与参数概览
 
-电力厨房
+电力厨房-电热烤箱和电热高压锅
 - 电热烤箱: 6 输入槽，兼容 TFC 加热配方与 FirmaLife 烤箱配方。
 - 电热高压锅: 5 输入槽，支持锅类配方、糖水、糖水果酱和流体显示。
 - 储能: 16000 FE。
 - 最大输入 / 输出: 256 FE/t。
-- 基础耗电: 20 FE/t。
+- 基础耗电: 默认 20 FE/t，可在配置文件修改。
 - 温度范围: 0 ~ 800°C。
 - 通电升温: 每 tick 向目标温度靠近 3°C。
 - 断电降温: 每 tick 降低 1.5°C。
@@ -31,8 +31,9 @@ TFC Modern Life / 群峦现代化生活
 - 500 mB 水 + 1 个甜味剂 -> 500 mB 糖水。
 - 糖水 + 单类水果 -> 果酱，每份果酱消耗 100 mB 糖水。
 - FirmaLife 装罐台已优化且可正对电热高压锅自动装取果酱。
+- 高度支持自动化，高压锅支持流体输入输出和装罐台输出，烤箱只输出成品.
 
-电力温室
+电力温室-恒温空调
 - 气象站保留结构刷新和每日 8:00 自动控温。
 - 恒温空调是上位气象站。
 - 木质温室: 耗电倍率 1.3x，恒温空调手动范围 ±5°C，气象站自动范围 ±3°C。
@@ -42,12 +43,14 @@ TFC Modern Life / 群峦现代化生活
 - 混合温室按保温墙数量加权计算等级。
 - 控温后温度会影响普通作物、耕地温度提示、FirmaLife 蜂箱、TFE 香蕉、TFE 浆果和 TFE 果树树苗等温度判断。
 
-电力冷库
-- 制冷器用于地窖 / 冷库降温，只能降温，不提供升温。
-- 恒温空调可在冷库中进行普通升降温，范围 ±10°C，但降温侧不能突破冷库等级下限。
-- 密封砖冷库: 耗电倍率 1.2x，最低 -6°C，对应 3x 保鲜。
-- 锻铁冷库: 耗电倍率 1.1x，最低 -21°C，对应 6x 保鲜。
-- 不锈钢冷库: 耗电倍率 1.0x，最低 -30°C，对应 10x 保鲜。
+电力冷库-制冷器
+- 冷库结构材料现在为密封砖与不锈钢强化密封砖两档；不锈钢强化档显示为“不锈钢强化冷库”。
+- 制冷器用于地窖 / 冷库降温，在冷库内保存固定设定温度，只降温，不升温。
+- 恒温空调可在冷库中升温或降温，调节范围为当前自然温度 ±10°C，但降温侧不能突破冷库等级下限。
+- 自然温度已经低于冷库等级下限时，制冷器不会把低温反向抬高到结构下限。
+- 密封砖 / 不锈钢强化密封砖 + 气象站: 无耗电，无主动控温，以自然温度为准。
+- 密封砖 + 制冷器: 耗电倍率 1.1x，最低 -15°C，对应 4.5x 保鲜。
+- 不锈钢强化密封砖 + 制冷器: 耗电倍率 1.0x，最低 -30°C，对应 10x 保鲜。
 - 混合冷库最低温度按热墙材料数量加权平均；耗电倍率取数量最多的材料等级，打平时取耗电倍率更高的一档。
 - 保鲜倍率按实际冷库温度计算: >=0°C 为 2x，<0°C 为 2.5x，<=-6°C 为 3x，<=-9°C 为 3.5x，<=-12°C 为 4x，<=-15°C 为 4.5x，<=-18°C 为 5x，<=-21°C 为 6x，<=-24°C 为 7x，<=-27°C 为 8.5x，<=-30°C 为 10x。
 - 支持 FirmaLife 食物架、TFC 箱子、Immersive Engineering 木制储物箱 / 强化储物箱等容器的地窖保鲜同步与清理。
@@ -57,8 +60,8 @@ TFC Modern Life / 群峦现代化生活
 - 储能: 4000000 FE。
 - 最大输入: 4096 FE/t。
 - 启动阈值: 电量大于 25%，即 1000000 FE。
-- 耗电公式: round(有效空间 * 等级耗电倍率 * 温差 * 0.001)。
-- 最低运行耗电: 有控温需求时至少 20 FE/t。
+- 耗电公式: round(有效空间 * 等级耗电倍率 * 温差 * 0.001)，其中的常数和各等级耗电倍率可以配置文件修改。
+- 最低运行耗电: 有控温需求时默认至少 20 FE/t，可在配置文件修改。
 - GUI 调节步长: -5 / -1 / +1 / +5°C。
 - 只消耗 FE，不输出电力；挖下后保留电量。
 
@@ -76,16 +79,16 @@ TFC Modern Life / 群峦现代化生活
 English Summary
 Note: This mod is a merged reset of FirmalifeEnhance / firmalife enhancement and TFC Electric Cooking / electric cooking. Do not install it together with those two old mods.
 
-A mid-to-late-game modern life expansion for TerraFirmaCraft. It includes the Electric Oven, Electric Soup Pot, powered greenhouse climate control, powered cold cellar preservation, cellar preservation compatibility, and greenhouse material disassembly.
+A mid-to-late-game modern life expansion for TerraFirmaCraft. It includes the Electric Oven, Electric Soup Pot, the Thermostatic Air Conditioner for greenhouses, the Refrigerator for cellars / cold storage, new stainless steel reinforced cold storage, and greenhouse material disassembly.
 
-Feature and parameter overview.
+Feature and parameter overview
 
-Electric Kitchen
+Electric Kitchen - Electric Oven and Electric Soup Pot
 - Electric Oven: 6 input slots, compatible with TFC heating recipes and FirmaLife oven recipes.
 - Electric Soup Pot: 5 input slots, supports pot recipes, sugar water, sugar-water jam, and fluid display.
 - Energy capacity: 16000 FE.
 - Max input / output: 256 FE/t.
-- Base energy cost: 20 FE/t.
+- Base energy cost: 20 FE/t by default, configurable.
 - Temperature range: 0 ~ 800°C.
 - Powered heating: moves toward the target temperature by 3°C per tick.
 - Unpowered cooling: cools down by 1.5°C per tick.
@@ -95,8 +98,9 @@ Electric Kitchen
 - 500 mB water + 1 sweetener -> 500 mB sugar water.
 - Sugar water + one fruit type -> jam; each jam serving consumes 100 mB sugar water.
 - FirmaLife jarring stations are optimized and can automatically jar jam from a facing Electric Soup Pot.
+- Strong automation support: the soup pot supports fluid input / output and output to jarring stations, while the oven only outputs finished products.
 
-Powered Greenhouse
+Powered Greenhouse - Thermostatic Air Conditioner
 - Climate Stations keep structure refresh and daily automatic climate control at 8:00.
 - The Thermostatic Air Conditioner is an advanced climate station.
 - Treated wood greenhouse: power multiplier 1.3x, air conditioner manual range ±5°C, climate station auto range ±3°C.
@@ -106,14 +110,16 @@ Powered Greenhouse
 - Mixed greenhouses calculate their tier by weighted greenhouse wall counts.
 - Controlled temperature affects normal crops, farmland temperature tooltips, FirmaLife beehives, TFE bananas, TFE berries, and TFE fruit tree saplings.
 
-Powered Cold Cellar
-- The Refrigerator cools cellar / cold-storage structures only; it does not heat.
-- The Thermostatic Air Conditioner can heat or cool in cold cellars within ±10°C, but cooling cannot go below the cellar tier limit.
-- Sealed brick cold cellar: power multiplier 1.2x, minimum -6°C, corresponding preservation 3x.
-- Wrought iron cold cellar: power multiplier 1.1x, minimum -21°C, corresponding preservation 6x.
-- Stainless steel cold cellar: power multiplier 1.0x, minimum -30°C, corresponding preservation 10x.
-- Mixed cold cellars average the minimum temperature by thermal wall counts; power multiplier uses the most common material tier, with ties using the higher-cost tier.
-- Preservation is based on actual cold cellar temperature: >=0°C is 2x, <0°C is 2.5x, <=-6°C is 3x, <=-9°C is 3.5x, <=-12°C is 4x, <=-15°C is 4.5x, <=-18°C is 5x, <=-21°C is 6x, <=-24°C is 7x, <=-27°C is 8.5x, <=-30°C is 10x.
+Powered Cold Storage - Refrigerator
+- Cold storage structures now use two material tiers: sealed bricks and stainless steel reinforced sealed bricks. The reinforced tier is displayed as Stainless Steel Reinforced Cold Storage.
+- The Refrigerator cools cellar / cold-storage structures only. In cold storage it stores a fixed target temperature and never heats.
+- The Thermostatic Air Conditioner can heat or cool in cold storage within current natural temperature ±10°C, but cooling cannot go below the structure tier limit.
+- If natural temperature is already below the structure tier limit, the Refrigerator will not raise it back up to that limit.
+- Sealed bricks / stainless steel reinforced sealed bricks with a climate station: no power use and no active temperature control; uses natural temperature.
+- Sealed bricks with Refrigerator: power multiplier 1.1x, minimum -15°C, corresponding preservation 4.5x.
+- Stainless steel reinforced sealed bricks with Refrigerator: power multiplier 1.0x, minimum -30°C, corresponding preservation 10x.
+- Mixed cold storage structures average the minimum temperature by thermal wall counts; power multiplier uses the most common material tier, with ties using the higher-cost tier.
+- Preservation is based on actual cold storage temperature: >=0°C is 2x, <0°C is 2.5x, <=-6°C is 3x, <=-9°C is 3.5x, <=-12°C is 4x, <=-15°C is 4.5x, <=-18°C is 5x, <=-21°C is 6x, <=-24°C is 7x, <=-27°C is 8.5x, <=-30°C is 10x.
 - Supports cellar preservation sync and cleanup for FirmaLife food shelves, TFC chests, and Immersive Engineering wooden / reinforced crates.
 
 Climate Control Device Parameters
@@ -121,8 +127,8 @@ Climate Control Device Parameters
 - Energy capacity: 4000000 FE.
 - Max input: 4096 FE/t.
 - Start threshold: energy must be above 25%, equal to 1000000 FE.
-- Energy formula: round(effective space * tier power multiplier * temperature delta * 0.001).
-- Minimum running cost: at least 20 FE/t when climate control is needed.
+- Energy formula: round(effective space * tier power multiplier * temperature delta * 0.001); the constant and tier power multipliers are configurable.
+- Minimum running cost: at least 20 FE/t by default when climate control is needed, configurable.
 - GUI adjustment steps: -5 / -1 / +1 / +5°C.
 - Devices consume FE only, do not output power, and keep stored energy when broken.
 

@@ -10,9 +10,15 @@ import com.jccy.tfcmodernlife.common.blockentity.ElectricSoupPotBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.RefrigeratorBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.ThermostaticAirConditionerBlockEntity;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -28,6 +34,12 @@ public final class ModBlocks
     public static final RegistryObject<ElectricSoupPotBlock> ELECTRIC_SOUP_POT = BLOCKS.register("electric_soup_pot", ElectricSoupPotBlock::new);
     public static final RegistryObject<ThermostaticAirConditionerBlock> THERMOSTATIC_AIR_CONDITIONER = BLOCKS.register("thermostatic_air_conditioner", ThermostaticAirConditionerBlock::new);
     public static final RegistryObject<RefrigeratorBlock> REFRIGERATOR = BLOCKS.register("refrigerator", RefrigeratorBlock::new);
+    public static final RegistryObject<Block> STAINLESS_STEEL_REINFORCED_SEALED_BRICKS = BLOCKS.register("stainless_steel_reinforced_sealed_bricks",
+        () -> new Block(reinforcedSealedBrickProperties()));
+    public static final RegistryObject<DoorBlock> STAINLESS_STEEL_REINFORCED_SEALED_BRICK_DOOR = BLOCKS.register("stainless_steel_reinforced_sealed_brick_door",
+        () -> new DoorBlock(reinforcedSealedBrickProperties().noOcclusion(), BlockSetType.OAK));
+    public static final RegistryObject<TrapDoorBlock> STAINLESS_STEEL_REINFORCED_SEALED_BRICK_TRAPDOOR = BLOCKS.register("stainless_steel_reinforced_sealed_brick_trapdoor",
+        () -> new TrapDoorBlock(reinforcedSealedBrickProperties().noOcclusion(), BlockSetType.OAK));
 
     public static final RegistryObject<BlockItem> ELECTRIC_OVEN_ITEM = ITEMS.register("electric_oven",
         () -> new BlockItem(ELECTRIC_OVEN.get(), new Item.Properties()));
@@ -37,6 +49,12 @@ public final class ModBlocks
         () -> new BlockItem(THERMOSTATIC_AIR_CONDITIONER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> REFRIGERATOR_ITEM = ITEMS.register("refrigerator",
         () -> new BlockItem(REFRIGERATOR.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> STAINLESS_STEEL_REINFORCED_SEALED_BRICKS_ITEM = ITEMS.register("stainless_steel_reinforced_sealed_bricks",
+        () -> new BlockItem(STAINLESS_STEEL_REINFORCED_SEALED_BRICKS.get(), new Item.Properties()));
+    public static final RegistryObject<DoubleHighBlockItem> STAINLESS_STEEL_REINFORCED_SEALED_BRICK_DOOR_ITEM = ITEMS.register("stainless_steel_reinforced_sealed_brick_door",
+        () -> new DoubleHighBlockItem(STAINLESS_STEEL_REINFORCED_SEALED_BRICK_DOOR.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> STAINLESS_STEEL_REINFORCED_SEALED_BRICK_TRAPDOOR_ITEM = ITEMS.register("stainless_steel_reinforced_sealed_brick_trapdoor",
+        () -> new BlockItem(STAINLESS_STEEL_REINFORCED_SEALED_BRICK_TRAPDOOR.get(), new Item.Properties()));
 
     @SuppressWarnings("ConstantConditions")
     public static final RegistryObject<BlockEntityType<ElectricOvenBlockEntity>> ELECTRIC_OVEN_BLOCK_ENTITY = BLOCK_ENTITIES.register("electric_oven",
@@ -55,6 +73,14 @@ public final class ModBlocks
         () -> BlockEntityType.Builder.of(RefrigeratorBlockEntity::new, REFRIGERATOR.get()).build(null));
 
     private ModBlocks() {}
+
+    private static BlockBehaviour.Properties reinforcedSealedBrickProperties()
+    {
+        return BlockBehaviour.Properties.of()
+            .mapColor(MapColor.METAL)
+            .strength(5.0f, 10.0f)
+            .requiresCorrectToolForDrops();
+    }
 
     public static void register(IEventBus bus)
     {

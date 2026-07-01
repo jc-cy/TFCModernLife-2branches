@@ -1,6 +1,7 @@
 package com.jccy.tfcmodernlife.common.blockentity;
 
 import com.jccy.tfcmodernlife.common.ModBlocks;
+import com.jccy.tfcmodernlife.common.ModConfig;
 import com.jccy.tfcmodernlife.common.ModFoodTraits;
 import com.jccy.tfcmodernlife.common.automation.AutomationItemHandler;
 import com.jccy.tfcmodernlife.common.container.ElectricOvenContainer;
@@ -35,7 +36,6 @@ public class ElectricOvenBlockEntity extends TickableInventoryBlockEntity<Invent
     public static final int SLOTS = 6;
     public static final int ENERGY_CAPACITY = 16000;
     public static final int ENERGY_MAX_IO = 256;
-    public static final int ENERGY_PER_TICK = 20;
     public static final int MAX_TEMPERATURE = 800;
 
     private final EnergyStorage energyStorage = new EnergyStorage(ENERGY_CAPACITY, ENERGY_MAX_IO, ENERGY_MAX_IO, 0)
@@ -154,11 +154,12 @@ public class ElectricOvenBlockEntity extends TickableInventoryBlockEntity<Invent
         }
 
         final boolean wasPowered = getBlockState().getValue(com.jccy.tfcmodernlife.common.block.ElectricOvenBlock.POWERED);
-        final boolean shouldPower = targetTemperature > 0 && energyStorage.getEnergyStored() >= ENERGY_PER_TICK;
+        final int energyPerTick = getEnergyPerTick();
+        final boolean shouldPower = targetTemperature > 0 && energyStorage.getEnergyStored() >= energyPerTick;
 
-        if (shouldPower)
+        if (shouldPower && energyPerTick > 0)
         {
-            energyStorage.extractEnergy(ENERGY_PER_TICK, false);
+            energyStorage.extractEnergy(energyPerTick, false);
         }
 
         if (wasPowered != shouldPower)
@@ -245,6 +246,11 @@ public class ElectricOvenBlockEntity extends TickableInventoryBlockEntity<Invent
     public EnergyStorage getEnergyStorage()
     {
         return energyStorage;
+    }
+
+    public static int getEnergyPerTick()
+    {
+        return ModConfig.ELECTRIC_OVEN_ENERGY_PER_TICK.get();
     }
 
     public float getTemperature()

@@ -188,6 +188,18 @@ public final class GreenhouseTemperatureHelper
         return Mth.clamp(deltaTenths, -rangeTenths, rangeTenths);
     }
 
+    public static int getCellarCoolingAdjustmentTowardTarget(@Nullable ClimateStationAccess station, float baseTemperature, int targetTemperature)
+    {
+        final int targetAdjustment = toTenths(targetTemperature) - toTenths(baseTemperature);
+        return clampCellarCoolingAdjustment(station, baseTemperature, targetAdjustment);
+    }
+
+    public static int getAirConditionerCellarAdjustmentTowardTarget(@Nullable ClimateStationAccess station, float baseTemperature, int targetTemperature)
+    {
+        final int targetAdjustment = getManualAdjustmentTowardTargetTenths(baseTemperature, targetTemperature, DEFAULT_MANUAL_RANGE);
+        return clampAirConditionerCellarAdjustment(station, baseTemperature, targetAdjustment);
+    }
+
     public static float getGreenhouseTemperatureTowardTarget(@Nullable ClimateStationAccess station, float baseTemperature, int targetTemperature)
     {
         return clampTemperature(fromTenths(toTenths(baseTemperature) + getGreenhouseManualAdjustmentTowardTargetTenths(station, baseTemperature, targetTemperature)));
@@ -195,7 +207,8 @@ public final class GreenhouseTemperatureHelper
 
     public static int clampAirConditionerCellarTarget(@Nullable ClimateStationAccess station, int temperature)
     {
-        return Mth.clamp(temperature, -DEFAULT_MANUAL_RANGE, DEFAULT_MANUAL_RANGE);
+        final int rangeTenths = DEFAULT_MANUAL_RANGE * TEMPERATURE_SCALE;
+        return Mth.clamp(temperature, -rangeTenths, rangeTenths);
     }
 
     public static int clampCoolingGreenhouseManualAdjustment(@Nullable ClimateStationAccess station, int adjustment)
@@ -213,13 +226,14 @@ public final class GreenhouseTemperatureHelper
     public static int getMinimumCellarCoolingAdjustment(@Nullable ClimateStationAccess station, float baseTemperature)
     {
         final float minimumTemperature = getCellarMinimumTemperature(station);
-        return baseTemperature <= minimumTemperature ? 0 : Math.min(0, (int) Math.ceil(minimumTemperature - baseTemperature));
+        return baseTemperature <= minimumTemperature ? 0 : Math.min(0, toTenths(minimumTemperature) - toTenths(baseTemperature));
     }
 
     public static int getMinimumAirConditionerCellarAdjustment(@Nullable ClimateStationAccess station, float baseTemperature)
     {
         final float minimumTemperature = getCellarMinimumTemperature(station);
-        return baseTemperature <= minimumTemperature ? 0 : Math.max(-DEFAULT_MANUAL_RANGE, (int) Math.ceil(minimumTemperature - baseTemperature));
+        final int rangeTenths = DEFAULT_MANUAL_RANGE * TEMPERATURE_SCALE;
+        return baseTemperature <= minimumTemperature ? 0 : Math.max(-rangeTenths, toTenths(minimumTemperature) - toTenths(baseTemperature));
     }
 
     public static int clampCellarCoolingAdjustment(@Nullable ClimateStationAccess station, float baseTemperature, int adjustment)
@@ -229,12 +243,12 @@ public final class GreenhouseTemperatureHelper
 
     public static int clampAirConditionerCellarAdjustment(@Nullable ClimateStationAccess station, float baseTemperature, int adjustment)
     {
-        return Mth.clamp(adjustment, getMinimumAirConditionerCellarAdjustment(station, baseTemperature), DEFAULT_MANUAL_RANGE);
+        return Mth.clamp(adjustment, getMinimumAirConditionerCellarAdjustment(station, baseTemperature), DEFAULT_MANUAL_RANGE * TEMPERATURE_SCALE);
     }
 
     public static float getEffectiveCellarTemperature(@Nullable ClimateStationAccess station, float baseTemperature, int adjustment)
     {
-        return baseTemperature + clampCellarCoolingAdjustment(station, baseTemperature, adjustment);
+        return fromTenths(toTenths(baseTemperature) + clampCellarCoolingAdjustment(station, baseTemperature, adjustment));
     }
 
     public static float getCellarTemperatureDelta(@Nullable ClimateStationAccess station, float baseTemperature, int adjustment)
@@ -244,7 +258,7 @@ public final class GreenhouseTemperatureHelper
 
     public static float getAirConditionerCellarTemperature(@Nullable ClimateStationAccess station, float baseTemperature, int adjustment)
     {
-        return baseTemperature + clampAirConditionerCellarAdjustment(station, baseTemperature, adjustment);
+        return fromTenths(toTenths(baseTemperature) + clampAirConditionerCellarAdjustment(station, baseTemperature, adjustment));
     }
 
     public static float getAirConditionerCellarTemperatureDelta(@Nullable ClimateStationAccess station, float baseTemperature, int adjustment)

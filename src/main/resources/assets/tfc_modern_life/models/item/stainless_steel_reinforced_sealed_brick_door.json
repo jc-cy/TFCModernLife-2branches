@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "tfc_modern_life:item/stainless_steel_reinforced_sealed_brick_door"
+  }
+}

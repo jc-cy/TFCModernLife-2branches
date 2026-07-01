@@ -41,6 +41,14 @@ public final class ClimateControlConfig
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> CELLAR_SEAL_ONLY_WALLS;
     public static ForgeConfigSpec.DoubleValue CELLAR_MINIMUM_THERMAL_COVERAGE;
     public static ForgeConfigSpec.DoubleValue CELLAR_RADIUS_MULTIPLIER;
+    public static ForgeConfigSpec.IntValue CLIMATE_CONTROL_MIN_ENERGY_USE;
+    public static ForgeConfigSpec.DoubleValue CLIMATE_CONTROL_ENERGY_USE_SCALE;
+    public static ForgeConfigSpec.DoubleValue GREENHOUSE_WOOD_POWER_MULTIPLIER;
+    public static ForgeConfigSpec.DoubleValue GREENHOUSE_COPPER_POWER_MULTIPLIER;
+    public static ForgeConfigSpec.DoubleValue GREENHOUSE_IRON_POWER_MULTIPLIER;
+    public static ForgeConfigSpec.DoubleValue GREENHOUSE_STAINLESS_STEEL_POWER_MULTIPLIER;
+    public static ForgeConfigSpec.DoubleValue CELLAR_SEALED_BRICK_POWER_MULTIPLIER;
+    public static ForgeConfigSpec.DoubleValue CELLAR_STAINLESS_STEEL_REINFORCED_POWER_MULTIPLIER;
 
     private static volatile GreenhouseRuleSet greenhouseRuleSet = GreenhouseRuleSet.empty();
     private static volatile CellarRuleSet cellarRuleSet = CellarRuleSet.empty();
@@ -80,7 +88,7 @@ public final class ClimateControlConfig
             .comment("Multiplier applied to FirmaLife cellar search radius.")
             .defineInRange("cellarRadiusMultiplier", 2.0d, 0.1d, 16.0d);
         CELLAR_THERMAL_WALLS = builder
-            .comment("Insulated cellar wall rules. Format: block_or_tag=sealed_brick|wrought_iron|stainless_steel.")
+            .comment("Insulated cellar wall rules. Format: block_or_tag=sealed_brick|stainless_steel_reinforced.")
             .defineListAllowEmpty(List.of("cellarThermalWalls"), ClimateControlConfig::defaultCellarThermalWalls, value -> value instanceof String);
         CELLAR_SEAL_ONLY_WALLS = builder
             .comment("Blocks or tags that seal cellars but do not provide a tier.")
@@ -88,6 +96,33 @@ public final class ClimateControlConfig
         CELLAR_MINIMUM_THERMAL_COVERAGE = builder
             .comment("Minimum insulated shell coverage for a cellar.")
             .defineInRange("cellarMinimumThermalCoverage", 0.95d, 0d, 1d);
+        builder.pop();
+
+        builder.push("power");
+        CLIMATE_CONTROL_MIN_ENERGY_USE = builder
+            .comment("Minimum FE/t consumed by Thermostatic Air Conditioners and Refrigerators when active climate control is needed. Set to 0 to disable the minimum.")
+            .defineInRange("climateControlMinEnergyUse", 20, 0, 1_000_000);
+        CLIMATE_CONTROL_ENERGY_USE_SCALE = builder
+            .comment("Constant used by Thermostatic Air Conditioners and Refrigerators: FE/t = round(effectiveSpace * tierPowerMultiplier * temperatureDelta * this value).")
+            .defineInRange("climateControlEnergyUseScale", 0.001d, 0d, 1_000d);
+        GREENHOUSE_WOOD_POWER_MULTIPLIER = builder
+            .comment("Power multiplier for treated wood greenhouse climate control.")
+            .defineInRange("greenhouseWoodPowerMultiplier", 1.3d, 0d, 1_000d);
+        GREENHOUSE_COPPER_POWER_MULTIPLIER = builder
+            .comment("Power multiplier for copper greenhouse climate control.")
+            .defineInRange("greenhouseCopperPowerMultiplier", 1.2d, 0d, 1_000d);
+        GREENHOUSE_IRON_POWER_MULTIPLIER = builder
+            .comment("Power multiplier for iron greenhouse climate control.")
+            .defineInRange("greenhouseIronPowerMultiplier", 1.1d, 0d, 1_000d);
+        GREENHOUSE_STAINLESS_STEEL_POWER_MULTIPLIER = builder
+            .comment("Power multiplier for stainless steel greenhouse climate control.")
+            .defineInRange("greenhouseStainlessSteelPowerMultiplier", 1.0d, 0d, 1_000d);
+        CELLAR_SEALED_BRICK_POWER_MULTIPLIER = builder
+            .comment("Power multiplier for sealed brick cold storage climate control.")
+            .defineInRange("cellarSealedBrickPowerMultiplier", 1.1d, 0d, 1_000d);
+        CELLAR_STAINLESS_STEEL_REINFORCED_POWER_MULTIPLIER = builder
+            .comment("Power multiplier for stainless steel reinforced cold storage climate control.")
+            .defineInRange("cellarStainlessSteelReinforcedPowerMultiplier", 1.0d, 0d, 1_000d);
         builder.pop();
 
         builder.pop();
@@ -153,6 +188,33 @@ public final class ClimateControlConfig
     {
         final ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
         return THERMOSTATIC_AIR_CONDITIONER_ID.equals(key) || REFRIGERATOR_ID.equals(key);
+    }
+
+    public static float getGreenhousePowerMultiplier(GreenhouseTier tier)
+    {
+        final double value = switch (tier)
+        {
+            case WOOD -> configValue(GREENHOUSE_WOOD_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+            case COPPER -> configValue(GREENHOUSE_COPPER_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+            case IRON -> configValue(GREENHOUSE_IRON_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+            case STAINLESS_STEEL -> configValue(GREENHOUSE_STAINLESS_STEEL_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+        };
+        return (float) value;
+    }
+
+    public static float getCellarPowerMultiplier(CellarTier tier)
+    {
+        final double value = switch (tier)
+        {
+            case SEALED_BRICK -> configValue(CELLAR_SEALED_BRICK_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+            case STAINLESS_STEEL_REINFORCED -> configValue(CELLAR_STAINLESS_STEEL_REINFORCED_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+        };
+        return (float) value;
+    }
+
+    private static double configValue(@Nullable ForgeConfigSpec.DoubleValue value, double fallback)
+    {
+        return value != null ? value.get() : fallback;
     }
 
     private static GreenhouseRuleSet parseGreenhouseRuleSet()
@@ -239,7 +301,14 @@ public final class ClimateControlConfig
             {
                 continue;
             }
-            parsed.add(new CellarWallDefinition(CellarTier.byId(entry.substring(separator + 1).trim()), matcher));
+            final String tierId = entry.substring(separator + 1).trim();
+            final CellarTier tier = CellarTier.byConfigId(tierId);
+            if (tier == null)
+            {
+                LOGGER.warn("Ignoring invalid cellar wall rule '{}': unknown tier '{}'", entry, tierId);
+                continue;
+            }
+            parsed.add(new CellarWallDefinition(tier, matcher));
         }
         return parsed;
     }
@@ -350,10 +419,7 @@ public final class ClimateControlConfig
     {
         return List.of(
             "#firmalife:cellar_insulation=sealed_brick",
-            "#tfc_modern_life:wrought_iron_cellar=wrought_iron",
-            "#tfc_modern_life:stainless_steel_cellar=stainless_steel",
-            "tfc:metal/block/wrought_iron=wrought_iron",
-            "firmalife:metal/block/stainless_steel=stainless_steel"
+            "#tfc_modern_life:stainless_steel_reinforced_cellar=stainless_steel_reinforced"
         );
     }
 

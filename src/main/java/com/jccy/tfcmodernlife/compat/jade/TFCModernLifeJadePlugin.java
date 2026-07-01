@@ -265,7 +265,7 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 {
                     effectiveSpace = airConditioner.getConnectedEffectiveSpace();
                     indoorTemperatureTenths = GreenhouseTemperatureHelper.toTenths(airConditioner.getIndoorTemperature());
-                    hasSetTemperature = structureType == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE;
+                    hasSetTemperature = structureType == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE || structureType == ClimateControlBlockEntity.STRUCTURE_CELLAR;
                     setTemperatureTenths = hasSetTemperature ? GreenhouseTemperatureHelper.toTenths(airConditioner.getTarget()) : 0;
                     preservationMultiplier = airConditioner.getPreservationMultiplier();
                 }
@@ -273,8 +273,8 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 {
                     effectiveSpace = refrigerator.getConnectedEffectiveSpace();
                     indoorTemperatureTenths = GreenhouseTemperatureHelper.toTenths(refrigerator.getIndoorTemperature());
-                    hasSetTemperature = false;
-                    setTemperatureTenths = 0;
+                    hasSetTemperature = structureType == ClimateControlBlockEntity.STRUCTURE_CELLAR;
+                    setTemperatureTenths = hasSetTemperature ? GreenhouseTemperatureHelper.toTenths(refrigerator.getTarget()) : 0;
                     preservationMultiplier = refrigerator.getPreservationMultiplier();
                 }
                 else
@@ -332,7 +332,8 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 {
                     data.putInt(EFFECTIVE_SPACE, airConditioner.getConnectedEffectiveSpace());
                     data.putInt(INDOOR_TEMPERATURE, GreenhouseTemperatureHelper.toTenths(airConditioner.getIndoorTemperature()));
-                    final boolean hasSetTemperature = control.getDisplayStructureTypeForTooltip() == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE;
+                    final boolean hasSetTemperature = control.getDisplayStructureTypeForTooltip() == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE
+                        || control.getDisplayStructureTypeForTooltip() == ClimateControlBlockEntity.STRUCTURE_CELLAR;
                     data.putBoolean(HAS_SET_TEMPERATURE, hasSetTemperature);
                     data.putInt(SET_TEMPERATURE, hasSetTemperature ? GreenhouseTemperatureHelper.toTenths(airConditioner.getTarget()) : 0);
                     data.putFloat(PRESERVATION_MULTIPLIER, airConditioner.getPreservationMultiplier());
@@ -341,8 +342,9 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 {
                     data.putInt(EFFECTIVE_SPACE, refrigerator.getConnectedEffectiveSpace());
                     data.putInt(INDOOR_TEMPERATURE, GreenhouseTemperatureHelper.toTenths(refrigerator.getIndoorTemperature()));
-                    data.putBoolean(HAS_SET_TEMPERATURE, false);
-                    data.putInt(SET_TEMPERATURE, 0);
+                    final boolean hasSetTemperature = control.getDisplayStructureTypeForTooltip() == ClimateControlBlockEntity.STRUCTURE_CELLAR;
+                    data.putBoolean(HAS_SET_TEMPERATURE, hasSetTemperature);
+                    data.putInt(SET_TEMPERATURE, hasSetTemperature ? GreenhouseTemperatureHelper.toTenths(refrigerator.getTarget()) : 0);
                     data.putFloat(PRESERVATION_MULTIPLIER, refrigerator.getPreservationMultiplier());
                 }
             }
@@ -361,9 +363,8 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 final String cellarTierId = switch (tier)
                 {
                     case 1 -> "sealed_brick";
-                    case 2 -> "wrought_iron";
-                    case 3 -> "stainless_steel";
-                    case 4 -> "mixed";
+                    case 2 -> "stainless_steel_reinforced";
+                    case 3 -> "mixed";
                     default -> "custom";
                 };
                 return Component.translatable("screen.tfc_modern_life.cellar." + cellarTierId);

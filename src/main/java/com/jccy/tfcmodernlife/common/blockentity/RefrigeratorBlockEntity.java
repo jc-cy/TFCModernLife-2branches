@@ -9,6 +9,7 @@ import com.jccy.tfcmodernlife.common.climate.ClimateStationAccess;
 import com.jccy.tfcmodernlife.common.climate.GreenhouseTemperatureHelper;
 import com.jccy.tfcmodernlife.common.container.RefrigeratorContainer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -18,10 +19,14 @@ import org.jetbrains.annotations.Nullable;
 
 public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
 {
-    public static final int MAX_TARGET_TEMPERATURE = 0;
-    public static final int MIN_TARGET_TEMPERATURE = -6;
+    public static final int MAX_CELLAR_SET_TEMPERATURE = 99;
+    public static final int MIN_CELLAR_SET_TEMPERATURE = -99;
+    private static final int MAX_GREENHOUSE_COOLING_TARGET = 0;
+    private static final int MIN_GREENHOUSE_COOLING_TARGET = -6;
     private static final int BASE_CELLAR_TEMPERATURE = 0;
+    private static final String CELLAR_SET_TEMPERATURE_MODE_KEY = "cellarSetTemperatureMode";
     @Nullable private ClimateStationAccess appliedStation;
+    private boolean cellarSetTemperatureInitialized;
 
     public RefrigeratorBlockEntity(BlockPos pos, BlockState state)
     {
@@ -40,17 +45,18 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         final ClimateStationAccess station = findStation();
         if (station == null)
         {
-            return 0;
+            return NO_CONTROL_NEEDED;
         }
         final CellarStructureData data = station.tfcml$getCellarStructureData();
         if (data != null)
         {
             final float baseTemperature = getBaseCellarTemperature();
-            target = GreenhouseTemperatureHelper.clampCellarCoolingAdjustment(station, baseTemperature, target);
+            initializeCellarSetTemperature(station);
+            target = clampCellarHardLimit(target);
             return roundedEnergyUse(
                 data.effectiveSpace(),
                 data.powerMultiplier(),
-                GreenhouseTemperatureHelper.getCellarTemperatureDelta(station, baseTemperature, target)
+                GreenhouseTemperatureHelper.getCellarTemperatureDelta(station, baseTemperature, getCellarTargetAdjustment(station))
             );
         }
 
@@ -60,7 +66,7 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
             target = clampGreenhouseCoolingTarget(station, target);
             return roundedEnergyUse(greenhouseData.effectiveSpace(), greenhouseData.tier().powerMultiplier(), Math.abs(target));
         }
-        return 0;
+        return NO_CONTROL_NEEDED;
     }
 
     @Override
@@ -71,14 +77,30 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         {
             if (station.tfcml$getCellarStructureData() != null)
             {
-                return GreenhouseTemperatureHelper.clampCellarCoolingAdjustment(station, getBaseCellarTemperature(), value);
+                return clampCellarSetTemperature(station, value);
             }
             if (station.tfcml$getGreenhouseStructureData() != null)
             {
                 return clampGreenhouseCoolingTarget(station, value);
             }
         }
-        return Math.max(MIN_TARGET_TEMPERATURE, Math.min(MAX_TARGET_TEMPERATURE, value));
+        return Math.max(MIN_GREENHOUSE_COOLING_TARGET, Math.min(MAX_GREENHOUSE_COOLING_TARGET, value));
+    }
+
+    @Override
+    public void adjustTarget(int delta)
+    {
+        final ClimateStationAccess station = findStation();
+        if (delta != 0 && station != null && station.tfcml$getCellarStructureData() != null && cellarSetTemperatureInitialized)
+        {
+            final int minTarget = getMinimumCellarSetTemperature(station);
+            final int maxTarget = getMaximumCellarSetTemperature();
+            if ((delta < 0 && target <= minTarget) || (delta > 0 && target >= maxTarget))
+            {
+                return;
+            }
+        }
+        super.adjustTarget(delta);
     }
 
     @Override
@@ -94,7 +116,7 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         {
             if (station.tfcml$getCellarStructureData() != null)
             {
-                station.tfcml$setCellarTemperature(target, false);
+                station.tfcml$setCellarTemperature(getCellarTargetAdjustment(station), false);
             }
             else if (station.tfcml$getGreenhouseStructureData() != null)
             {
@@ -211,11 +233,28 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
     @Override
     protected int getDisplayIndoorTemperature()
     {
+        final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getCellarStructureData() != null)
+        {
+            initializeCellarSetTemperature(station);
+            return GreenhouseTemperatureHelper.toTenths(target);
+        }
         return GreenhouseTemperatureHelper.toTenths(getIndoorTemperature());
     }
 
     @Override
     protected int getDisplayBeforeTemperature()
+    {
+        final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getCellarStructureData() != null)
+        {
+            return GreenhouseTemperatureHelper.toTenths(getIndoorTemperature());
+        }
+        return GreenhouseTemperatureHelper.toTenths(getBaseTemperature());
+    }
+
+    @Override
+    protected int getDisplayBaseTemperature()
     {
         return GreenhouseTemperatureHelper.toTenths(getBaseTemperature());
     }
@@ -236,9 +275,9 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         }
         if (station != null && station.tfcml$getCellarStructureData() != null)
         {
-            return GreenhouseTemperatureHelper.getMinimumCellarCoolingAdjustment(station, getBaseCellarTemperature());
+            return getMinimumCellarSetTemperature(station);
         }
-        return MIN_TARGET_TEMPERATURE;
+        return MIN_GREENHOUSE_COOLING_TARGET;
     }
 
     @Override
@@ -251,9 +290,9 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         }
         if (station != null && station.tfcml$getCellarStructureData() != null)
         {
-            return MAX_TARGET_TEMPERATURE;
+            return getMaximumCellarSetTemperature();
         }
-        return MAX_TARGET_TEMPERATURE;
+        return MAX_GREENHOUSE_COOLING_TARGET;
     }
 
     @Override
@@ -278,7 +317,7 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         if (station != null && station.tfcml$getCellarStructureData() != null)
         {
             final CellarStructureData data = station.tfcml$getCellarStructureData();
-            return data.mixedThermalWalls() ? 4 : data.tier().ordinal() + 1;
+            return getCellarDisplayTier(data);
         }
         if (station != null && station.tfcml$getGreenhouseStructureData() != null)
         {
@@ -321,7 +360,7 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
     @Override
     protected void clearAppliedClimateControl()
     {
-        final ClimateStationAccess station = appliedStation != null ? appliedStation : target != 0 ? findStation() : null;
+        final ClimateStationAccess station = appliedStation != null ? appliedStation : findStation();
         if (station != null)
         {
             clearStation(station);
@@ -341,10 +380,57 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         return level != null ? GreenhouseTemperatureHelper.getAmbientTemperature(level, worldPosition) : BASE_CELLAR_TEMPERATURE;
     }
 
+    private int getCellarTargetAdjustment(ClimateStationAccess station)
+    {
+        return GreenhouseTemperatureHelper.getCellarCoolingAdjustmentTowardTarget(station, getBaseCellarTemperature(), target);
+    }
+
+    private int clampCellarSetTemperature(ClimateStationAccess station, int value)
+    {
+        return Math.max(getMinimumCellarSetTemperature(station), Math.min(getMaximumCellarSetTemperature(), value));
+    }
+
+    private static int clampCellarHardLimit(int value)
+    {
+        return Math.max(MIN_CELLAR_SET_TEMPERATURE, Math.min(MAX_CELLAR_SET_TEMPERATURE, value));
+    }
+
+    private int getMinimumCellarSetTemperature(ClimateStationAccess station)
+    {
+        final float baseTemperature = getBaseCellarTemperature();
+        final float minimum = GreenhouseTemperatureHelper.getEffectiveCellarTemperature(
+            station,
+            baseTemperature,
+            GreenhouseTemperatureHelper.getMinimumCellarCoolingAdjustment(station, baseTemperature)
+        );
+        return clampCellarTargetBound(minimum);
+    }
+
+    private int getMaximumCellarSetTemperature()
+    {
+        return clampCellarTargetBound(getBaseCellarTemperature());
+    }
+
+    private static int clampCellarTargetBound(float value)
+    {
+        return Math.max(MIN_CELLAR_SET_TEMPERATURE, Math.min(MAX_CELLAR_SET_TEMPERATURE, Math.round(value)));
+    }
+
+    private void initializeCellarSetTemperature(ClimateStationAccess station)
+    {
+        if (cellarSetTemperatureInitialized || station.tfcml$getCellarStructureData() == null)
+        {
+            return;
+        }
+        target = clampCellarSetTemperature(station, Math.round(getBaseCellarTemperature() + target));
+        cellarSetTemperatureInitialized = true;
+        setChanged();
+    }
+
     private static int clampGreenhouseCoolingTarget(@Nullable ClimateStationAccess station, int value)
     {
         final int structureMinimum = -GreenhouseTemperatureHelper.getGreenhouseManualRange(station);
-        return Math.max(Math.max(structureMinimum, MIN_TARGET_TEMPERATURE), Math.min(MAX_TARGET_TEMPERATURE, value));
+        return Math.max(Math.max(structureMinimum, MIN_GREENHOUSE_COOLING_TARGET), Math.min(MAX_GREENHOUSE_COOLING_TARGET, value));
     }
 
     private static void clearStation(ClimateStationAccess station)
@@ -356,6 +442,44 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         if (station.tfcml$getGreenhouseStructureData() != null)
         {
             station.tfcml$setManualTemperatureAdjustment(0);
+        }
+    }
+
+    @Override
+    protected void onStructureRefreshed()
+    {
+        final ClimateStationAccess station = findStation();
+        if (station != null && station.tfcml$getCellarStructureData() != null)
+        {
+            initializeCellarSetTemperature(station);
+        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag)
+    {
+        super.saveAdditional(tag);
+        if (cellarSetTemperatureInitialized)
+        {
+            tag.putBoolean(CELLAR_SET_TEMPERATURE_MODE_KEY, true);
+        }
+    }
+
+    @Override
+    public void load(CompoundTag tag)
+    {
+        super.load(tag);
+        final int loadedTarget = tag.getInt("target");
+        cellarSetTemperatureInitialized = tag.getBoolean(CELLAR_SET_TEMPERATURE_MODE_KEY);
+        final ClimateStationAccess station = findStation();
+        if (!cellarSetTemperatureInitialized && getLevel() != null && station != null && station.tfcml$getCellarStructureData() != null)
+        {
+            target = clampCellarSetTemperature(station, Math.round(getBaseCellarTemperature() + loadedTarget));
+            cellarSetTemperatureInitialized = true;
+        }
+        else if (cellarSetTemperatureInitialized && station != null && station.tfcml$getCellarStructureData() != null)
+        {
+            target = clampCellarHardLimit(loadedTarget);
         }
     }
 

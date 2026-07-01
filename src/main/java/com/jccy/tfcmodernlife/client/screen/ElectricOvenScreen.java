@@ -201,7 +201,8 @@ public class ElectricOvenScreen extends AbstractContainerScreen<ElectricOvenCont
     private void drawCoil(GuiGraphics graphics)
     {
         final int energy = menu.getBlockEntity().getSyncData().get(2);
-        final boolean running = getDisplayedTargetTemperature() > 0 && energy >= ElectricOvenBlockEntity.ENERGY_PER_TICK;
+        final int energyPerTick = ElectricOvenBlockEntity.getEnergyPerTick();
+        final boolean running = getDisplayedTargetTemperature() > 0 && energy >= energyPerTick;
         graphics.blit(BACKGROUND, leftPos + COIL_X, topPos + COIL_Y, 193, running ? 19 : 0, COIL_WIDTH, COIL_HEIGHT);
     }
 

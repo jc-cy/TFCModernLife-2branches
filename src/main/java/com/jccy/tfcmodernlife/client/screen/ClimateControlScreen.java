@@ -239,6 +239,8 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         }
         final int afterTemperature = isGreenhouseSetTemperatureMode()
             ? menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE)
+            : isCellarSetTemperatureMode()
+            ? menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE)
             : menu.getSyncData().get(ClimateControlBlockEntity.DATA_AFTER_TEMPERATURE);
         final int beforeTemperature = menu.getSyncData().get(getBaseTemperatureDataIndex());
         if (afterTemperature < beforeTemperature)
@@ -350,22 +352,22 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         final int maxTarget = menu.getSyncData().get(8);
         if (isInsideButton(mouseX, mouseY, 0))
         {
-            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 5, isGreenhouseSetTemperatureMode());
+            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 5);
             return;
         }
         if (isInsideButton(mouseX, mouseY, 1))
         {
-            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 1, isGreenhouseSetTemperatureMode());
+            renderDecreaseTooltip(graphics, mouseX, mouseY, target, minTarget, 1);
             return;
         }
         if (isInsideButton(mouseX, mouseY, 2))
         {
-            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 1, isGreenhouseSetTemperatureMode());
+            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 1);
             return;
         }
         if (isInsideButton(mouseX, mouseY, 3))
         {
-            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 5, isGreenhouseSetTemperatureMode());
+            renderIncreaseTooltip(graphics, mouseX, mouseY, target, maxTarget, 5);
             return;
         }
         if (isInside(mouseX, mouseY, DISPLAY_X, DISPLAY_Y, DISPLAY_WIDTH, DISPLAY_HEIGHT))
@@ -374,27 +376,33 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         }
     }
 
-    private void renderDecreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int minTarget, int step, boolean setTemperatureMode)
+    private void renderDecreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int minTarget, int step)
     {
         final int available = Math.max(0, target - minTarget);
+        final Component tooltip = isGreenhouseSetTemperatureMode()
+            ? Component.translatable("tfc_modern_life.tooltip.greenhouse_decrease_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMinimumReachableGreenhouseTemperature()))
+            : isCellarSetTemperatureMode()
+            ? Component.translatable("tfc_modern_life.tooltip.cellar_decrease_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMinimumReachableCellarTemperature()))
+            : Component.translatable("tfc_modern_life.tooltip.decrease_step", Math.min(step, available), available);
         graphics.renderTooltip(
             font,
-            setTemperatureMode
-                ? Component.translatable("tfc_modern_life.tooltip.greenhouse_decrease_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMinimumReachableGreenhouseTemperature()))
-                : Component.translatable("tfc_modern_life.tooltip.decrease_step", Math.min(step, available), available),
+            tooltip,
             mouseX,
             mouseY
         );
     }
 
-    private void renderIncreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int maxTarget, int step, boolean setTemperatureMode)
+    private void renderIncreaseTooltip(GuiGraphics graphics, int mouseX, int mouseY, int target, int maxTarget, int step)
     {
         final int available = Math.max(0, maxTarget - target);
+        final Component tooltip = isGreenhouseSetTemperatureMode()
+            ? Component.translatable("tfc_modern_life.tooltip.greenhouse_increase_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMaximumReachableGreenhouseTemperature()))
+            : isCellarSetTemperatureMode()
+            ? Component.translatable("tfc_modern_life.tooltip.cellar_increase_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMaximumReachableCellarTemperature()))
+            : Component.translatable("tfc_modern_life.tooltip.increase_step", Math.min(step, available), available);
         graphics.renderTooltip(
             font,
-            setTemperatureMode
-                ? Component.translatable("tfc_modern_life.tooltip.greenhouse_increase_set_temperature", Math.min(step, available), GreenhouseTemperatureHelper.formatTemperature(getMaximumReachableGreenhouseTemperature()))
-                : Component.translatable("tfc_modern_life.tooltip.increase_step", Math.min(step, available), available),
+            tooltip,
             mouseX,
             mouseY
         );
@@ -429,11 +437,10 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         }
         else if (structureType == ClimateControlBlockEntity.STRUCTURE_CELLAR)
         {
-            final int minimumTemperature = menu.getSyncData().get(getBaseTemperatureDataIndex())
-                + menu.getSyncData().get(ClimateControlBlockEntity.DATA_MIN_TARGET) * GreenhouseTemperatureHelper.TEMPERATURE_SCALE;
             lines.add(getStructureName(structureType, tier));
             lines.add(Component.translatable("tfc_modern_life.tooltip.power_multiplier", getPowerMultiplier()));
-            lines.add(Component.translatable("tfc_modern_life.tooltip.minimum_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(minimumTemperature)));
+            lines.add(Component.translatable("tfc_modern_life.tooltip.minimum_temperature", GreenhouseTemperatureHelper.formatTemperature(menu.getSyncData().get(ClimateControlBlockEntity.DATA_MIN_TARGET))));
+            lines.add(Component.translatable("tfc_modern_life.tooltip.set_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_AFTER_TEMPERATURE))));
             if (menu.getSyncData().get(ClimateControlBlockEntity.DATA_PRESERVATION_TENTHS) > 0)
             {
                 lines.add(Component.translatable("tfc_modern_life.tooltip.preservation_multiplier", menu.getSyncData().get(ClimateControlBlockEntity.DATA_PRESERVATION_TENTHS) / 10f));
@@ -453,7 +460,7 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
 
     private void addCommonInfo(List<Component> lines)
     {
-        if (isGreenhouseSetTemperatureMode())
+        if (isSetTemperatureMode())
         {
             lines.add(Component.translatable("tfc_modern_life.tooltip.controlled_temperature", GreenhouseTemperatureHelper.formatTemperatureTenths(menu.getSyncData().get(ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE))));
         }
@@ -471,17 +478,19 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
         return hasHeatIndicator() && menu.getSyncData().get(ClimateControlBlockEntity.DATA_STRUCTURE_TYPE) == ClimateControlBlockEntity.STRUCTURE_GREENHOUSE;
     }
 
-    private int getBaseTemperatureDataIndex()
+    private boolean isCellarSetTemperatureMode()
     {
-        return isGreenhouseSetTemperatureMode() ? ClimateControlBlockEntity.DATA_BASE_TEMPERATURE : ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE;
+        return menu.getSyncData().get(ClimateControlBlockEntity.DATA_STRUCTURE_TYPE) == ClimateControlBlockEntity.STRUCTURE_CELLAR;
     }
 
-    private float getReachableGreenhouseTemperature(int setTemperature)
+    private boolean isSetTemperatureMode()
     {
-        final int baseTemperatureTenths = menu.getSyncData().get(getBaseTemperatureDataIndex());
-        final float baseTemperature = GreenhouseTemperatureHelper.fromTenths(baseTemperatureTenths);
-        final int range = menu.getSyncData().get(ClimateControlBlockEntity.DATA_CONTROL_RANGE);
-        return GreenhouseTemperatureHelper.fromTenths(baseTemperatureTenths + GreenhouseTemperatureHelper.getManualAdjustmentTowardTargetTenths(baseTemperature, setTemperature, range));
+        return isGreenhouseSetTemperatureMode() || isCellarSetTemperatureMode();
+    }
+
+    private int getBaseTemperatureDataIndex()
+    {
+        return isSetTemperatureMode() ? ClimateControlBlockEntity.DATA_BASE_TEMPERATURE : ClimateControlBlockEntity.DATA_BEFORE_TEMPERATURE;
     }
 
     private float getMinimumReachableGreenhouseTemperature()
@@ -492,6 +501,16 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
     private float getMaximumReachableGreenhouseTemperature()
     {
         return getGreenhouseBaseTemperature() + getGreenhouseControlRange();
+    }
+
+    private float getMinimumReachableCellarTemperature()
+    {
+        return menu.getSyncData().get(ClimateControlBlockEntity.DATA_MIN_TARGET);
+    }
+
+    private float getMaximumReachableCellarTemperature()
+    {
+        return menu.getSyncData().get(ClimateControlBlockEntity.DATA_MAX_TARGET);
     }
 
     private float getGreenhouseBaseTemperature()
@@ -525,9 +544,8 @@ public abstract class ClimateControlScreen<T extends ClimateControlBlockEntity, 
             final String cellarTierId = switch (tier)
             {
                 case 1 -> "sealed_brick";
-                case 2 -> "wrought_iron";
-                case 3 -> "stainless_steel";
-                case 4 -> "mixed";
+                case 2 -> "stainless_steel_reinforced";
+                case 3 -> "mixed";
                 default -> "custom";
             };
             return Component.translatable("screen.tfc_modern_life.cellar." + cellarTierId);

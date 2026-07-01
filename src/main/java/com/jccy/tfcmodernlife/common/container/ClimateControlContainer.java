@@ -12,6 +12,8 @@ import net.minecraft.world.item.ItemStack;
 public abstract class ClimateControlContainer<T extends ClimateControlBlockEntity> extends AbstractContainerMenu
 {
     public static final int BUTTON_TOGGLE_POWER = 4;
+    private static final int PLAYER_INVENTORY_Y = 104;
+    private static final int HOTBAR_Y = 162;
     protected final T blockEntity;
     private final int step;
 
@@ -80,13 +82,13 @@ public abstract class ClimateControlContainer<T extends ClimateControlBlockEntit
         {
             for (int col = 0; col < 9; col++)
             {
-                addSlot(new Slot(playerInventory, 9 + row * 9 + col, 8 + col * 18, 103 + row * 18));
+                addSlot(new Slot(playerInventory, 9 + row * 9 + col, 8 + col * 18, PLAYER_INVENTORY_Y + row * 18));
             }
         }
 
         for (int col = 0; col < 9; col++)
         {
-            addSlot(new Slot(playerInventory, col, 8 + col * 18, 161));
+            addSlot(new Slot(playerInventory, col, 8 + col * 18, HOTBAR_Y));
         }
     }
 }

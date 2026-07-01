@@ -21,6 +21,9 @@ public final class ModCreativeTab
             output.accept(ModBlocks.ELECTRIC_SOUP_POT_ITEM.get());
             output.accept(ModBlocks.THERMOSTATIC_AIR_CONDITIONER_ITEM.get());
             output.accept(ModBlocks.REFRIGERATOR_ITEM.get());
+            output.accept(ModBlocks.STAINLESS_STEEL_REINFORCED_SEALED_BRICKS_ITEM.get());
+            output.accept(ModBlocks.STAINLESS_STEEL_REINFORCED_SEALED_BRICK_DOOR_ITEM.get());
+            output.accept(ModBlocks.STAINLESS_STEEL_REINFORCED_SEALED_BRICK_TRAPDOOR_ITEM.get());
         })
         .build());
 

@@ -31,6 +31,11 @@ public enum GreenhouseTier
 
     public float powerMultiplier()
     {
+        return ClimateControlConfig.getGreenhousePowerMultiplier(this);
+    }
+
+    public float defaultPowerMultiplier()
+    {
         return powerMultiplier;
     }
 

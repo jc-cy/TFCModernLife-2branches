@@ -2,9 +2,8 @@ package com.jccy.tfcmodernlife.common.climate;
 
 public enum CellarTier
 {
-    SEALED_BRICK("sealed_brick", 1.2f, -6),
-    WROUGHT_IRON("wrought_iron", 1.1f, -21),
-    STAINLESS_STEEL("stainless_steel", 1.0f, -30);
+    SEALED_BRICK("sealed_brick", 1.1f, -15),
+    STAINLESS_STEEL_REINFORCED("stainless_steel_reinforced", 1.0f, -30);
 
     private final String id;
     private final float powerMultiplier;
@@ -24,6 +23,11 @@ public enum CellarTier
 
     public float powerMultiplier()
     {
+        return ClimateControlConfig.getCellarPowerMultiplier(this);
+    }
+
+    public float defaultPowerMultiplier()
+    {
         return powerMultiplier;
     }
 
@@ -42,6 +46,18 @@ public enum CellarTier
             }
         }
         return SEALED_BRICK;
+    }
+
+    public static CellarTier byConfigId(String id)
+    {
+        for (CellarTier tier : values())
+        {
+            if (tier.id.equals(id))
+            {
+                return tier;
+            }
+        }
+        return null;
     }
 
     public static CellarTier max(CellarTier first, CellarTier second)
