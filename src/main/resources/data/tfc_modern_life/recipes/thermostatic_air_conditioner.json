@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LRA",
+    "SHS",
+    "CWL"
+  ],
+  "key": {
+    "L": {
+      "item": "immersiveengineering:light_engineering"
+    },
+    "R": {
+      "item": "immersiveengineering:radiator"
+    },
+    "A": {
+      "item": "immersiveengineering:component_electronic_adv"
+    },
+    "S": {
+      "item": "firmalife:metal/sheet/stainless_steel"
+    },
+    "H": {
+      "item": "immersiveengineering:furnace_heater"
+    },
+    "C": {
+      "item": "immersiveengineering:capacitor_hv"
+    },
+    "W": {
+      "item": "firmalife:climate_station"
+    }
+  },
+  "result": {
+    "item": "tfc_modern_life:thermostatic_air_conditioner"
+  }
+}

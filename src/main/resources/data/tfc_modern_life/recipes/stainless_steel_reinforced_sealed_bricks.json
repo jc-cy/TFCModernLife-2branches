@@ -1,0 +1,24 @@
+{
+  "type": "tfc:damage_inputs_shapeless_crafting",
+  "recipe": {
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+      {
+        "item": "firmalife:metal/sheet/stainless_steel"
+      },
+      {
+        "item": "firmalife:sealed_bricks"
+      },
+      {
+        "item": "firmalife:sealed_bricks"
+      },
+      {
+        "tag": "tfc:hammers"
+      }
+    ],
+    "result": {
+      "item": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+      "count": 4
+    }
+  }
+}

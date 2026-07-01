@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RWR",
+    "SCS",
+    "LAL"
+  ],
+  "key": {
+    "R": {
+      "item": "immersiveengineering:radiator"
+    },
+    "W": {
+      "item": "firmalife:climate_station"
+    },
+    "S": {
+      "item": "firmalife:metal/sheet/stainless_steel"
+    },
+    "C": {
+      "item": "immersiveengineering:capacitor_hv"
+    },
+    "L": {
+      "item": "immersiveengineering:light_engineering"
+    },
+    "A": {
+      "item": "immersiveengineering:component_electronic_adv"
+    }
+  },
+  "result": {
+    "item": "tfc_modern_life:refrigerator"
+  }
+}
