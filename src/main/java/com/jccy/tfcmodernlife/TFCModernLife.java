@@ -1,6 +1,7 @@
 package com.jccy.tfcmodernlife;
 
 import com.jccy.tfcmodernlife.client.ModClientEvents;
+import com.jccy.tfcmodernlife.compat.lso.LegendarySurvivalOverhaulCompat;
 import com.jccy.tfcmodernlife.common.ModBlocks;
 import com.jccy.tfcmodernlife.common.ModConfig;
 import com.jccy.tfcmodernlife.common.ModContainerTypes;
@@ -35,6 +36,7 @@ public final class TFCModernLife
         ModRecipeSerializers.register(modBus);
         ModSounds.register(modBus);
         ClimateControlConfig.registerReloadListener(modBus);
+        LegendarySurvivalOverhaulCompat.register(modBus);
 
         if (FMLEnvironment.dist == Dist.CLIENT)
         {

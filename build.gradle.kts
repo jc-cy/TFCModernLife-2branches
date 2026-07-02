@@ -15,6 +15,7 @@ val jadeVersion = "4614153"
 val tfcCurseVersion = "5872631"
 val firmalifeCurseVersion = "5456804"
 val immersiveEngineeringCurseVersion = "4782975"
+val legendarySurvivalOverhaulCurseVersion = "7603852"
 val patchouliVersion = "1.20.1-81-FORGE"
 
 val modId = "tfc_modern_life"
@@ -91,6 +92,8 @@ dependencies {
 
     compileOnly(fg.deobf("curse.maven:jade-324717:$jadeVersion"))
     runtimeOnly(fg.deobf("curse.maven:jade-324717:$jadeVersion"))
+
+    compileOnly(fg.deobf("curse.maven:legendary-survival-overhaul-840254:$legendarySurvivalOverhaulCurseVersion"))
 
     if (System.getProperty("idea.sync.active") != "true") {
         annotationProcessor("org.spongepowered:mixin:$mixinVersion:processor")

@@ -68,6 +68,9 @@ TFC Modern Life / 群峦现代化生活
 温室建材拆解
 - 使用宝石锯 + 温室方块拆回原材料。
 
+模组兼容
+- 额外兼容 [LSO]传说生存Legendary Survival Overhaul 的温度系统，温室和冷库的内的温度将直接作为室内的环境温度。
+
 授权与声明
 本模组采用 All Rights Reserved (ARR) 闭源授权。
 仅允许免费使用作者官方发布的未修改编译版，且仅限个人、非商业、合法用途。
@@ -135,6 +138,9 @@ Climate Control Device Parameters
 Greenhouse Material Disassembly
 - Use a gem saw + greenhouse blocks to recover materials.
 
+Mod Compatibility
+- Adds temperature-system compatibility for [LSO] Legendary Survival Overhaul. Temperatures inside greenhouses and cold storage structures are used directly as the indoor environmental temperature.
+
 License Notice
 This mod is distributed under All Rights Reserved (ARR).
 Only the author's official unmodified compiled release may be used for free for personal, non-commercial, lawful use.
@@ -192,6 +198,13 @@ side = "BOTH"
 [[dependencies.tfc_modern_life]]
 modId = "tfe"
 mandatory = true
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "legendarysurvivaloverhaul"
+mandatory = false
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
