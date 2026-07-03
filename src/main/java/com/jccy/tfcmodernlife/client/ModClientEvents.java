@@ -2,17 +2,20 @@ package com.jccy.tfcmodernlife.client;
 
 import com.jccy.tfcmodernlife.client.render.ElectricSoupPotBlockEntityRenderer;
 import com.jccy.tfcmodernlife.client.render.ElectricOvenBlockEntityRenderer;
+import com.jccy.tfcmodernlife.client.particle.RefrigeratorColdMistParticle;
 import com.jccy.tfcmodernlife.client.screen.ElectricOvenScreen;
 import com.jccy.tfcmodernlife.client.screen.ElectricSoupPotScreen;
 import com.jccy.tfcmodernlife.client.screen.RefrigeratorScreen;
 import com.jccy.tfcmodernlife.client.screen.ThermostaticAirConditionerScreen;
 import com.jccy.tfcmodernlife.common.ModBlocks;
 import com.jccy.tfcmodernlife.common.ModContainerTypes;
+import com.jccy.tfcmodernlife.common.ModParticles;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -24,6 +27,7 @@ public final class ModClientEvents
     {
         modBus.addListener(ModClientEvents::clientSetup);
         modBus.addListener(ModClientEvents::registerRenderers);
+        modBus.addListener(ModClientEvents::registerParticleProviders);
     }
 
     private static void clientSetup(FMLClientSetupEvent event)
@@ -46,5 +50,10 @@ public final class ModClientEvents
     {
         BlockEntityRenderers.register(ModBlocks.ELECTRIC_OVEN_BLOCK_ENTITY.get(), ElectricOvenBlockEntityRenderer::new);
         BlockEntityRenderers.register(ModBlocks.ELECTRIC_SOUP_POT_BLOCK_ENTITY.get(), ElectricSoupPotBlockEntityRenderer::new);
+    }
+
+    private static void registerParticleProviders(RegisterParticleProvidersEvent event)
+    {
+        event.registerSpriteSet(ModParticles.REFRIGERATOR_COLD_MIST.get(), RefrigeratorColdMistParticle.Provider::new);
     }
 }

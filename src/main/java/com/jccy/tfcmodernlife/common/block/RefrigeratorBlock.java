@@ -81,13 +81,13 @@ public class RefrigeratorBlock extends Block implements EntityBlock
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
     {
-        if (level.isClientSide())
+        if (type != ModBlocks.REFRIGERATOR_BLOCK_ENTITY.get())
         {
             return null;
         }
-        return type == ModBlocks.REFRIGERATOR_BLOCK_ENTITY.get()
-            ? (lvl, pos, blockState, be) -> RefrigeratorBlockEntity.serverTick(lvl, pos, blockState, (RefrigeratorBlockEntity) be)
-            : null;
+        return level.isClientSide()
+            ? (lvl, pos, blockState, be) -> RefrigeratorBlockEntity.clientTick(lvl, pos, blockState, (RefrigeratorBlockEntity) be)
+            : (lvl, pos, blockState, be) -> RefrigeratorBlockEntity.serverTick(lvl, pos, blockState, (RefrigeratorBlockEntity) be);
     }
 
     @Override

@@ -1,15 +1,18 @@
 package com.jccy.tfcmodernlife.common.blockentity;
 
 import com.jccy.tfcmodernlife.common.ModBlocks;
+import com.jccy.tfcmodernlife.common.ModParticles;
 import com.eerussianguy.firmalife.common.blockentities.ClimateType;
-import com.jccy.tfcmodernlife.common.climate.GreenhouseStructureData;
 import com.jccy.tfcmodernlife.common.block.RefrigeratorBlock;
+import com.jccy.tfcmodernlife.common.climate.GreenhouseStructureData;
 import com.jccy.tfcmodernlife.common.climate.CellarStructureData;
 import com.jccy.tfcmodernlife.common.climate.ClimateStationAccess;
 import com.jccy.tfcmodernlife.common.climate.GreenhouseTemperatureHelper;
 import com.jccy.tfcmodernlife.common.container.RefrigeratorContainer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -25,6 +28,7 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
     private static final int MIN_GREENHOUSE_COOLING_TARGET = -6;
     private static final int BASE_CELLAR_TEMPERATURE = 0;
     private static final String CELLAR_SET_TEMPERATURE_MODE_KEY = "cellarSetTemperatureMode";
+    private static final float COLD_MIST_SPAWN_CHANCE = 0.3f;
     @Nullable private ClimateStationAccess appliedStation;
     private boolean cellarSetTemperatureInitialized;
 
@@ -162,6 +166,14 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
     public static void serverTick(Level level, BlockPos pos, BlockState state, RefrigeratorBlockEntity entity)
     {
         entity.serverTick();
+    }
+
+    public static void clientTick(Level level, BlockPos pos, BlockState state, RefrigeratorBlockEntity entity)
+    {
+        if (state.getValue(RefrigeratorBlock.ACTIVE))
+        {
+            entity.spawnColdMist(state);
+        }
     }
 
     public int getConnectedEffectiveSpace()
@@ -481,6 +493,35 @@ public class RefrigeratorBlockEntity extends ClimateControlBlockEntity
         {
             target = clampCellarHardLimit(loadedTarget);
         }
+    }
+
+    private void spawnColdMist(BlockState state)
+    {
+        final Level level = getLevel();
+        if (level == null)
+        {
+            return;
+        }
+        final RandomSource random = level.getRandom();
+        if (random.nextFloat() > COLD_MIST_SPAWN_CHANCE)
+        {
+            return;
+        }
+
+        final Direction facing = state.getValue(RefrigeratorBlock.FACING);
+        final Direction side = facing.getClockWise();
+        final double sideOffset = (random.nextDouble() - 0.5D) * 0.72D;
+        final double forwardSpeed = 0.026D + random.nextDouble() * 0.014D;
+        final double sideSpeed = (random.nextDouble() - 0.5D) * 0.008D;
+
+        final double x = worldPosition.getX() + 0.5D + facing.getStepX() * 0.61D + side.getStepX() * sideOffset;
+        final double y = worldPosition.getY() + 0.42D + random.nextDouble() * 0.36D;
+        final double z = worldPosition.getZ() + 0.5D + facing.getStepZ() * 0.61D + side.getStepZ() * sideOffset;
+        final double xSpeed = facing.getStepX() * forwardSpeed + side.getStepX() * sideSpeed;
+        final double ySpeed = -0.002D - random.nextDouble() * 0.004D;
+        final double zSpeed = facing.getStepZ() * forwardSpeed + side.getStepZ() * sideSpeed;
+
+        level.addParticle(ModParticles.REFRIGERATOR_COLD_MIST.get(), x, y, z, xSpeed, ySpeed, zSpeed);
     }
 
 }

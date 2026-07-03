@@ -7,6 +7,7 @@ import com.jccy.tfcmodernlife.common.ModConfig;
 import com.jccy.tfcmodernlife.common.ModContainerTypes;
 import com.jccy.tfcmodernlife.common.ModCreativeTab;
 import com.jccy.tfcmodernlife.common.ModFoodTraits;
+import com.jccy.tfcmodernlife.common.ModParticles;
 import com.jccy.tfcmodernlife.common.ModRecipeSerializers;
 import com.jccy.tfcmodernlife.common.ModSounds;
 import com.jccy.tfcmodernlife.common.climate.ClimateControlConfig;
@@ -33,6 +34,7 @@ public final class TFCModernLife
         ModBlocks.register(modBus);
         ModContainerTypes.register(modBus);
         ModCreativeTab.register(modBus);
+        ModParticles.register(modBus);
         ModRecipeSerializers.register(modBus);
         ModSounds.register(modBus);
         ClimateControlConfig.registerReloadListener(modBus);
