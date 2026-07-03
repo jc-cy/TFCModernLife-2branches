@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.dries007.tfc.common.capabilities.food.FoodTrait;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 public final class ModFoodTraits
 {
@@ -47,6 +48,24 @@ public final class ModFoodTraits
             }
         }
         return CELLAR_TRAITS.get(CELLAR_TRAITS.size() - 1);
+    }
+
+    public static @Nullable FoodTrait getCellarTraitAtMost(float multiplier)
+    {
+        for (int index = 0; index < CELLAR_DEFINITIONS.size(); index++)
+        {
+            if (CELLAR_DEFINITIONS.get(index).multiplier() <= multiplier + 0.001f)
+            {
+                return CELLAR_TRAITS.get(index);
+            }
+        }
+        return null;
+    }
+
+    public static float getCellarTraitMultiplier(FoodTrait trait)
+    {
+        final int index = CELLAR_TRAITS.indexOf(trait);
+        return index >= 0 ? CELLAR_DEFINITIONS.get(index).multiplier() : 1f;
     }
 
     public static boolean isCellarTrait(FoodTrait trait)

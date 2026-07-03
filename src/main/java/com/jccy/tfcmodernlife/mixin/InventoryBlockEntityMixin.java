@@ -56,7 +56,9 @@ public abstract class InventoryBlockEntityMixin
     @Inject(method = "getCapability", at = @At("RETURN"), cancellable = true)
     private <T> void tfc_modern_life$wrapCellarSidedInventory(Capability<T> cap, @Nullable Direction side, CallbackInfoReturnable<LazyOptional<T>> cir)
     {
-        if (cap == Capabilities.ITEM && !tfc_modern_life$isFirmaLifeJarringStation())
+        if (cap == Capabilities.ITEM
+            && !tfc_modern_life$isFirmaLifeJarringStation()
+            && CellarPreservationHelper.canWrapBlockEntityItemHandler((BlockEntity) (Object) this))
         {
             final LazyOptional<IItemHandler> handlers = cir.getReturnValue().cast();
             cir.setReturnValue(handlers
@@ -88,6 +90,7 @@ public abstract class InventoryBlockEntityMixin
     @Inject(method = "loadAdditional", at = @At("TAIL"))
     private void tfc_modern_life$refreshJarringStationModelData(CompoundTag nbt, CallbackInfo ci)
     {
+        CellarPreservationHelper.syncInventoryBlockEntity((InventoryBlockEntity<?>) (Object) this);
         if (tfc_modern_life$isFirmaLifeJarringStation())
         {
             final BlockEntity blockEntity = (BlockEntity) (Object) this;

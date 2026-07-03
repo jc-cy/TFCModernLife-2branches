@@ -28,6 +28,7 @@
   "tfc_modern_life.jade.indoor_temperature": "Indoor temperature: %s°C",
   "tfc_modern_life.jade.manual_adjustment": "Manual adjustment: %s°C",
   "tfc_modern_life.jade.not_started": "Idle",
+  "tfc_modern_life.jade.placed_item_preservation": "Cellar preservation: %.1fx",
   "tfc_modern_life.jade.preservation": "Preservation: %.1fx",
   "tfc_modern_life.jade.recipe_temperature": "Boils above %d°C",
   "tfc_modern_life.jade.set_temperature": "Set temperature: %s°C",

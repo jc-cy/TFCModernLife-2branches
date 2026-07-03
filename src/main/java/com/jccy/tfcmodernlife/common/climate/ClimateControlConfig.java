@@ -14,6 +14,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -39,6 +41,8 @@ public final class ClimateControlConfig
 
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> CELLAR_THERMAL_WALLS;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> CELLAR_SEAL_ONLY_WALLS;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> CELLAR_PRESERVABLE_CONTAINERS;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> CELLAR_NESTED_ITEM_CONTAINERS;
     public static ForgeConfigSpec.DoubleValue CELLAR_MINIMUM_THERMAL_COVERAGE;
     public static ForgeConfigSpec.DoubleValue CELLAR_RADIUS_MULTIPLIER;
     public static ForgeConfigSpec.IntValue CLIMATE_CONTROL_MIN_ENERGY_USE;
@@ -93,6 +97,12 @@ public final class ClimateControlConfig
         CELLAR_SEAL_ONLY_WALLS = builder
             .comment("Blocks or tags that seal cellars but do not provide a tier.")
             .defineListAllowEmpty(List.of("cellarSealOnlyWalls"), ClimateControlConfig::defaultCellarSealOnlyWalls, value -> value instanceof String);
+        CELLAR_PRESERVABLE_CONTAINERS = builder
+            .comment("Block ids or block tags whose inventories may receive temporary cellar preservation. Use block ids like 'minecraft:chest' or tags like '#tfc:fired_large_vessels'.")
+            .defineListAllowEmpty(List.of("cellarPreservableContainers"), ClimateControlConfig::defaultCellarPreservableContainers, value -> value instanceof String);
+        CELLAR_NESTED_ITEM_CONTAINERS = builder
+            .comment("Item ids or item tags for item containers whose internal slots should be checked when the item is inside a cellar-preservable container. Use item ids like 'tfc:ceramic/vessel' or tags like '#tfc:fired_vessels'.")
+            .defineListAllowEmpty(List.of("cellarNestedItemContainers"), ClimateControlConfig::defaultCellarNestedItemContainers, value -> value instanceof String);
         CELLAR_MINIMUM_THERMAL_COVERAGE = builder
             .comment("Minimum insulated shell coverage for a cellar.")
             .defineInRange("cellarMinimumThermalCoverage", 0.95d, 0d, 1d);
@@ -176,6 +186,16 @@ public final class ClimateControlConfig
         return isClimateControlDevice(state) || cellarRuleSet.isSealOnlyWall(state);
     }
 
+    public static boolean isCellarPreservableContainer(BlockState state)
+    {
+        return cellarRuleSet.isPreservableContainer(state);
+    }
+
+    public static boolean isCellarNestedItemContainer(ItemStack stack)
+    {
+        return cellarRuleSet.isNestedItemContainer(stack);
+    }
+
     public static boolean isClimateControlSource(BlockState state)
     {
         final ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
@@ -231,7 +251,9 @@ public final class ClimateControlConfig
     {
         return new CellarRuleSet(
             List.copyOf(parseCellarWalls(CELLAR_THERMAL_WALLS.get())),
-            List.copyOf(parseBlockMatchers(CELLAR_SEAL_ONLY_WALLS.get(), "cellarSealOnlyWalls"))
+            List.copyOf(parseBlockMatchers(CELLAR_SEAL_ONLY_WALLS.get(), "cellarSealOnlyWalls")),
+            List.copyOf(parseBlockMatchers(CELLAR_PRESERVABLE_CONTAINERS.get(), "cellarPreservableContainers")),
+            List.copyOf(parseItemMatchers(CELLAR_NESTED_ITEM_CONTAINERS.get(), "cellarNestedItemContainers"))
         );
     }
 
@@ -328,6 +350,21 @@ public final class ClimateControlConfig
         return parsed;
     }
 
+    private static List<ItemMatcher> parseItemMatchers(List<? extends String> entries, String keyName)
+    {
+        final List<ItemMatcher> parsed = new ArrayList<>();
+        final Set<String> seen = new HashSet<>();
+        for (String rawEntry : entries)
+        {
+            final ItemMatcher matcher = parseItemMatcher(rawEntry.trim(), keyName);
+            if (matcher != null && seen.add(matcher.describe()))
+            {
+                parsed.add(matcher);
+            }
+        }
+        return parsed;
+    }
+
     @Nullable
     private static BlockMatcher parseBlockMatcher(String token, String keyName)
     {
@@ -359,6 +396,39 @@ public final class ClimateControlConfig
             return null;
         }
         return new DirectBlockMatcher(blockId, block);
+    }
+
+    @Nullable
+    private static ItemMatcher parseItemMatcher(String token, String keyName)
+    {
+        if (token.isEmpty())
+        {
+            return null;
+        }
+        if (token.charAt(0) == '#')
+        {
+            final ResourceLocation tagId = parseResourceLocation(token.substring(1).trim());
+            if (tagId == null)
+            {
+                LOGGER.warn("Ignoring invalid {} item tag '{}'", keyName, token);
+                return null;
+            }
+            return new TagItemMatcher(tagId, TagKey.create(Registries.ITEM, tagId));
+        }
+
+        final ResourceLocation itemId = parseResourceLocation(token);
+        if (itemId == null)
+        {
+            LOGGER.warn("Ignoring invalid {} item '{}'", keyName, token);
+            return null;
+        }
+        final Item item = BuiltInRegistries.ITEM.getOptional(itemId).orElse(null);
+        if (item == null)
+        {
+            LOGGER.warn("Ignoring unknown {} item '{}'", keyName, token);
+            return null;
+        }
+        return new DirectItemMatcher(itemId, item);
     }
 
     @Nullable
@@ -434,6 +504,26 @@ public final class ClimateControlConfig
         );
     }
 
+    private static List<String> defaultCellarPreservableContainers()
+    {
+        return List.of(
+            "minecraft:chest",
+            "minecraft:trapped_chest",
+            "#forge:chests/wooden",
+            "#tfc:fired_large_vessels",
+            "tfc:placed_item",
+            "immersiveengineering:crate",
+            "immersiveengineering:reinforced_crate"
+        );
+    }
+
+    private static List<String> defaultCellarNestedItemContainers()
+    {
+        return List.of(
+            "#tfc:fired_vessels"
+        );
+    }
+
     public enum GreenhouseTierMode
     {
         WEIGHTED_AVERAGE("weighted_average"),
@@ -496,6 +586,13 @@ public final class ClimateControlConfig
         String describe();
     }
 
+    public interface ItemMatcher
+    {
+        boolean matches(ItemStack stack);
+
+        String describe();
+    }
+
     private record DirectBlockMatcher(ResourceLocation id, Block block) implements BlockMatcher
     {
         @Override
@@ -517,6 +614,36 @@ public final class ClimateControlConfig
         public boolean matches(BlockState state)
         {
             return state.is(tag);
+        }
+
+        @Override
+        public String describe()
+        {
+            return "#" + id;
+        }
+    }
+
+    private record DirectItemMatcher(ResourceLocation id, Item item) implements ItemMatcher
+    {
+        @Override
+        public boolean matches(ItemStack stack)
+        {
+            return stack.is(item);
+        }
+
+        @Override
+        public String describe()
+        {
+            return id.toString();
+        }
+    }
+
+    private record TagItemMatcher(ResourceLocation id, TagKey<Item> tag) implements ItemMatcher
+    {
+        @Override
+        public boolean matches(ItemStack stack)
+        {
+            return stack.is(tag);
         }
 
         @Override
@@ -597,20 +724,28 @@ public final class ClimateControlConfig
     {
         private final List<CellarWallDefinition> thermalWalls;
         private final List<BlockMatcher> sealOnlyWalls;
+        private final List<BlockMatcher> preservableContainers;
+        private final List<ItemMatcher> nestedItemContainers;
         private final Map<Block, CellarWallDefinition> thermalCache = new ConcurrentHashMap<>();
         private final Set<Block> noThermalCache = ConcurrentHashMap.newKeySet();
         private final Set<Block> sealOnlyCache = ConcurrentHashMap.newKeySet();
         private final Set<Block> noSealOnlyCache = ConcurrentHashMap.newKeySet();
+        private final Set<Block> preservableContainerCache = ConcurrentHashMap.newKeySet();
+        private final Set<Block> noPreservableContainerCache = ConcurrentHashMap.newKeySet();
+        private final Set<Item> nestedItemContainerCache = ConcurrentHashMap.newKeySet();
+        private final Set<Item> noNestedItemContainerCache = ConcurrentHashMap.newKeySet();
 
-        private CellarRuleSet(List<CellarWallDefinition> thermalWalls, List<BlockMatcher> sealOnlyWalls)
+        private CellarRuleSet(List<CellarWallDefinition> thermalWalls, List<BlockMatcher> sealOnlyWalls, List<BlockMatcher> preservableContainers, List<ItemMatcher> nestedItemContainers)
         {
             this.thermalWalls = thermalWalls;
             this.sealOnlyWalls = sealOnlyWalls;
+            this.preservableContainers = preservableContainers;
+            this.nestedItemContainers = nestedItemContainers;
         }
 
         private static CellarRuleSet empty()
         {
-            return new CellarRuleSet(List.of(), List.of());
+            return new CellarRuleSet(List.of(), List.of(), List.of(), List.of());
         }
 
         @Nullable
@@ -641,6 +776,34 @@ public final class ClimateControlConfig
         private boolean isSealOnlyWall(BlockState state)
         {
             return matchesBooleanRule(state, sealOnlyWalls, sealOnlyCache, noSealOnlyCache);
+        }
+
+        private boolean isPreservableContainer(BlockState state)
+        {
+            return matchesBooleanRule(state, preservableContainers, preservableContainerCache, noPreservableContainerCache);
+        }
+
+        private boolean isNestedItemContainer(ItemStack stack)
+        {
+            final Item item = stack.getItem();
+            if (nestedItemContainerCache.contains(item))
+            {
+                return true;
+            }
+            if (noNestedItemContainerCache.contains(item))
+            {
+                return false;
+            }
+            for (ItemMatcher matcher : nestedItemContainers)
+            {
+                if (matcher.matches(stack))
+                {
+                    nestedItemContainerCache.add(item);
+                    return true;
+                }
+            }
+            noNestedItemContainerCache.add(item);
+            return false;
         }
     }
 

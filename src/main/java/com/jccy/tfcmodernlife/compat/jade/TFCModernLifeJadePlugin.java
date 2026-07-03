@@ -10,7 +10,11 @@ import com.jccy.tfcmodernlife.common.blockentity.ElectricOvenBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.ElectricSoupPotBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.RefrigeratorBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.ThermostaticAirConditionerBlockEntity;
+import com.jccy.tfcmodernlife.common.climate.CellarPreservationHelper;
 import com.jccy.tfcmodernlife.common.climate.GreenhouseTemperatureHelper;
+import net.dries007.tfc.common.blockentities.PlacedItemBlockEntity;
+import net.dries007.tfc.common.blocks.devices.PlacedItemBlock;
+import net.dries007.tfc.common.capabilities.Capabilities;
 import net.minecraft.core.BlockPos;
 import net.dries007.tfc.config.TFCConfig;
 import net.minecraft.nbt.CompoundTag;
@@ -18,9 +22,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.items.IItemHandler;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -42,6 +48,7 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
     private static final ResourceLocation ELECTRIC_SOUP_POT_UID = new ResourceLocation(TFCModernLife.MOD_ID, "electric_soup_pot");
     private static final ResourceLocation THERMOSTATIC_AIR_CONDITIONER_UID = new ResourceLocation(TFCModernLife.MOD_ID, "thermostatic_air_conditioner");
     private static final ResourceLocation REFRIGERATOR_UID = new ResourceLocation(TFCModernLife.MOD_ID, "refrigerator");
+    private static final ResourceLocation PLACED_ITEM_CELLAR_UID = new ResourceLocation(TFCModernLife.MOD_ID, "placed_item_cellar");
     private static final String CURRENT_TEMPERATURE = "CurrentTemperature";
     private static final String RECIPE_TEMPERATURE = "RecipeTemperature";
     private static final String PROGRESS = "Progress";
@@ -56,6 +63,7 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
     private static final String BASE_TEMPERATURE_DELTA = "BaseTemperatureDelta";
     private static final String SET_TEMPERATURE = "SetTemperature";
     private static final String HAS_SET_TEMPERATURE = "HasSetTemperature";
+    private static final String PLACED_ITEM_PRESERVATION_MULTIPLIER = "PlacedItemPreservationMultiplier";
 
     @Override
     public void register(IWailaCommonRegistration registry)
@@ -64,6 +72,7 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
         registry.registerBlockDataProvider(SoupPotComponentProvider.INSTANCE, ElectricSoupPotBlockEntity.class);
         registry.registerBlockDataProvider(ClimateControlComponentProvider.INSTANCE, ThermostaticAirConditionerBlockEntity.class);
         registry.registerBlockDataProvider(ClimateControlComponentProvider.INSTANCE, RefrigeratorBlockEntity.class);
+        registry.registerBlockDataProvider(PlacedItemCellarComponentProvider.INSTANCE, PlacedItemBlockEntity.class);
     }
 
     @Override
@@ -73,6 +82,7 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
         registry.registerBlockComponent(SoupPotComponentProvider.INSTANCE, ElectricSoupPotBlock.class);
         registry.registerBlockComponent(ClimateControlComponentProvider.INSTANCE, ThermostaticAirConditionerBlock.class);
         registry.registerBlockComponent(ClimateControlComponentProvider.INSTANCE, RefrigeratorBlock.class);
+        registry.registerBlockComponent(PlacedItemCellarComponentProvider.INSTANCE, PlacedItemBlock.class);
         registry.addRayTraceCallback((hitResult, accessor, originalAccessor) -> redirectAirConditionerUpperHalf(registry, accessor));
     }
 
@@ -380,6 +390,54 @@ public final class TFCModernLifeJadePlugin implements IWailaPlugin
                 default -> "custom";
             };
             return Component.translatable("screen.tfc_modern_life.greenhouse." + greenhouseTierId);
+        }
+    }
+
+    private enum PlacedItemCellarComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor>
+    {
+        INSTANCE;
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor access, IPluginConfig config)
+        {
+            final CompoundTag data = access.getServerData();
+            if (!data.isEmpty() && data.contains(PLACED_ITEM_PRESERVATION_MULTIPLIER))
+            {
+                tooltip.add(Component.translatable("tfc_modern_life.jade.placed_item_preservation", data.getFloat(PLACED_ITEM_PRESERVATION_MULTIPLIER)));
+            }
+        }
+
+        @Override
+        public void appendServerData(CompoundTag data, BlockAccessor access)
+        {
+            if (!(access.getBlockEntity() instanceof PlacedItemBlockEntity placedItem)
+                || !CellarPreservationHelper.isInCellar(access.getLevel(), access.getPosition()))
+            {
+                return;
+            }
+
+            final int slot = placedItem.holdingLargeItem()
+                ? PlacedItemBlockEntity.SLOT_LARGE_ITEM
+                : PlacedItemBlockEntity.getSlotSelected(access.getHitResult());
+            final ItemStack stack = placedItem.getCapability(Capabilities.ITEM).resolve()
+                .map(inventory -> getStackInSlot(inventory, slot))
+                .orElse(ItemStack.EMPTY);
+            final float multiplier = CellarPreservationHelper.getAppliedCellarPreservationMultiplier(stack);
+            if (multiplier > 0f)
+            {
+                data.putFloat(PLACED_ITEM_PRESERVATION_MULTIPLIER, multiplier);
+            }
+        }
+
+        @Override
+        public ResourceLocation getUid()
+        {
+            return PLACED_ITEM_CELLAR_UID;
+        }
+
+        private static ItemStack getStackInSlot(IItemHandler inventory, int slot)
+        {
+            return slot >= 0 && slot < inventory.getSlots() ? inventory.getStackInSlot(slot) : ItemStack.EMPTY;
         }
     }
 

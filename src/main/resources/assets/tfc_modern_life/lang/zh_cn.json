@@ -28,6 +28,7 @@
   "tfc_modern_life.jade.indoor_temperature": "室内温度: %s°C",
   "tfc_modern_life.jade.manual_adjustment": "手动调温: %s°C",
   "tfc_modern_life.jade.not_started": "待机",
+  "tfc_modern_life.jade.placed_item_preservation": "地窖保鲜: %.1f倍",
   "tfc_modern_life.jade.preservation": "保鲜倍率: %.1fx",
   "tfc_modern_life.jade.recipe_temperature": "沸腾温度: 大于 %d°C",
   "tfc_modern_life.jade.set_temperature": "设定温度: %s°C",

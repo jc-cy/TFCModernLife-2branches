@@ -10,9 +10,12 @@ import java.util.Set;
 import net.dries007.tfc.common.blockentities.InventoryBlockEntity;
 import net.dries007.tfc.common.blockentities.TFCChestBlockEntity;
 import net.dries007.tfc.common.capabilities.Capabilities;
+import net.dries007.tfc.common.capabilities.VesselLike;
 import net.dries007.tfc.common.capabilities.food.FoodCapability;
 import net.dries007.tfc.common.capabilities.food.FoodTrait;
+import net.dries007.tfc.common.capabilities.food.FoodTraits;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,8 +26,8 @@ import org.jetbrains.annotations.Nullable;
 
 public final class CellarPreservationHelper
 {
+    private static final float MAX_TOTAL_PRESERVATION_MULTIPLIER = 10f;
     private static final Set<Object> SYNCING = Collections.newSetFromMap(new IdentityHashMap<>());
-    private static final String IE_WOODEN_CRATE_BLOCK_ENTITY = "blusunrize.immersiveengineering.common.blocks.wooden.WoodenCrateBlockEntity";
 
     private CellarPreservationHelper() {}
 
@@ -69,37 +72,39 @@ public final class CellarPreservationHelper
         {
             return;
         }
-        final ClimateStationAccess station = ClimateStationRegistry.findControllingCellarStation(level, pos);
-        final @Nullable FoodTrait trait = station != null ? getCellarTrait(level, pos) : null;
-        syncBlockEntity(level, pos, trait);
+        final BlockEntity target = level.getBlockEntity(pos);
+        if (!canSyncBlockEntity(target))
+        {
+            return;
+        }
+        syncBlockEntity(target, getContextTrait(level, pos));
     }
 
     public static void syncInventoryBlockEntity(InventoryBlockEntity<?> inventory)
     {
-        if (!shouldHandleInventory(inventory))
-        {
-            return;
-        }
         final Level level = inventory.getLevel();
         if (level == null || level.isClientSide())
         {
             return;
         }
-        final ClimateStationAccess station = ClimateStationRegistry.findControllingCellarStation(level, inventory.getBlockPos());
-        final @Nullable FoodTrait trait = station != null ? getCellarTrait(level, inventory.getBlockPos()) : null;
-        syncInventoryBlockEntity(inventory, trait);
+        final boolean whitelisted = shouldHandleInventory(inventory);
+        final @Nullable FoodTrait trait = whitelisted ? getContextTrait(level, inventory.getBlockPos()) : null;
+        logTemporaryLargeVesselEntry(inventory, whitelisted, trait);
+        logCellarContainerDecision(inventory, whitelisted, trait);
+        if (whitelisted)
+        {
+            syncInventoryBlockEntity(inventory, trait);
+        }
     }
 
     public static void syncTFCChestBlockEntity(TFCChestBlockEntity chest)
     {
         final Level level = chest.getLevel();
-        if (level == null || level.isClientSide())
+        if (level == null || level.isClientSide() || !isWhitelistedContainerBlock(chest))
         {
             return;
         }
-        final ClimateStationAccess station = ClimateStationRegistry.findControllingCellarStation(level, chest.getBlockPos());
-        final @Nullable FoodTrait trait = station != null ? getCellarTrait(level, chest.getBlockPos()) : null;
-        syncContainer(chest, chest, trait);
+        syncContainer(chest, chest, getContextTrait(level, chest.getBlockPos()));
     }
 
     public static void syncFoodShelfBlockEntity(FoodShelfBlockEntity shelf)
@@ -109,9 +114,7 @@ public final class CellarPreservationHelper
         {
             return;
         }
-        final ClimateStationAccess station = ClimateStationRegistry.findControllingCellarStation(level, shelf.getBlockPos());
-        final @Nullable FoodTrait trait = station != null ? getCellarTrait(level, shelf.getBlockPos()) : null;
-        syncFoodShelfBlockEntity(shelf, trait);
+        syncFoodShelfBlockEntity(shelf, getContextTrait(level, shelf.getBlockPos()));
     }
 
     public static void syncFoodShelfBlockEntity(FoodShelfBlockEntity shelf, boolean preserved)
@@ -135,13 +138,11 @@ public final class CellarPreservationHelper
     public static void syncContainerBlockEntity(BlockEntity blockEntity, Container container)
     {
         final Level level = blockEntity.getLevel();
-        if (level == null || level.isClientSide())
+        if (level == null || level.isClientSide() || !shouldHandleExternalContainer(blockEntity))
         {
             return;
         }
-        final ClimateStationAccess station = ClimateStationRegistry.findControllingCellarStation(level, blockEntity.getBlockPos());
-        final @Nullable FoodTrait trait = station != null ? getCellarTrait(level, blockEntity.getBlockPos()) : null;
-        syncContainer(blockEntity, container, trait);
+        syncContainer(blockEntity, container, getContextTrait(level, blockEntity.getBlockPos()));
     }
 
     public static ItemStack sanitizeTakenStack(InventoryBlockEntity<?> inventory, ItemStack stack)
@@ -155,11 +156,13 @@ public final class CellarPreservationHelper
 
     public static ItemStack sanitizeTakenStack(ItemStack stack)
     {
-        if (!stack.isEmpty())
-        {
-            removeCellarTraits(stack);
-        }
+        sanitizeStack(stack);
         return stack;
+    }
+
+    public static boolean sanitizeStack(ItemStack stack)
+    {
+        return removeTemporaryCellarTraits(stack);
     }
 
     public static void sanitizeInventoryForDrop(InventoryBlockEntity<?> inventory)
@@ -176,7 +179,7 @@ public final class CellarPreservationHelper
         boolean changed = false;
         for (int slot = 0; slot < internal.getSlots(); slot++)
         {
-            changed |= removeCellarTraits(internal.getStackInSlot(slot));
+            changed |= removeTemporaryCellarTraits(internal.getStackInSlot(slot));
         }
         if (changed)
         {
@@ -191,13 +194,47 @@ public final class CellarPreservationHelper
 
     public static IItemHandler wrapSidedInventory(InventoryBlockEntity<?> inventory, @Nullable IItemHandler handler)
     {
-        if (handler == null || !shouldHandleInventory(inventory) || handler instanceof CellarInventoryWrapper || handler instanceof CellarInventoryModifiableWrapper)
+        return wrapBlockEntityItemHandler(inventory, handler);
+    }
+
+    public static IItemHandler wrapBlockEntityItemHandler(BlockEntity owner, @Nullable IItemHandler handler)
+    {
+        if (handler == null || !shouldHandleItemHandler(owner, handler) || isCellarWrapped(handler))
         {
             return handler;
         }
         return handler instanceof IItemHandlerModifiable modifiable
-            ? new CellarInventoryModifiableWrapper(inventory, modifiable)
-            : new CellarInventoryWrapper(inventory, handler);
+            ? new CellarInventoryModifiableWrapper(owner, modifiable)
+            : new CellarInventoryWrapper(owner, handler);
+    }
+
+    public static boolean shouldHandleItemHandler(BlockEntity owner, @Nullable IItemHandler handler)
+    {
+        return handler != null && canWrapBlockEntityItemHandler(owner);
+    }
+
+    public static boolean canWrapBlockEntityItemHandler(BlockEntity owner)
+    {
+        return !(owner instanceof com.eerussianguy.firmalife.common.blockentities.ClimateReceiver)
+            && !(owner instanceof ClimateStationAccess)
+            && shouldHandleExternalContainer(owner);
+    }
+
+    public static float getAppliedCellarPreservationMultiplier(ItemStack stack)
+    {
+        for (FoodTrait trait : ModFoodTraits.getCellarTraits())
+        {
+            if (FoodCapability.hasTrait(stack, trait))
+            {
+                return ModFoodTraits.getCellarTraitMultiplier(trait);
+            }
+        }
+        return 0f;
+    }
+
+    public static boolean isInCellar(Level level, BlockPos pos)
+    {
+        return !level.isClientSide() && ClimateStationRegistry.findControllingCellarStation(level, pos) != null;
     }
 
     public static FoodTrait getCellarTrait(Level level, BlockPos pos)
@@ -219,12 +256,23 @@ public final class CellarPreservationHelper
 
     public static boolean shouldHandleInventory(InventoryBlockEntity<?> inventory)
     {
-        return !(inventory instanceof com.eerussianguy.firmalife.common.blockentities.ClimateReceiver) && !(inventory instanceof ClimateStationAccess);
+        return !(inventory instanceof com.eerussianguy.firmalife.common.blockentities.ClimateReceiver)
+            && !(inventory instanceof ClimateStationAccess)
+            && isWhitelistedContainerBlock(inventory);
+    }
+
+    private static @Nullable FoodTrait getContextTrait(Level level, BlockPos pos)
+    {
+        return ClimateStationRegistry.findControllingCellarStation(level, pos) != null ? getCellarTrait(level, pos) : null;
     }
 
     private static void syncBlockEntity(Level level, BlockPos pos, @Nullable FoodTrait trait)
     {
-        final BlockEntity target = level.getBlockEntity(pos);
+        syncBlockEntity(level.getBlockEntity(pos), trait);
+    }
+
+    private static void syncBlockEntity(@Nullable BlockEntity target, @Nullable FoodTrait trait)
+    {
         if (target instanceof FoodShelfBlockEntity shelf)
         {
             syncFoodShelfBlockEntity(shelf, trait);
@@ -233,7 +281,7 @@ public final class CellarPreservationHelper
         {
             syncInventoryBlockEntity(inventory, trait);
         }
-        else if (target instanceof TFCChestBlockEntity chest)
+        else if (target instanceof TFCChestBlockEntity chest && isWhitelistedContainerBlock(chest))
         {
             syncContainer(chest, chest, trait);
         }
@@ -243,10 +291,19 @@ public final class CellarPreservationHelper
         }
     }
 
+    private static boolean canSyncBlockEntity(@Nullable BlockEntity target)
+    {
+        return target instanceof FoodShelfBlockEntity
+            || (target instanceof InventoryBlockEntity<?> inventory && shouldHandleInventory(inventory))
+            || (target instanceof TFCChestBlockEntity chest && isWhitelistedContainerBlock(chest))
+            || (target instanceof Container && shouldHandleExternalContainer(target));
+    }
+
     private static void syncInventoryBlockEntity(InventoryBlockEntity<?> inventory, @Nullable FoodTrait trait)
     {
         if (!SYNCING.add(inventory))
         {
+            logTemporaryLargeVesselSkipped(inventory, "already-syncing");
             return;
         }
         boolean changed = false;
@@ -255,17 +312,25 @@ public final class CellarPreservationHelper
             final IItemHandlerModifiable internal = getInventoryHandler(inventory);
             if (internal == null)
             {
+                logTemporaryLargeVesselSkipped(inventory, "missing-item-handler");
                 return;
             }
             for (int slot = 0; slot < internal.getSlots(); slot++)
             {
-                changed |= normalizeCellarTraits(internal.getStackInSlot(slot), trait);
+                final ItemStack stack = internal.getStackInSlot(slot);
+                final boolean slotChanged = normalizeStackAndNestedContainers(stack, trait, 0);
+                if (slotChanged)
+                {
+                    logTemporaryLargeVesselSlot(inventory, slot, stack, trait);
+                    changed = true;
+                }
             }
         }
         finally
         {
             SYNCING.remove(inventory);
         }
+        logTemporaryLargeVesselResult(inventory, changed);
         if (changed)
         {
             inventory.setChanged();
@@ -288,7 +353,7 @@ public final class CellarPreservationHelper
             }
             for (int slot = 0; slot < internal.getSlots(); slot++)
             {
-                changed |= normalizeCellarTraits(internal.getStackInSlot(slot), trait);
+                changed |= normalizeStackAndNestedContainers(internal.getStackInSlot(slot), trait, 0);
             }
         }
         finally
@@ -313,7 +378,7 @@ public final class CellarPreservationHelper
         {
             for (int slot = 0; slot < container.getContainerSize(); slot++)
             {
-                changed |= normalizeCellarTraits(container.getItem(slot), trait);
+                changed |= normalizeStackAndNestedContainers(container.getItem(slot), trait, 0);
             }
         }
         finally
@@ -326,32 +391,113 @@ public final class CellarPreservationHelper
         }
     }
 
-    private static boolean normalizeCellarTraits(ItemStack stack, @Nullable FoodTrait trait)
+    private static boolean normalizeStackAndNestedContainers(ItemStack stack, @Nullable FoodTrait trait, int depth)
     {
-        if (stack.isEmpty() || FoodCapability.get(stack) == null)
+        if (stack.isEmpty())
         {
             return false;
         }
+        boolean changed = normalizeFoodStack(stack, trait);
+        if (depth < 2 && ClimateControlConfig.isCellarNestedItemContainer(stack))
+        {
+            changed |= normalizeSmallVesselContents(stack, trait, depth + 1);
+        }
+        return changed;
+    }
+
+    private static boolean normalizeFoodStack(ItemStack stack, @Nullable FoodTrait trait)
+    {
+        if (FoodCapability.get(stack) == null)
+        {
+            return false;
+        }
+        final @Nullable FoodTrait effectiveTrait = getEffectiveCellarTrait(stack, trait);
         boolean changed = false;
         for (FoodTrait possible : getManagedCellarTraits())
         {
-            if (trait != possible && FoodCapability.hasTrait(stack, possible))
+            if (effectiveTrait != possible && FoodCapability.hasTrait(stack, possible))
             {
                 FoodCapability.removeTrait(stack, possible);
                 changed = true;
             }
         }
-        if (trait != null && !FoodCapability.hasTrait(stack, trait))
+        if (effectiveTrait != null && !FoodCapability.hasTrait(stack, effectiveTrait))
         {
-            FoodCapability.applyTrait(stack, trait);
+            FoodCapability.applyTrait(stack, effectiveTrait);
             changed = true;
         }
         return changed;
     }
 
-    private static boolean removeCellarTraits(ItemStack stack)
+    private static @Nullable FoodTrait getEffectiveCellarTrait(ItemStack stack, @Nullable FoodTrait trait)
+    {
+        if (trait == null)
+        {
+            return null;
+        }
+        final float existingMultiplier = getExistingContainerPreservationMultiplier(stack);
+        if (!Float.isFinite(existingMultiplier) || existingMultiplier >= MAX_TOTAL_PRESERVATION_MULTIPLIER)
+        {
+            return null;
+        }
+        final float allowedCellarMultiplier = MAX_TOTAL_PRESERVATION_MULTIPLIER / existingMultiplier;
+        final float desiredMultiplier = Math.min(ModFoodTraits.getCellarTraitMultiplier(trait), allowedCellarMultiplier);
+        return ModFoodTraits.getCellarTraitAtMost(desiredMultiplier);
+    }
+
+    private static float getExistingContainerPreservationMultiplier(ItemStack stack)
+    {
+        return FoodCapability.hasTrait(stack, FoodTraits.PRESERVED) ? getTraitMultiplier(FoodTraits.PRESERVED) : 1f;
+    }
+
+    private static float getTraitMultiplier(FoodTrait trait)
+    {
+        final float decayModifier = trait.getDecayModifier();
+        return decayModifier <= 0f ? Float.POSITIVE_INFINITY : 1f / decayModifier;
+    }
+
+    private static boolean normalizeSmallVesselContents(ItemStack stack, @Nullable FoodTrait trait, int depth)
+    {
+        final VesselLike vessel = VesselLike.get(stack);
+        if (vessel == null || vessel.mode() != VesselLike.Mode.INVENTORY)
+        {
+            return false;
+        }
+        boolean changed = false;
+        for (int slot = 0; slot < vessel.getSlots(); slot++)
+        {
+            final ItemStack contained = vessel.getStackInSlot(slot);
+            if (contained.isEmpty())
+            {
+                continue;
+            }
+            final boolean slotChanged = normalizeStackAndNestedContainers(contained, trait, depth);
+            if (slotChanged)
+            {
+                vessel.setStackInSlot(slot, contained);
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    private static boolean removeTemporaryCellarTraits(ItemStack stack)
     {
         if (stack.isEmpty())
+        {
+            return false;
+        }
+        boolean changed = removeFoodTemporaryCellarTraits(stack);
+        if (ClimateControlConfig.isCellarNestedItemContainer(stack))
+        {
+            changed |= removeSmallVesselTemporaryCellarTraits(stack, 1);
+        }
+        return changed;
+    }
+
+    private static boolean removeFoodTemporaryCellarTraits(ItemStack stack)
+    {
+        if (FoodCapability.get(stack) == null)
         {
             return false;
         }
@@ -361,6 +507,30 @@ public final class CellarPreservationHelper
             if (FoodCapability.hasTrait(stack, trait))
             {
                 FoodCapability.removeTrait(stack, trait);
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    private static boolean removeSmallVesselTemporaryCellarTraits(ItemStack stack, int depth)
+    {
+        if (depth > 2)
+        {
+            return false;
+        }
+        final VesselLike vessel = VesselLike.get(stack);
+        if (vessel == null || vessel.mode() != VesselLike.Mode.INVENTORY)
+        {
+            return false;
+        }
+        boolean changed = false;
+        for (int slot = 0; slot < vessel.getSlots(); slot++)
+        {
+            final ItemStack contained = vessel.getStackInSlot(slot);
+            if (!contained.isEmpty() && removeTemporaryCellarTraits(contained))
+            {
+                vessel.setStackInSlot(slot, contained);
                 changed = true;
             }
         }
@@ -378,7 +548,7 @@ public final class CellarPreservationHelper
         {
             for (int slot = 0; slot < container.getContainerSize(); slot++)
             {
-                changed |= removeCellarTraits(container.getItem(slot));
+                changed |= removeTemporaryCellarTraits(container.getItem(slot));
             }
         }
         finally
@@ -393,7 +563,94 @@ public final class CellarPreservationHelper
 
     private static boolean shouldHandleExternalContainer(BlockEntity blockEntity)
     {
-        return IE_WOODEN_CRATE_BLOCK_ENTITY.equals(blockEntity.getClass().getName());
+        return isWhitelistedContainerBlock(blockEntity);
+    }
+
+    private static boolean shouldApplyContainerInputTraits(BlockEntity owner)
+    {
+        final Level level = owner.getLevel();
+        return level != null && !level.isClientSide() && shouldHandleExternalContainer(owner);
+    }
+
+    private static boolean isWhitelistedContainerBlock(BlockEntity blockEntity)
+    {
+        return ClimateControlConfig.isCellarPreservableContainer(blockEntity.getBlockState());
+    }
+
+    private static void logTemporaryLargeVesselEntry(BlockEntity blockEntity, boolean whitelisted, @Nullable FoodTrait trait)
+    {
+        if (!ClimateDebug.isCellarEnabled() || !isLikelyLargeVessel(blockEntity))
+        {
+            return;
+        }
+        final String blockId = BuiltInRegistries.BLOCK.getKey(blockEntity.getBlockState().getBlock()).toString();
+        ClimateDebug.cellarTemp(
+            "entry block={} state={} class={} pos={} whitelisted={} tagFired={} inCellar={} traitMultiplier={}",
+            blockId,
+            blockEntity.getBlockState(),
+            blockEntity.getClass().getName(),
+            ClimateDebug.pos(blockEntity.getBlockPos()),
+            whitelisted,
+            blockEntity.getBlockState().is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK, new net.minecraft.resources.ResourceLocation("tfc", "fired_large_vessels"))),
+            trait != null,
+            trait != null ? getTraitMultiplier(trait) : 0f
+        );
+    }
+
+    private static void logTemporaryLargeVesselSkipped(BlockEntity blockEntity, String reason)
+    {
+        if (ClimateDebug.isCellarEnabled() && isLikelyLargeVessel(blockEntity))
+        {
+            ClimateDebug.cellarTemp("skip pos={} reason={}", ClimateDebug.pos(blockEntity.getBlockPos()), reason);
+        }
+    }
+
+    private static void logTemporaryLargeVesselSlot(BlockEntity blockEntity, int slot, ItemStack stack, @Nullable FoodTrait trait)
+    {
+        if (ClimateDebug.isCellarEnabled() && isLikelyLargeVessel(blockEntity))
+        {
+            ClimateDebug.cellarTemp(
+                "slot pos={} slot={} item={} cellarTraitMultiplier={} preservedTrait={} appliedCellarMultiplier={}",
+                ClimateDebug.pos(blockEntity.getBlockPos()),
+                slot,
+                BuiltInRegistries.ITEM.getKey(stack.getItem()),
+                trait != null ? getTraitMultiplier(trait) : 0f,
+                FoodCapability.hasTrait(stack, FoodTraits.PRESERVED),
+                getAppliedCellarPreservationMultiplier(stack)
+            );
+        }
+    }
+
+    private static void logTemporaryLargeVesselResult(BlockEntity blockEntity, boolean changed)
+    {
+        if (ClimateDebug.isCellarEnabled() && isLikelyLargeVessel(blockEntity))
+        {
+            ClimateDebug.cellarTemp("result pos={} changed={}", ClimateDebug.pos(blockEntity.getBlockPos()), changed);
+        }
+    }
+
+    private static void logCellarContainerDecision(BlockEntity blockEntity, boolean whitelisted, @Nullable FoodTrait trait)
+    {
+        if (!ClimateDebug.isCellarEnabled() || !isLikelyLargeVessel(blockEntity))
+        {
+            return;
+        }
+        final String blockId = BuiltInRegistries.BLOCK.getKey(blockEntity.getBlockState().getBlock()).toString();
+        ClimateDebug.cellarInfo(
+            "container={} class={} pos={} whitelisted={} inCellar={} traitMultiplier={}",
+            blockId,
+            blockEntity.getClass().getName(),
+            ClimateDebug.pos(blockEntity.getBlockPos()),
+            whitelisted,
+            trait != null,
+            trait != null ? getTraitMultiplier(trait) : 0f
+        );
+    }
+
+    private static boolean isLikelyLargeVessel(BlockEntity blockEntity)
+    {
+        final String blockId = BuiltInRegistries.BLOCK.getKey(blockEntity.getBlockState().getBlock()).toString();
+        return blockId.contains("large_vessel") || blockEntity.getClass().getName().contains("LargeVessel");
     }
 
     private static @Nullable IItemHandlerModifiable getInventoryHandler(InventoryBlockEntity<?> inventory)
@@ -417,7 +674,12 @@ public final class CellarPreservationHelper
         return traits;
     }
 
-    private record CellarInventoryWrapper(InventoryBlockEntity<?> owner, IItemHandler delegate) implements IItemHandler
+    private static boolean isCellarWrapped(IItemHandler handler)
+    {
+        return handler instanceof CellarInventoryWrapper || handler instanceof CellarInventoryModifiableWrapper;
+    }
+
+    private record CellarInventoryWrapper(BlockEntity owner, IItemHandler delegate) implements IItemHandler
     {
         @Override public int getSlots() { return delegate.getSlots(); }
         @Override public ItemStack getStackInSlot(int slot) { return delegate.getStackInSlot(slot); }
@@ -427,48 +689,70 @@ public final class CellarPreservationHelper
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            final Level level = owner.getLevel();
-            if (level == null || level.isClientSide() || ClimateStationRegistry.findControllingCellarStation(level, owner.getBlockPos()) == null || stack.isEmpty())
+            if (stack.isEmpty() || simulate || !shouldApplyContainerInputTraits(owner))
             {
                 return delegate.insertItem(slot, stack, simulate);
             }
             final ItemStack copy = stack.copy();
-            normalizeCellarTraits(copy, getCellarTrait(level, owner.getBlockPos()));
+            normalizeStackAndNestedContainers(copy, getTraitForOwner(owner), 0);
             return delegate.insertItem(slot, copy, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            return sanitizeTakenStack(delegate.extractItem(slot, amount, simulate));
+            final ItemStack extracted = delegate.extractItem(slot, amount, simulate);
+            return simulate ? extracted : sanitizeTakenStack(extracted);
         }
     }
 
-    private record CellarInventoryModifiableWrapper(InventoryBlockEntity<?> owner, IItemHandlerModifiable delegate) implements IItemHandlerModifiable
+    private record CellarInventoryModifiableWrapper(BlockEntity owner, IItemHandlerModifiable delegate) implements IItemHandlerModifiable
     {
         @Override public int getSlots() { return delegate.getSlots(); }
         @Override public ItemStack getStackInSlot(int slot) { return delegate.getStackInSlot(slot); }
         @Override public int getSlotLimit(int slot) { return delegate.getSlotLimit(slot); }
         @Override public boolean isItemValid(int slot, ItemStack stack) { return delegate.isItemValid(slot, stack); }
-        @Override public void setStackInSlot(int slot, ItemStack stack) { delegate.setStackInSlot(slot, stack); }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack)
+        {
+            if (stack.isEmpty() || !shouldApplyContainerInputTraits(owner))
+            {
+                delegate.setStackInSlot(slot, stack);
+                return;
+            }
+            final ItemStack copy = stack.copy();
+            normalizeStackAndNestedContainers(copy, getTraitForOwner(owner), 0);
+            delegate.setStackInSlot(slot, copy);
+        }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            final Level level = owner.getLevel();
-            if (level == null || level.isClientSide() || ClimateStationRegistry.findControllingCellarStation(level, owner.getBlockPos()) == null || stack.isEmpty())
+            if (stack.isEmpty() || simulate || !shouldApplyContainerInputTraits(owner))
             {
                 return delegate.insertItem(slot, stack, simulate);
             }
             final ItemStack copy = stack.copy();
-            normalizeCellarTraits(copy, getCellarTrait(level, owner.getBlockPos()));
+            normalizeStackAndNestedContainers(copy, getTraitForOwner(owner), 0);
             return delegate.insertItem(slot, copy, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            return sanitizeTakenStack(delegate.extractItem(slot, amount, simulate));
+            final ItemStack extracted = delegate.extractItem(slot, amount, simulate);
+            return simulate ? extracted : sanitizeTakenStack(extracted);
         }
+    }
+
+    private static @Nullable FoodTrait getTraitForOwner(BlockEntity owner)
+    {
+        final Level level = owner.getLevel();
+        if (level == null || level.isClientSide() || !shouldHandleExternalContainer(owner))
+        {
+            return null;
+        }
+        return getContextTrait(level, owner.getBlockPos());
     }
 }

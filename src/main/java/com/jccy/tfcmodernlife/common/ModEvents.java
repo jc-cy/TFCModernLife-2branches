@@ -2,8 +2,11 @@ package com.jccy.tfcmodernlife.common;
 
 import com.jccy.tfcmodernlife.TFCModernLife;
 import com.jccy.tfcmodernlife.common.climate.ClimateStationRegistry;
+import com.jccy.tfcmodernlife.common.climate.CellarPreservationHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -24,4 +27,18 @@ public final class ModEvents
             ClimateStationRegistry.tickLevel(serverLevel);
         }
     }
+
+    @SubscribeEvent
+    public static void onItemPickup(EntityItemPickupEvent event)
+    {
+        if (!event.getEntity().level().isClientSide())
+        {
+            final ItemStack stack = event.getItem().getItem();
+            if (CellarPreservationHelper.sanitizeStack(stack))
+            {
+                event.getItem().setItem(stack);
+            }
+        }
+    }
+
 }
