@@ -28,6 +28,7 @@ public final class CellarPreservationHelper
 {
     private static final float MAX_TOTAL_PRESERVATION_MULTIPLIER = 10f;
     private static final Set<Object> SYNCING = Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final Set<FoodTrait> MANAGED_CELLAR_TRAITS = createManagedCellarTraits();
 
     private CellarPreservationHelper() {}
 
@@ -413,7 +414,7 @@ public final class CellarPreservationHelper
         }
         final @Nullable FoodTrait effectiveTrait = getEffectiveCellarTrait(stack, trait);
         boolean changed = false;
-        for (FoodTrait possible : getManagedCellarTraits())
+        for (FoodTrait possible : MANAGED_CELLAR_TRAITS)
         {
             if (effectiveTrait != possible && FoodCapability.hasTrait(stack, possible))
             {
@@ -502,7 +503,7 @@ public final class CellarPreservationHelper
             return false;
         }
         boolean changed = false;
-        for (FoodTrait trait : getManagedCellarTraits())
+        for (FoodTrait trait : MANAGED_CELLAR_TRAITS)
         {
             if (FoodCapability.hasTrait(stack, trait))
             {
@@ -661,7 +662,7 @@ public final class CellarPreservationHelper
             .orElse(null);
     }
 
-    private static Set<FoodTrait> getManagedCellarTraits()
+    private static Set<FoodTrait> createManagedCellarTraits()
     {
         final Set<FoodTrait> traits = new LinkedHashSet<>();
         traits.add(FLFoodTraits.SHELVED);
@@ -671,7 +672,7 @@ public final class CellarPreservationHelper
         traits.add(FLFoodTraits.HUNG_2);
         traits.add(FLFoodTraits.HUNG_3);
         traits.addAll(ModFoodTraits.getCellarTraits());
-        return traits;
+        return Collections.unmodifiableSet(traits);
     }
 
     private static boolean isCellarWrapped(IItemHandler handler)
