@@ -859,6 +859,15 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         }
     }
 
+    public void loadEnergyFromItem(ItemStack stack)
+    {
+        final CompoundTag blockEntityTag = stack.getTagElement("BlockEntityTag");
+        if (blockEntityTag != null && blockEntityTag.contains("energy"))
+        {
+            energyStorage.deserializeNBT(blockEntityTag.get("energy"));
+        }
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag)
     {

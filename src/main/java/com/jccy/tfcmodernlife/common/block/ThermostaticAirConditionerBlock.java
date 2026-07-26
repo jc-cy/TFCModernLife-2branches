@@ -83,7 +83,7 @@ public class ThermostaticAirConditionerBlock extends Block implements EntityBloc
         level.setBlock(pos.above(), state.setValue(HALF, DoubleBlockHalf.UPPER), Block.UPDATE_ALL);
         if (level.getBlockEntity(pos) instanceof ThermostaticAirConditionerBlockEntity entity)
         {
-            entity.load(stack.getOrCreateTagElement("BlockEntityTag"));
+            entity.loadEnergyFromItem(stack);
             entity.refreshStructure(true);
         }
     }
@@ -97,6 +97,22 @@ public class ThermostaticAirConditionerBlock extends Block implements EntityBloc
             return neighborState.is(this) && neighborState.getValue(HALF) != half ? state : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
         }
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+    {
+        if (!level.isClientSide() && player.isCreative() && state.getValue(HALF) == DoubleBlockHalf.UPPER)
+        {
+            final BlockPos lowerPos = pos.below();
+            final BlockState lowerState = level.getBlockState(lowerPos);
+            if (lowerState.is(this) && lowerState.getValue(HALF) == DoubleBlockHalf.LOWER)
+            {
+                level.setBlock(lowerPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
+                level.levelEvent(player, 2001, lowerPos, Block.getId(lowerState));
+            }
+        }
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
@@ -170,12 +186,6 @@ public class ThermostaticAirConditionerBlock extends Block implements EntityBloc
         if (!state.is(newState.getBlock()))
         {
             final DoubleBlockHalf half = state.getValue(HALF);
-            final BlockPos otherPos = half == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
-            final BlockState otherState = level.getBlockState(otherPos);
-            if (otherState.is(this) && otherState.getValue(HALF) != half)
-            {
-                level.removeBlock(otherPos, false);
-            }
             if (half == DoubleBlockHalf.LOWER && level.getBlockEntity(pos) instanceof ThermostaticAirConditionerBlockEntity entity)
             {
                 if (!level.isClientSide())

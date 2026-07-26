@@ -966,6 +966,23 @@ public class ElectricSoupPotBlockEntity extends TickableInventoryBlockEntity<Ele
         return false;
     }
 
+    public void saveEnergyToItem(ItemStack stack)
+    {
+        if (!stack.isEmpty())
+        {
+            stack.getOrCreateTagElement("BlockEntityTag").put("energy", energyStorage.serializeNBT());
+        }
+    }
+
+    public void loadEnergyFromItem(ItemStack stack)
+    {
+        final CompoundTag blockEntityTag = stack.getTagElement("BlockEntityTag");
+        if (blockEntityTag != null && blockEntityTag.contains("energy"))
+        {
+            energyStorage.deserializeNBT(blockEntityTag.get("energy"));
+        }
+    }
+
     @Override
     public void loadAdditional(CompoundTag nbt)
     {

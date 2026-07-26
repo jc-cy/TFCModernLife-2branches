@@ -302,6 +302,23 @@ public class ElectricOvenBlockEntity extends TickableInventoryBlockEntity<Invent
         return slot >= 0 && slot < SLOTS && completedSlots[slot];
     }
 
+    public void saveEnergyToItem(ItemStack stack)
+    {
+        if (!stack.isEmpty())
+        {
+            stack.getOrCreateTagElement("BlockEntityTag").put("energy", energyStorage.serializeNBT());
+        }
+    }
+
+    public void loadEnergyFromItem(ItemStack stack)
+    {
+        final CompoundTag blockEntityTag = stack.getTagElement("BlockEntityTag");
+        if (blockEntityTag != null && blockEntityTag.contains("energy"))
+        {
+            energyStorage.deserializeNBT(blockEntityTag.get("energy"));
+        }
+    }
+
     @Override
     public void loadAdditional(CompoundTag nbt)
     {

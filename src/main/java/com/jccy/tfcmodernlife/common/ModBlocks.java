@@ -9,6 +9,7 @@ import com.jccy.tfcmodernlife.common.blockentity.ElectricOvenBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.ElectricSoupPotBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.RefrigeratorBlockEntity;
 import com.jccy.tfcmodernlife.common.blockentity.ThermostaticAirConditionerBlockEntity;
+import com.jccy.tfcmodernlife.common.item.EnergyPreservingBlockItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
@@ -42,13 +43,13 @@ public final class ModBlocks
         () -> new TrapDoorBlock(reinforcedSealedBrickProperties().noOcclusion(), BlockSetType.OAK));
 
     public static final RegistryObject<BlockItem> ELECTRIC_OVEN_ITEM = ITEMS.register("electric_oven",
-        () -> new BlockItem(ELECTRIC_OVEN.get(), new Item.Properties()));
+        () -> new EnergyPreservingBlockItem(ELECTRIC_OVEN.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> ELECTRIC_SOUP_POT_ITEM = ITEMS.register("electric_soup_pot",
-        () -> new BlockItem(ELECTRIC_SOUP_POT.get(), new Item.Properties()));
+        () -> new EnergyPreservingBlockItem(ELECTRIC_SOUP_POT.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> THERMOSTATIC_AIR_CONDITIONER_ITEM = ITEMS.register("thermostatic_air_conditioner",
-        () -> new BlockItem(THERMOSTATIC_AIR_CONDITIONER.get(), new Item.Properties()));
+        () -> new EnergyPreservingBlockItem(THERMOSTATIC_AIR_CONDITIONER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> REFRIGERATOR_ITEM = ITEMS.register("refrigerator",
-        () -> new BlockItem(REFRIGERATOR.get(), new Item.Properties()));
+        () -> new EnergyPreservingBlockItem(REFRIGERATOR.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> STAINLESS_STEEL_REINFORCED_SEALED_BRICKS_ITEM = ITEMS.register("stainless_steel_reinforced_sealed_bricks",
         () -> new BlockItem(STAINLESS_STEEL_REINFORCED_SEALED_BRICKS.get(), new Item.Properties()));
     public static final RegistryObject<DoubleHighBlockItem> STAINLESS_STEEL_REINFORCED_SEALED_BRICK_DOOR_ITEM = ITEMS.register("stainless_steel_reinforced_sealed_brick_door",
@@ -78,8 +79,7 @@ public final class ModBlocks
     {
         return BlockBehaviour.Properties.of()
             .mapColor(MapColor.METAL)
-            .strength(5.0f, 10.0f)
-            .requiresCorrectToolForDrops();
+            .strength(5.0f, 10.0f);
     }
 
     public static void register(IEventBus bus)

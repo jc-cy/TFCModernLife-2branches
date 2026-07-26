@@ -62,6 +62,7 @@
   "tfc_modern_life.tooltip.minimum_temperature": "最低温度: %s°C",
   "tfc_modern_life.tooltip.preservation_multiplier": "保鲜倍率: %.1fx",
   "tfc_modern_life.tooltip.reset_temperature": "归零",
+  "tfc_modern_life.tooltip.remaining_energy": "剩余电量: %d FE",
   "tfc_modern_life.tooltip.indoor_temperature": "室内温度: %s°C",
   "tfc_modern_life.tooltip.effective_space": "有效空间: %d",
   "tfc_modern_life.tooltip.food_trait.cellar": "地窖保鲜",

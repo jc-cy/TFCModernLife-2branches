@@ -62,6 +62,7 @@
   "tfc_modern_life.tooltip.minimum_temperature": "Minimum temperature: %s°C",
   "tfc_modern_life.tooltip.preservation_multiplier": "Preservation: %.1fx",
   "tfc_modern_life.tooltip.reset_temperature": "Reset",
+  "tfc_modern_life.tooltip.remaining_energy": "Remaining energy: %d FE",
   "tfc_modern_life.tooltip.indoor_temperature": "Indoor: %s°C",
   "tfc_modern_life.tooltip.effective_space": "Effective space: %d",
   "tfc_modern_life.tooltip.food_trait.cellar": "Cellar Preserved",

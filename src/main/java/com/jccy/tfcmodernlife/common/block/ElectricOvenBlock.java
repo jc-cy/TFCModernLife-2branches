@@ -3,6 +3,7 @@ package com.jccy.tfcmodernlife.common.block;
 import com.jccy.tfcmodernlife.common.ModBlocks;
 import com.jccy.tfcmodernlife.common.ModSounds;
 import com.jccy.tfcmodernlife.common.blockentity.ElectricOvenBlockEntity;
+import java.util.List;
 import net.dries007.tfc.common.blockentities.InventoryBlockEntity;
 import net.dries007.tfc.util.Helpers;
 import net.minecraft.core.BlockPos;
@@ -11,7 +12,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -44,7 +47,6 @@ public class ElectricOvenBlock extends Block implements EntityBlock
         super(BlockBehaviour.Properties.of()
             .mapColor(MapColor.METAL)
             .strength(3.5f)
-            .requiresCorrectToolForDrops()
             .noOcclusion()
             .lightLevel(state -> state.getValue(POWERED) ? 13 : 0));
         registerDefaultState(stateDefinition.any()
@@ -63,6 +65,15 @@ public class ElectricOvenBlock extends Block implements EntityBlock
     public BlockState getStateForPlacement(BlockPlaceContext context)
     {
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack)
+    {
+        if (level.getBlockEntity(pos) instanceof ElectricOvenBlockEntity entity)
+        {
+            entity.loadEnergyFromItem(stack);
+        }
     }
 
     @Override
@@ -132,6 +143,25 @@ public class ElectricOvenBlock extends Block implements EntityBlock
             level.setBlockAndUpdate(pos, currentState.setValue(OPEN, open));
             Helpers.playSound(level, pos, open ? ModSounds.ELECTRIC_OVEN_OPEN.get() : ModSounds.ELECTRIC_OVEN_CLOSE.get());
         }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder builder)
+    {
+        final List<ItemStack> drops = super.getDrops(state, builder);
+        final BlockEntity blockEntity = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (blockEntity instanceof ElectricOvenBlockEntity entity)
+        {
+            for (ItemStack drop : drops)
+            {
+                if (drop.is(ModBlocks.ELECTRIC_OVEN_ITEM.get()))
+                {
+                    entity.saveEnergyToItem(drop);
+                }
+            }
+        }
+        return drops;
     }
 
     @Override

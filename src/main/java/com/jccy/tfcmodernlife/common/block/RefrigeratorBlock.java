@@ -66,7 +66,7 @@ public class RefrigeratorBlock extends Block implements EntityBlock
     {
         if (level.getBlockEntity(pos) instanceof RefrigeratorBlockEntity entity)
         {
-            entity.load(stack.getOrCreateTagElement("BlockEntityTag"));
+            entity.loadEnergyFromItem(stack);
             entity.refreshStructure(true);
         }
     }
