@@ -1,21 +1,36 @@
 {
-  "type": "tfc_modern_life:greenhouse_disassembly",
-  "input": {
-    "tag": "tfc_modern_life:greenhouse_disassembly/copper/panel_roof"
-  },
-  "input_count": 4,
-  "tool": {
-    "item": "tfc:gem_saw"
-  },
-  "result": {
-    "item": "tfc:metal/rod/copper",
-    "count": 3
-  },
+  "type": "tfc:extra_products_shapeless_crafting",
   "extra_products": [
     {
       "item": "firmalife:reinforced_glass",
       "count": 3
     }
-  ]
+  ],
+  "recipe": {
+    "type": "tfc:damage_inputs_shapeless_crafting",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/copper/panel_roof"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/copper/panel_roof"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/copper/panel_roof"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/copper/panel_roof"
+        },
+        {
+          "item": "tfc:gem_saw"
+        }
+      ],
+      "result": {
+        "item": "tfc:metal/rod/copper",
+        "count": 3
+      }
+    }
+  }
 }
-

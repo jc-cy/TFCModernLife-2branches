@@ -1,21 +1,48 @@
 {
-  "type": "tfc_modern_life:greenhouse_disassembly",
-  "input": {
-    "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
-  },
-  "input_count": 8,
-  "tool": {
-    "item": "tfc:gem_saw"
-  },
-  "result": {
-    "item": "tfc:metal/rod/wrought_iron",
-    "count": 3
-  },
+  "type": "tfc:extra_products_shapeless_crafting",
   "extra_products": [
     {
       "item": "minecraft:glass",
       "count": 3
     }
-  ]
+  ],
+  "recipe": {
+    "type": "tfc:damage_inputs_shapeless_crafting",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/iron/roof_top"
+        },
+        {
+          "item": "tfc:gem_saw"
+        }
+      ],
+      "result": {
+        "item": "tfc:metal/rod/wrought_iron",
+        "count": 3
+      }
+    }
+  }
 }
-

@@ -13,8 +13,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
-import com.jccy.tfcmodernlife.common.recipe.GreenhouseDisassemblyRecipe;
 import net.dries007.tfc.common.capabilities.food.FoodTrait;
 import net.dries007.tfc.common.recipes.PotRecipe;
 import net.dries007.tfc.common.recipes.ingredients.LacksTraitIngredient;
@@ -67,12 +65,6 @@ public final class TFCModernLifeJEIPlugin implements IModPlugin
         {
             registry.addRecipes(ELECTRIC_SOUP_POT, recipes);
         }
-    }
-
-    @Override
-    public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registry)
-    {
-        registry.getCraftingCategory().addCategoryExtension(GreenhouseDisassemblyRecipe.class, GreenhouseDisassemblyExtension::new);
     }
 
     @Override

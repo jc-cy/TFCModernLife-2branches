@@ -1,21 +1,30 @@
 {
-  "type": "tfc_modern_life:greenhouse_disassembly",
-  "input": {
-    "tag": "tfc_modern_life:greenhouse_disassembly/copper/door"
-  },
-  "input_count": 2,
-  "tool": {
-    "item": "tfc:gem_saw"
-  },
-  "result": {
-    "item": "tfc:metal/rod/copper",
-    "count": 3
-  },
+  "type": "tfc:extra_products_shapeless_crafting",
   "extra_products": [
     {
       "item": "minecraft:glass",
       "count": 3
     }
-  ]
+  ],
+  "recipe": {
+    "type": "tfc:damage_inputs_shapeless_crafting",
+    "recipe": {
+      "type": "minecraft:crafting_shapeless",
+      "ingredients": [
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/copper/door"
+        },
+        {
+          "tag": "tfc_modern_life:greenhouse_disassembly/copper/door"
+        },
+        {
+          "item": "tfc:gem_saw"
+        }
+      ],
+      "result": {
+        "item": "tfc:metal/rod/copper",
+        "count": 3
+      }
+    }
+  }
 }
-

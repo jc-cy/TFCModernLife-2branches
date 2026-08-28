@@ -23,7 +23,6 @@
     "CropHelpersMixin",
     "FarmlandBlockMixin",
     "FLBeehiveBlockEntityMixin",
-    "GreenhouseDisassemblyResultSlotMixin",
     "InventoryBlockEntityMixin",
     "JarringStationBlockEntityMixin",
     "TFCBlockEntityClimateMixin",

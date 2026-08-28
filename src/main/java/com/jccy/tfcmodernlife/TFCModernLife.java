@@ -8,7 +8,6 @@ import com.jccy.tfcmodernlife.common.ModContainerTypes;
 import com.jccy.tfcmodernlife.common.ModCreativeTab;
 import com.jccy.tfcmodernlife.common.ModFoodTraits;
 import com.jccy.tfcmodernlife.common.ModParticles;
-import com.jccy.tfcmodernlife.common.ModRecipeSerializers;
 import com.jccy.tfcmodernlife.common.ModSounds;
 import com.jccy.tfcmodernlife.common.climate.ClimateControlConfig;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,7 +34,6 @@ public final class TFCModernLife
         ModContainerTypes.register(modBus);
         ModCreativeTab.register(modBus);
         ModParticles.register(modBus);
-        ModRecipeSerializers.register(modBus);
         ModSounds.register(modBus);
         ClimateControlConfig.registerReloadListener(modBus);
         LegendarySurvivalOverhaulCompat.register(modBus);
