@@ -3,6 +3,7 @@ package com.jccy.tfcmodernlife.common;
 import com.jccy.tfcmodernlife.TFCModernLife;
 import com.jccy.tfcmodernlife.common.block.ElectricOvenBlock;
 import com.jccy.tfcmodernlife.common.block.ElectricSoupPotBlock;
+import com.jccy.tfcmodernlife.common.block.ReinforcedSealedBricksBlock;
 import com.jccy.tfcmodernlife.common.block.RefrigeratorBlock;
 import com.jccy.tfcmodernlife.common.block.ThermostaticAirConditionerBlock;
 import com.jccy.tfcmodernlife.common.blockentity.ElectricOvenBlockEntity;
@@ -35,8 +36,8 @@ public final class ModBlocks
     public static final RegistryObject<ElectricSoupPotBlock> ELECTRIC_SOUP_POT = BLOCKS.register("electric_soup_pot", ElectricSoupPotBlock::new);
     public static final RegistryObject<ThermostaticAirConditionerBlock> THERMOSTATIC_AIR_CONDITIONER = BLOCKS.register("thermostatic_air_conditioner", ThermostaticAirConditionerBlock::new);
     public static final RegistryObject<RefrigeratorBlock> REFRIGERATOR = BLOCKS.register("refrigerator", RefrigeratorBlock::new);
-    public static final RegistryObject<Block> STAINLESS_STEEL_REINFORCED_SEALED_BRICKS = BLOCKS.register("stainless_steel_reinforced_sealed_bricks",
-        () -> new Block(reinforcedSealedBrickProperties()));
+    public static final RegistryObject<ReinforcedSealedBricksBlock> STAINLESS_STEEL_REINFORCED_SEALED_BRICKS = BLOCKS.register("stainless_steel_reinforced_sealed_bricks",
+        () -> new ReinforcedSealedBricksBlock(reinforcedSealedBrickProperties()));
     public static final RegistryObject<DoorBlock> STAINLESS_STEEL_REINFORCED_SEALED_BRICK_DOOR = BLOCKS.register("stainless_steel_reinforced_sealed_brick_door",
         () -> new DoorBlock(reinforcedSealedBrickProperties().noOcclusion(), BlockSetType.OAK));
     public static final RegistryObject<TrapDoorBlock> STAINLESS_STEEL_REINFORCED_SEALED_BRICK_TRAPDOOR = BLOCKS.register("stainless_steel_reinforced_sealed_brick_trapdoor",

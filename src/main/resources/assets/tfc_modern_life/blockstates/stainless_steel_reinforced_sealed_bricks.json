@@ -1,7 +1,16 @@
 {
   "variants": {
-    "": {
+    "down=false,up=false": {
       "model": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks"
+    },
+    "down=true,up=false": {
+      "model": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_down"
+    },
+    "down=false,up=true": {
+      "model": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_up"
+    },
+    "down=true,up=true": {
+      "model": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_both"
     }
   }
 }

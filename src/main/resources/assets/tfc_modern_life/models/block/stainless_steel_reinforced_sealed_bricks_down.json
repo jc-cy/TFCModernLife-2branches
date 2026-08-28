@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_top_bottom",
+    "up": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_top_bottom",
+    "north": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_down",
+    "south": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_down",
+    "east": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_down",
+    "west": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_down",
+    "particle": "tfc_modern_life:block/stainless_steel_reinforced_sealed_bricks_down"
+  }
+}
