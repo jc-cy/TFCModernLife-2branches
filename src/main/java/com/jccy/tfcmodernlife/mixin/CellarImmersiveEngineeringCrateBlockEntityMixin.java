@@ -1,7 +1,6 @@
 package com.jccy.tfcmodernlife.mixin;
 
 import com.jccy.tfcmodernlife.common.climate.CellarPreservationHelper;
-import blusunrize.immersiveengineering.common.blocks.wooden.WoodenCrateBlockEntity;
 import java.util.function.Consumer;
 import net.dries007.tfc.common.capabilities.Capabilities;
 import net.minecraft.core.Direction;
@@ -15,12 +14,14 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = WoodenCrateBlockEntity.class, remap = false)
+@Pseudo
+@Mixin(targets = "blusunrize.immersiveengineering.common.blocks.wooden.WoodenCrateBlockEntity", remap = false)
 public abstract class CellarImmersiveEngineeringCrateBlockEntityMixin
 {
     @Inject(method = {"loadAdditional", "m_142466_"}, at = @At("TAIL"), require = 0)

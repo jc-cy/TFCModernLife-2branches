@@ -14,6 +14,8 @@ TFC Modern Life / 群峦现代化生活
 
 面向 TerraFirmaCraft 中后期流程的现代化生活扩展，包含电热烤箱、电热高压锅、温室用的恒温空调、地窖/冷库用的制冷器、新的不锈钢强化冷库和温室建材拆解。
 
+Immersive Engineering 为可选兼容。安装 IE 后提供四种电力设备的默认物品配方；不安装 IE 时不会阻止本模组启动，请通过其他电力模组或数据包自行添加替代配方。
+
 功能与参数概览
 
 电力厨房-电热烤箱和电热高压锅
@@ -53,7 +55,7 @@ TFC Modern Life / 群峦现代化生活
 - 不锈钢强化密封砖 + 制冷器: 耗电倍率 1.0x，最低 -30°C，对应 10x 保鲜。
 - 混合冷库最低温度按热墙材料数量加权平均；耗电倍率取数量最多的材料等级，打平时取耗电倍率更高的一档。
 - 保鲜倍率按实际冷库温度计算: >=0°C 为 2x，<0°C 为 2.5x，<=-6°C 为 3x，<=-9°C 为 3.5x，<=-12°C 为 4x，<=-15°C 为 4.5x，<=-18°C 为 5x，<=-21°C 为 6x，<=-24°C 为 7x，<=-27°C 为 8.5x，<=-30°C 为 10x。
-- 支持 FirmaLife 食物架、TFC 箱子、Immersive Engineering 木制储物箱 / 强化储物箱等容器的地窖保鲜同步与清理。
+- 支持 FirmaLife 食物架、TFC 箱子等容器的地窖保鲜同步与清理；安装 Immersive Engineering 时额外兼容其木制储物箱 / 强化储物箱。
 - 支持的容器在mod配置文件里面可以自由修改，未修改且不生效删除配置文件重新生成即可。
 
 控温设备通用参数
@@ -142,6 +144,7 @@ Greenhouse Material Disassembly
 
 Mod Compatibility
 - Adds temperature-system compatibility for [LSO] Legendary Survival Overhaul. Temperatures inside greenhouses and cold storage structures are used directly as the indoor environmental temperature.
+- Immersive Engineering is optional. When IE is installed, this mod provides default item recipes for all four powered devices; without IE, startup still works, but you must add replacement recipes through another power mod or a datapack.
 
 License Notice
 This mod is distributed under All Rights Reserved (ARR).
@@ -192,7 +195,7 @@ side = "BOTH"
 
 [[dependencies.tfc_modern_life]]
 modId = "immersiveengineering"
-mandatory = true
+mandatory = false
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
