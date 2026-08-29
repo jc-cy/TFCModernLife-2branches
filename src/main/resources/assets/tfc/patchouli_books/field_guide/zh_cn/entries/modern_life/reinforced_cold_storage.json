@@ -1,0 +1,29 @@
+{
+  "name": "不锈钢强化冷库",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+      "link_recipe": true,
+      "text": "不锈钢强化密封砖、密封门和密封活板门是冷库的强化结构材料。它们沿用 FirmaLife 冷库的结构检测，并作为不锈钢强化冷库提供 -30°C 的结构下限。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "强化件制作",
+      "text": "强化密封砖使用不锈钢薄板、密封砖和任意锤子制作，产出 4 个；强化密封门使用不锈钢薄板、密封门和任意锤子制作，产出 1 个；强化密封活板门使用不锈钢薄板、密封活板门和任意锤子制作，产出 2 个。锤子只损耗耐久。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+      "text": "不锈钢强化密封砖的配方。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "冷库墙体可以混用密封砖与不锈钢强化密封砖。混合结构的最低温度按两种热墙的数量加权，耗电倍率按数量更多的一档计算；数量相同时取耗电倍率更高的一档。"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 5
+}

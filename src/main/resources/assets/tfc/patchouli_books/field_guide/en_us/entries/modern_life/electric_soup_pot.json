@@ -1,0 +1,35 @@
+{
+  "name": "Electric Soup Pot",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:electric_soup_pot",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:electric_soup_pot",
+      "link_recipe": true,
+      "text": "The Electric Soup Pot supports pot recipes, sugar water, and sugar-water jam. It has 5 input slots, supports automated fluid and item input and output, and outputs jam products to a Jarring Station."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:electric_soup_pot",
+      "text": "The default recipe requires Immersive Engineering. Once Immersive Engineering is installed, the recipe appears in the crafting table and JEI."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Operating Parameters",
+      "text": "Stores 16000 FE, accepts up to 256 FE/t for input and output, and uses 20 FE/t by default; usage is configurable. Breaking the device preserves its stored energy."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Sugar Water and Jam",
+      "text": "Add 500 mB of water and 1 sweetener to make 500 mB of sugar water. Sugar water and one fruit type can make jam; each serving consumes 100 mB of sugar water. Pre-boiling takes 100 ticks and cooking speed is 4x."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Jarring Automation",
+      "text": "Place a FirmaLife Jarring Station directly in front of the pot and provide lids and empty jars. Finished jam is sent to that facing station; stations on other sides do not receive this output. Automated input and output are supported."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 3
+}

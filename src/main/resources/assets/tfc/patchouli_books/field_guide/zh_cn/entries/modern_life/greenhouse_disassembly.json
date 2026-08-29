@@ -1,0 +1,23 @@
+{
+  "name": "温室建材拆解",
+  "category": "tfc:modern_life",
+  "icon": "tfc:gem_saw",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:gem_saw",
+      "text": "使用宝石锯和温室方块可以拆回温室建材。配方覆盖处理木、铜、铁和不锈钢温室的墙、面板墙、屋顶、面板屋顶、屋脊、门、活板门和温室管道。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "配方规则",
+      "text": "拆解配方使用 TFC 原生合成包装。需要 2、4、8 个温室方块时，必须让方块占据 2、4、8 个独立工作台格，宝石锯另占 1 格。风化、氧化和生锈变体会按材料与形状归入同一组配方。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "温室管道拆解会返还对应材质的温室墙和 1 个铜管。宝石锯会按正常工具规则损耗耐久；具体产物和数量可以在 JEI 中查看。"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 6
+}

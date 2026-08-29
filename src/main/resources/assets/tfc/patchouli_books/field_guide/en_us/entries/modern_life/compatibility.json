@@ -1,0 +1,24 @@
+{
+  "name": "Compatibility and Configuration",
+  "category": "tfc:modern_life",
+  "icon": "minecraft:redstone",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Immersive Engineering Compatibility",
+      "text": "All four powered devices use the standard Forge Energy capability. Immersive Engineering is an optional compatibility mod: when installed, it provides default device recipes and adds cellar preservation support for its wooden and reinforced crates. Without Immersive Engineering, the mod still starts normally. The devices can still be powered by another Forge Energy mod, but you must provide replacement recipes yourself."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Legendary Survival Overhaul Compatibility",
+      "text": "With Legendary Survival Overhaul installed, controlled temperatures from this mod's greenhouses and cold storage become Legendary Survival Overhaul's indoor environmental temperature target. Legendary Survival Overhaul remains optional."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Configuration",
+      "text": "Base device usage, the climate-control usage constant, minimum running cost, greenhouse and cold-storage tier multipliers, and the cellar container allowlist can be changed in this mod's configuration. If changes do not apply, delete the old config and let Forge regenerate it."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 7
+}

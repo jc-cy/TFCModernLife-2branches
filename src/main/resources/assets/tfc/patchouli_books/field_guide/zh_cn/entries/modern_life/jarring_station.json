@@ -1,0 +1,25 @@
+{
+  "name": "装罐台修改",
+  "category": "tfc:modern_life",
+  "icon": "firmalife:jarring_station",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "firmalife:jarring_station",
+      "link_recipe": true,
+      "text": "装罐台已经被本模组修改重做。现在可以正常输入、输出并产出果酱，修复了动画问题，还可以识别带盖和不带盖的罐子。装罐台可以把正对着的陶锅和高压锅中的果酱装入空罐。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "firmalife:crafting/jarring_station",
+      "text": "装罐台的 FirmaLife 配方。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "自动化要点",
+      "text": "糖水加工支持按量消耗：当高压锅里面的输入为纯甜味剂和水时，会按量消耗甜味剂。可实现一台高压锅加工糖水，另一台用糖水加工果酱，再用装罐台输出，即可完成自动化。"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 4
+}

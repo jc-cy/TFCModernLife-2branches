@@ -1,0 +1,30 @@
+{
+  "name": "Thermostatic Air Conditioner",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:thermostatic_air_conditioner",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:thermostatic_air_conditioner",
+      "link_recipe": true,
+      "text": "The Thermostatic Air Conditioner is an advanced climate station for greenhouses and cold storage. Place it inside the structure, supply power, and it will detect the connected structure. Its set temperature is the temperature it tries to reach."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:thermostatic_air_conditioner",
+      "text": "The default recipe requires Immersive Engineering. Without Immersive Engineering, the device can still be powered by another Forge Energy mod."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Greenhouse Capacity",
+      "text": "$(li)Treated wood: 1.3x power, ±5°C air-conditioner range, ±3°C automatic station range. $()$(li)Copper: 1.2x power, ±10°C air-conditioner range, ±5°C automatic station range. $()$(li)Iron: 1.1x power, ±18°C air-conditioner range, ±7°C automatic station range. $()$(li)Stainless steel: 1.0x power, ±70°C air-conditioner range, ±10°C automatic station range. $()$(li)Mixed greenhouses use a weighted tier based on insulation wall counts. $()"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Controls and Effects",
+      "text": "The GUI adjusts the set temperature by -5, -1, +1, or +5°C. It stores 4000000 FE, accepts up to 4096 FE/t, and starts above 25% energy. When climate control is needed, minimum usage is 20 FE/t by default; actual usage also depends on effective space, temperature difference, and structure tier. Controlled temperature affects crops, farmland, beehives, berries, and fruit trees. Breaking the device preserves its stored energy."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 0
+}

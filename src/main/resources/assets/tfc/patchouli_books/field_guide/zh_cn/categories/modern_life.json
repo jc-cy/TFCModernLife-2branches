@@ -1,0 +1,6 @@
+{
+  "name": "群峦现代化生活",
+  "description": "群峦现代化生活主要为群峦添加了中后期游戏内容，为其添加了多种美观实用的设备，主要用于提升生活质量。$(br2)其中可选的默认兼容模组为：沉浸工程。若不使用此模组，需自行添加电力供应和设备配方。",
+  "icon": "tfc_modern_life:thermostatic_air_conditioner",
+  "sortnum": 20
+}

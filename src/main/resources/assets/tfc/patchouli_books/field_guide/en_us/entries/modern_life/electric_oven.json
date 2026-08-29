@@ -1,0 +1,25 @@
+{
+  "name": "Electric Oven",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:electric_oven",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:electric_oven",
+      "link_recipe": true,
+      "text": "The Electric Oven accepts TFC heating recipes and FirmaLife oven recipes. It has 6 processing slots, supports automated input and output, outputs only completed products, and preserves its stored energy when broken."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:electric_oven",
+      "text": "The default recipe requires Immersive Engineering. Once Immersive Engineering is installed, the recipe appears in the crafting table and JEI."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Operating Parameters",
+      "text": "$(li)Stores 16000 FE and accepts up to 256 FE/t for input and output. $()$(li)Uses 20 FE/t by default; this is configurable. $()$(li)Target temperature ranges from 0 to 800°C. While powered, it approaches the target by 3°C per tick; while unpowered, it cools by 1.5°C per tick. $()$(li)Food baked by the oven receives the Electric Oven Baked trait with a 0.9x decay modifier. $()"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 2
+}

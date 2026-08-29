@@ -1,0 +1,30 @@
+{
+  "name": "Refrigerator",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:refrigerator",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:refrigerator",
+      "link_recipe": true,
+      "text": "The Refrigerator cools cellars and cold storage. Place it in a valid structure and supply power. It only lowers temperature, stores a fixed set temperature in cold storage, and never raises naturally colder air. It stores 4000000 FE, accepts up to 4096 FE/t, starts above 25% energy, and preserves its stored energy when broken."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:refrigerator",
+      "text": "The default recipe requires Immersive Engineering. The Refrigerator uses the standard Forge Energy capability."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Cold Storage Tiers",
+      "text": "Sealed-brick cold storage with a Refrigerator reaches -15°C, uses 1.1x power, and provides up to 4.5x preservation. Stainless steel reinforced cold storage reaches -30°C, uses 1.0x power, and provides up to 10x preservation. Mixed storage averages the minimum temperature by thermal wall counts; its power tier uses the most common material."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Preservation",
+      "text": "Actual temperature determines preservation: 2x at or above 0°C, 2.5x below 0°C, then 3x, 3.5x, 4x, 4.5x, 5x, 6x, 7x, 8.5x, and 10x at -6, -9, -12, -15, -18, -21, -24, -27, and -30°C. Supported TFC, FirmaLife, and Immersive Engineering containers synchronize and clean up cellar preservation."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 1
+}

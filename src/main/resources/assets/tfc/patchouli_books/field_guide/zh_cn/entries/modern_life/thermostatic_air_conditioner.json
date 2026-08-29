@@ -1,0 +1,30 @@
+{
+  "name": "恒温空调",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:thermostatic_air_conditioner",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:thermostatic_air_conditioner",
+      "link_recipe": true,
+      "text": "恒温空调是温室和冷库的上位气象站。放入结构内部并接入电力后，它会检测相连的结构；界面中的设定温度决定设备尝试达到的温度。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:thermostatic_air_conditioner",
+      "text": "默认配方需要沉浸工程（Immersive Engineering）。没有沉浸工程时，设备仍可通过其他 Forge Energy 电力模组供电。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "温室能力",
+      "text": "$(li)木质温室：耗电倍率 1.3x，空调范围 ±5°C，气象站自动范围 ±3°C。$()$(li)铜温室：耗电倍率 1.2x，空调范围 ±10°C，气象站自动范围 ±5°C。$()$(li)铁温室：耗电倍率 1.1x，空调范围 ±18°C，气象站自动范围 ±7°C。$()$(li)不锈钢温室：耗电倍率 1.0x，空调范围 ±70°C，气象站自动范围 ±10°C。$()$(li)混合温室按保温墙数量加权计算等级。$()"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "操作与影响",
+      "text": "GUI 使用 -5、-1、+1、+5°C 调节设定温度。设备储能 4000000 FE，最大输入 4096 FE/t，电量超过 25% 后才会启动；有控温需求时最低耗电默认 20 FE/t，实际耗电还会随有效空间、温差和结构等级变化。控温后的温度会影响作物、耕地、蜂箱、浆果和果树。拆下设备时会保留内部电量。"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 0
+}

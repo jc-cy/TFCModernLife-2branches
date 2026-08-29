@@ -1,0 +1,6 @@
+{
+  "name": "TFC Modern Life",
+  "description": "TFC Modern Life primarily adds mid- and late-game content to TerraFirmaCraft, including a range of attractive and practical devices focused on quality-of-life improvements. $(br2)The default optional compatibility mod is Immersive Engineering. Without this mod, you must provide your own power supply and device recipes.",
+  "icon": "tfc_modern_life:thermostatic_air_conditioner",
+  "sortnum": 20
+}

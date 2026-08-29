@@ -1,0 +1,25 @@
+{
+  "name": "电热烤箱",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:electric_oven",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:electric_oven",
+      "link_recipe": true,
+      "text": "电热烤箱兼容 TFC 加热配方和 FirmaLife 烤箱配方。它有 6 个加工栏位，支持自动输入、输出，且只会输出加工完毕的产品；拆下设备时会保留内部电量。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:electric_oven",
+      "text": "默认配方需要沉浸工程（Immersive Engineering）。安装沉浸工程后，配方会在合成台和 JEI 中出现。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "运行参数",
+      "text": "$(li)储能 16000 FE，最大输入、输出 256 FE/t。$()$(li)默认耗电 20 FE/t，可在配置文件中修改。$()$(li)目标温度范围为 0～800°C。通电时每 tick 向目标温度靠近 3°C，断电时每 tick 降低 1.5°C。$()$(li)烤制完成的食物会获得“电热烤箱烤制”特性，腐败倍率为 0.9x。$()"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 2
+}

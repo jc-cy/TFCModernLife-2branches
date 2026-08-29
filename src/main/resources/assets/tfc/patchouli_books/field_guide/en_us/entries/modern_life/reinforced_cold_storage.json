@@ -1,0 +1,29 @@
+{
+  "name": "Stainless Steel Reinforced Cold Storage",
+  "category": "tfc:modern_life",
+  "icon": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+      "link_recipe": true,
+      "text": "Stainless steel reinforced sealed bricks, doors, and trapdoors are reinforced cold-storage materials. They use FirmaLife structure detection and provide a -30°C structure limit for stainless steel reinforced cold storage."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Reinforcement Recipes",
+      "text": "Reinforced sealed bricks use stainless steel sheets, sealed bricks, and any hammer to produce 4 blocks. Reinforced sealed doors use a stainless steel sheet, a sealed door, and any hammer to produce 1 door. Reinforced sealed trapdoors use a stainless steel sheet, a sealed trapdoor, and any hammer to produce 2 trapdoors. The hammer only loses durability."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+      "text": "Recipe for stainless steel reinforced sealed bricks."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Cold-storage walls can mix sealed bricks and stainless steel reinforced sealed bricks. Mixed structures calculate the minimum temperature as a weighted average based on the two thermal wall counts, and use the power tier of the more common material; ties use the higher-cost tier."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 5
+}

@@ -1,0 +1,24 @@
+{
+  "name": "兼容与配置",
+  "category": "tfc:modern_life",
+  "icon": "minecraft:redstone",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "沉浸工程兼容",
+      "text": "四种电力设备使用通用 Forge Energy capability。沉浸工程（Immersive Engineering）是可选兼容：安装后提供默认设备配方，并额外兼容其木箱和强化箱的地窖保鲜；不安装沉浸工程不会阻止模组启动。没有沉浸工程时，设备仍可由其他 Forge Energy 电力模组供电，但需要自行提供替代配方。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "传说生存兼容",
+      "text": "安装传说生存（Legendary Survival Overhaul）后，温室和冷库中的本模组受控温度会作为传说生存的室内环境温度目标。传说生存为可选兼容。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "配置文件",
+      "text": "设备基础耗电、温控耗电常数、最低运行耗电、温室和冷库等级倍率，以及地窖容器白名单都可以在本模组配置文件中修改。若修改后未生效，请删除旧配置文件，让 Forge 重新生成。"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 7
+}
