@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[47,)"
-license = "All Rights Reserved"
+license = "All Rights Reserved (ARR)"
 
 [[mods]]
 modId = "tfc_modern_life"
@@ -74,14 +74,6 @@ Immersive Engineering 为可选兼容。安装 IE 后提供四种电力设备的
 模组兼容
 - 额外兼容 [LSO]传说生存Legendary Survival Overhaul 的温度系统，温室和冷库的内的温度将直接作为室内的环境温度。
 
-授权与声明
-本模组采用 All Rights Reserved (ARR) 闭源授权。
-仅允许免费使用作者官方发布的未修改编译版，且仅限个人、非商业、合法用途。
-未经作者事先书面许可，禁止二次分发、镜像、转载、整合包收录、预装、修改后二次发布、商业使用或 AI 训练。
-源码默认不公开；在同意随附声明并取得作者明确同意后，可向作者申请获取部分或全部源码。
-本模组包含 AI 生成或 AI 辅助内容；如不接受，请禁用或删除本模组。
-完整条款详见随附 LICENSE 与 DISCLAIMER.md。
-
 English Summary
 Note: This mod is a merged reset of FirmalifeEnhance / firmalife enhancement and TFC Electric Cooking / electric cooking. Do not install it together with those two old mods.
 
@@ -146,13 +138,6 @@ Mod Compatibility
 - Adds temperature-system compatibility for [LSO] Legendary Survival Overhaul. Temperatures inside greenhouses and cold storage structures are used directly as the indoor environmental temperature.
 - Immersive Engineering is optional. When IE is installed, this mod provides default item recipes for all four powered devices; without IE, startup still works, but you must add replacement recipes through another power mod or a datapack.
 
-License Notice
-This mod is distributed under All Rights Reserved (ARR).
-Only the author's official unmodified compiled release may be used for free for personal, non-commercial, lawful use.
-No redistribution, mirroring, reposting, modpack inclusion, preinstallation, modified re-release, commercial use, or AI training is allowed without the author's prior written permission.
-Source code is not public by default; with explicit consent from the author and acceptance of the bundled notices, you may request access to some or all source code.
-This mod contains AI-generated or AI-assisted content. Disable or remove it if you do not accept such content.
-See the bundled LICENSE and DISCLAIMER.md for the full terms.
 '''
 
 [[mods]]
