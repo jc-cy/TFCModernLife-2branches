@@ -7,7 +7,7 @@
       "type": "patchouli:spotlight",
       "item": "tfc_modern_life:electric_soup_pot",
       "link_recipe": true,
-      "text": "The Electric Soup Pot supports pot recipes, sugar water, and sugar-water jam. It has 5 input slots, supports automated fluid and item input and output, and outputs jam products to a Jarring Station."
+      "text": "The Electric Soup Pot is an upgraded replacement for the ceramic pot, supporting TFC, FirmaLife, and Artisanal pot recipes. It has 5 input slots and supports automated fluid and item handling."
     },
     {
       "type": "patchouli:crafting",
@@ -17,17 +17,27 @@
     {
       "type": "patchouli:text",
       "title": "Operating Parameters",
-      "text": "Stores 16000 FE, accepts up to 256 FE/t for input and output, and uses 20 FE/t by default; usage is configurable. Breaking the device preserves its stored energy."
+      "text": "Stores 16000 FE and accepts up to 256 FE/t for input and output. $(br2)The default energy cost is 20 FE/t and can be changed in the config file. Breaking the device preserves its stored energy."
     },
     {
       "type": "patchouli:text",
-      "title": "Sugar Water and Jam",
-      "text": "Add 500 mB of water and 1 sweetener to make 500 mB of sugar water. Sugar water and one fruit type can make jam; each serving consumes 100 mB of sugar water. Pre-boiling takes 100 ticks and cooking speed is 4x."
+      "title": "Sugar Water",
+      "text": "Add 500 mB of water and 1 sweetener to make 500 mB of sugar water. $(br2)Pre-boiling takes 100 ticks and cooking speed is 4x."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Jam",
+      "text": "Sugar water and one fruit type make jam, consuming 100 mB of sugar water per serving. Finished jam can be taken directly or sent to a jarring station placed in front of the pot."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Artisanal Compatibility",
+      "text": "When Artisanal is installed, the Electric Soup Pot also handles its scalable pot recipes used by the ceramic pot. Artisanal pot recipes appear in JEI with the Electric Soup Pot as a recipe catalyst."
     },
     {
       "type": "patchouli:text",
       "title": "Jarring Automation",
-      "text": "Place a FirmaLife Jarring Station directly in front of the pot and provide lids and empty jars. Finished jam is sent to that facing station; stations on other sides do not receive this output. Automated input and output are supported."
+      "text": "Place a FirmaLife Jarring Station directly in front of the pot and provide lids and empty jars. Finished jam is sent only to that facing station. Automated input and output are supported."
     }
   ],
   "read_by_default": true,

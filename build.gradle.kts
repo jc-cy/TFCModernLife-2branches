@@ -22,6 +22,7 @@ val modId = "tfc_modern_life"
 val modVersion = System.getenv("VERSION") ?: "1.1.0"
 val tfcSourceDir = "../TerraFirmaCraft-3.2.21-1.20"
 val configuredModsDir = "C:/Users/g1739/Desktop/PCL/.minecraft/versions/TerraFirmaFarHorizons/mods"
+val artisanalLocalJar = file("artisanal-1.7.5.jar")
 
 val tfcLocalJars = fileTree("$tfcSourceDir/build/libs") {
     include("*.jar")
@@ -84,6 +85,11 @@ dependencies {
     } else {
         compileOnly(fg.deobf("curse.maven:immersive-engineering-231951:$immersiveEngineeringCurseVersion"))
         runtimeOnly(fg.deobf("curse.maven:immersive-engineering-231951:$immersiveEngineeringCurseVersion"))
+    }
+
+    if (artisanalLocalJar.isFile) {
+        compileOnly(files(artisanalLocalJar))
+        runtimeOnly(files(artisanalLocalJar))
     }
 
     compileOnly(fg.deobf("mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"))

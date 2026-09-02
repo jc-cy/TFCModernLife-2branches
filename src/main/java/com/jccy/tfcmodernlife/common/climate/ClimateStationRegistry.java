@@ -3,6 +3,7 @@ package com.jccy.tfcmodernlife.common.climate;
 import com.eerussianguy.firmalife.common.blockentities.ClimateType;
 import com.eerussianguy.firmalife.common.blocks.greenhouse.ClimateStationBlock;
 import com.jccy.tfcmodernlife.common.blockentity.ClimateControlBlockEntity;
+import com.jccy.tfcmodernlife.common.blockentity.RefrigeratorBlockEntity;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -68,6 +69,12 @@ public final class ClimateStationRegistry
     public static ClimateStationAccess findControllingCellarStation(Level level, BlockPos targetPos)
     {
         return findControllingStation(level, targetPos, ClimateType.CELLAR, false);
+    }
+
+    @Nullable
+    public static ClimateStationAccess findRunningCellarRefrigerator(Level level, BlockPos targetPos)
+    {
+        return findControllingStation(level, targetPos, ClimateType.CELLAR, false, false, null, true, true);
     }
 
     @Nullable
@@ -229,6 +236,12 @@ public final class ClimateStationRegistry
     @Nullable
     private static ClimateStationAccess findControllingStation(Level level, BlockPos targetPos, ClimateType climateType, boolean includeBelow, boolean includeAdjacent, @Nullable ClimateStationAccess excluded)
     {
+        return findControllingStation(level, targetPos, climateType, includeBelow, includeAdjacent, excluded, false, false);
+    }
+
+    @Nullable
+    private static ClimateStationAccess findControllingStation(Level level, BlockPos targetPos, ClimateType climateType, boolean includeBelow, boolean includeAdjacent, @Nullable ClimateStationAccess excluded, boolean runningOnly, boolean refrigeratorOnly)
+    {
         synchronized (STATIONS)
         {
             final Set<ClimateStationAccess> stations = STATIONS.get(level);
@@ -261,6 +274,14 @@ public final class ClimateStationRegistry
                     continue;
                 }
                 if (station.tfcml$getClimateType() != climateType || !isActiveStation(blockEntity, station))
+                {
+                    continue;
+                }
+                if (runningOnly && (!(station instanceof ClimateControlBlockEntity control) || !control.isRunning()))
+                {
+                    continue;
+                }
+                if (refrigeratorOnly && !(station instanceof RefrigeratorBlockEntity))
                 {
                     continue;
                 }

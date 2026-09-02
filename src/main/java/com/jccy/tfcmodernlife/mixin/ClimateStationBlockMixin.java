@@ -8,6 +8,7 @@ import com.eerussianguy.firmalife.common.util.GreenhouseType;
 import com.eerussianguy.firmalife.common.util.Mechanics;
 import com.jccy.tfcmodernlife.common.climate.ClimateStationAccess;
 import com.jccy.tfcmodernlife.common.climate.ClimateStationRegistry;
+import com.jccy.tfcmodernlife.common.climate.CellarPreservationHelper;
 import com.jccy.tfcmodernlife.common.climate.ConfiguredCellarDetector;
 import com.jccy.tfcmodernlife.common.climate.MixedGreenhouseDetector;
 import com.mojang.datafixers.util.Either;
@@ -127,8 +128,10 @@ public abstract class ClimateStationBlockMixin
         final MixedGreenhouseDetector.Result greenhouse = MixedGreenhouseDetector.detect(level, pos);
         if (greenhouse != null)
         {
+            final Set<BlockPos> oldPositions;
             if (level.getBlockEntity(pos) instanceof ClimateStationBlockEntity station)
             {
+                oldPositions = tfcml$copyPositions(station);
                 if (station instanceof ClimateStationAccess access)
                 {
                     access.tfcml$setGreenhouseStructureData(greenhouse.structureData());
@@ -147,15 +150,25 @@ public abstract class ClimateStationBlockMixin
                 station.updateValidity(true, greenhouse.firmalifeTier());
                 station.setType(ClimateType.GREENHOUSE);
             }
+            else
+            {
+                oldPositions = Set.of();
+            }
             tfcml$updateState(level, pos, state, true);
+            if (level.getBlockEntity(pos) instanceof ClimateStationBlockEntity)
+            {
+                tfcml$syncPositions(level, oldPositions, greenhouse.positions());
+            }
             return new StructureCheckResult(greenhouse, null);
         }
 
         final ConfiguredCellarDetector.Result cellar = ConfiguredCellarDetector.detect(level, pos);
         if (cellar != null)
         {
+            final Set<BlockPos> oldPositions;
             if (level.getBlockEntity(pos) instanceof ClimateStationBlockEntity station)
             {
+                oldPositions = tfcml$copyPositions(station);
                 if (station instanceof ClimateStationAccess access)
                 {
                     access.tfcml$setGreenhouseStructureData(null);
@@ -166,12 +179,24 @@ public abstract class ClimateStationBlockMixin
                 station.updateValidity(true, 0);
                 station.setType(ClimateType.CELLAR);
             }
+            else
+            {
+                oldPositions = Set.of();
+            }
             tfcml$updateState(level, pos, state, true);
+            if (level.getBlockEntity(pos) instanceof ClimateStationBlockEntity)
+            {
+                tfcml$syncPositions(level, oldPositions, cellar.positions());
+            }
             return new StructureCheckResult(null, cellar);
         }
 
+        final Set<BlockPos> oldPositions = level.getBlockEntity(pos) instanceof ClimateStationBlockEntity station
+            ? tfcml$copyPositions(station)
+            : Set.of();
         tfcml$denyAll(level, pos);
         tfcml$updateState(level, pos, state, false);
+        CellarPreservationHelper.syncBlockEntities(level, oldPositions);
         return null;
     }
 
@@ -197,6 +222,21 @@ public abstract class ClimateStationBlockMixin
         {
             level.setBlockAndUpdate(pos, state.setValue(ClimateStationBlock.STASIS, valid));
         }
+    }
+
+    @Unique
+    private static Set<BlockPos> tfcml$copyPositions(ClimateStationBlockEntity station)
+    {
+        final Set<BlockPos> positions = ((ClimateStationAccess) station).tfcml$getClimatePositions();
+        return positions == null ? Set.of() : new HashSet<>(positions);
+    }
+
+    @Unique
+    private static void tfcml$syncPositions(Level level, Set<BlockPos> oldPositions, Set<BlockPos> newPositions)
+    {
+        final Set<BlockPos> positions = new HashSet<>(oldPositions);
+        positions.addAll(newPositions);
+        CellarPreservationHelper.syncBlockEntities(level, positions);
     }
 
     @Unique

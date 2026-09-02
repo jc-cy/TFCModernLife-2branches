@@ -7,7 +7,7 @@
       "type": "patchouli:spotlight",
       "item": "tfc_modern_life:electric_soup_pot",
       "link_recipe": true,
-      "text": "电热高压锅支持锅类配方、糖水和糖水果酱。它有 5 个输入槽，并支持流体和物品的输入、输出，以及向装罐台输出果酱产品。"
+      "text": "电热高压锅是陶锅的上位替代，支持 TFC、FirmaLife 和 Artisanal 的锅类配方。它有 5 个输入槽，并支持流体和物品自动化。"
     },
     {
       "type": "patchouli:crafting",
@@ -17,17 +17,27 @@
     {
       "type": "patchouli:text",
       "title": "运行参数",
-      "text": "储能 16000 FE，最大输入、输出 256 FE/t，默认耗电 20 FE/t，可在配置文件中修改。拆下设备时会保留内部电量。"
+      "text": "储能 16000 FE，最大输入、输出 256 FE/t。$(br2)默认耗电 20 FE/t，可在配置文件中修改。拆下设备时会保留内部电量。"
     },
     {
       "type": "patchouli:text",
-      "title": "糖水与果酱",
-      "text": "将 500 mB 水和 1 个甜味剂放入高压锅可制作 500 mB 糖水。糖水与单一类型的水果可以制作果酱，每份果酱消耗 100 mB 糖水。高压锅预沸腾需要 100 ticks，烹饪速度为 4x。"
+      "title": "糖水",
+      "text": "将 500 mB 水和 1 个甜味剂放入高压锅可制作 500 mB 糖水。$(br2)预沸腾需要 100 ticks，烹饪速度为 4x。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "果酱",
+      "text": "糖水与单一类型的水果可以制作果酱，每份果酱消耗 100 mB 糖水。完成的果酱可以直接取出，也可以送入正对面的装罐台。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Artisanal 兼容",
+      "text": "安装 Artisanal 后，电热高压锅会接管其陶锅使用的可扩展锅类配方。JEI 中的 Artisanal 锅类配方会以电热高压锅作为配方入口。"
     },
     {
       "type": "patchouli:text",
       "title": "装罐自动化",
-      "text": "把 FirmaLife 装罐台放在高压锅的正面，并准备好盖子与空罐。高压锅可以把完成的果酱自动送入正对面的装罐台；其他方向的装罐台不会接收该输出。支持自动输入、输出。"
+      "text": "把 FirmaLife 装罐台放在高压锅的正面，并准备好盖子与空罐。高压锅只向正对面的装罐台输出果酱，其他方向不会接收。支持自动输入、输出。"
     }
   ],
   "read_by_default": true,

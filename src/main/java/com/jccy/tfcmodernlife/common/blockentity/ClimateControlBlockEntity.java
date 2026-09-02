@@ -100,6 +100,8 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
     private boolean localCellarHeating;
     private long localLastAutoUpdateDay = Long.MIN_VALUE;
     private long nextStructureRefreshTick;
+    private boolean cellarInventorySyncPending;
+    private boolean cellarInventorySyncPerformed;
     private final int[] syncedData = new int[DATA_COUNT];
     private int syncedEnergyLow;
     private int syncedEnergyHigh;
@@ -224,6 +226,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
 
     public void serverTick()
     {
+        cellarInventorySyncPerformed = false;
         refreshStructure(false);
         final int previousEnergyUse = energyPerTick;
         final boolean wasRunning = running;
@@ -240,6 +243,19 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         else
         {
             applyClimateControl(false);
+        }
+
+        if (wasRunning && !running && localClimateType == ClimateType.CELLAR)
+        {
+            cellarInventorySyncPending = true;
+        }
+        if (cellarInventorySyncPending)
+        {
+            if (!cellarInventorySyncPerformed)
+            {
+                CellarPreservationHelper.syncTrackedInventories(this);
+            }
+            cellarInventorySyncPending = false;
         }
 
         if (wasRunning != running || previousEnergyUse != energyPerTick)
@@ -438,6 +454,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         localCellarStructureData = null;
         localCellarTemperature = 0;
         localCellarHeating = false;
+        cellarInventorySyncPending = false;
         localManualTemperatureAdjustmentTenths = GreenhouseTemperatureHelper.clampGreenhouseManualAdjustmentTenths(this, localManualTemperatureAdjustmentTenths);
         tfcml$refreshAutoTemperature(true);
         updateClimateReceivers(level, positions, true, result.firmalifeTier(), ClimateType.GREENHOUSE);
@@ -475,7 +492,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         updateClimateReceivers(level, positions, true, 0, ClimateType.CELLAR);
         clearObsoleteClimateReceivers(level, oldPositions, positions, oldType);
         registerLocalStructure();
-        CellarPreservationHelper.syncTrackedInventories(this);
+        cellarInventorySyncPending = true;
         markClimateDataChanged();
         return true;
     }
@@ -492,6 +509,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         localManualTemperatureAdjustmentTenths = 0;
         localCellarTemperature = 0;
         localCellarHeating = false;
+        cellarInventorySyncPending = false;
         ClimateStationRegistry.unregister(this, this);
         if (!removing)
         {
@@ -596,6 +614,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
         {
             energyPerTick = 0;
             running = false;
+            cellarInventorySyncPending = localClimateType == ClimateType.CELLAR;
             applyClimateControl(false);
         }
         updateBlockState();
@@ -768,6 +787,7 @@ public abstract class ClimateControlBlockEntity extends BlockEntity implements M
             localCellarHeating = allowsHeating;
             if (!removing)
             {
+                cellarInventorySyncPerformed = true;
                 CellarPreservationHelper.syncTrackedInventories(this);
             }
             markClimateDataChanged();

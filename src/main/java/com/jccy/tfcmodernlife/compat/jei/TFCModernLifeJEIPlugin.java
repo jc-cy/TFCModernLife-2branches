@@ -44,6 +44,7 @@ public final class TFCModernLifeJEIPlugin implements IModPlugin
     private static final TagKey<Item> FRUITS = TagKey.create(Registries.ITEM, new ResourceLocation("tfc", "foods/fruits"));
     private static final RecipeType<PotRecipe> FIRMA_LIFE_BOWL_POT = RecipeType.create("firmalife", "bowl_pot", PotRecipe.class);
     private static final RecipeType<PotRecipe> FIRMA_LIFE_STINKY_SOUP = RecipeType.create("firmalife", "stinky_soup", PotRecipe.class);
+    private static final RecipeType<PotRecipe> ARTISANAL_SCALABLE_POT = RecipeType.create("artisanal", "scalable_pot", PotRecipe.class);
 
     @Override
     public ResourceLocation getPluginUid()
@@ -89,6 +90,10 @@ public final class TFCModernLifeJEIPlugin implements IModPlugin
         {
             registry.addRecipeCatalyst(soupPot, FIRMA_LIFE_BOWL_POT);
             registry.addRecipeCatalyst(soupPot, FIRMA_LIFE_STINKY_SOUP);
+        }
+        if (ModList.get().isLoaded("artisanal"))
+        {
+            registry.addRecipeCatalyst(soupPot, ARTISANAL_SCALABLE_POT);
         }
     }
 

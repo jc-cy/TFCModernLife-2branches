@@ -302,7 +302,6 @@ public abstract class ClimateStationBlockEntityMixin implements ClimateStationAc
         {
             tfcml$cellarHeating = false;
         }
-        CellarPreservationHelper.syncTrackedInventories(this);
         tfcml$markForSyncIfServer();
     }
 

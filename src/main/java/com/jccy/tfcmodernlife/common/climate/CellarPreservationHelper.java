@@ -3,6 +3,7 @@ package com.jccy.tfcmodernlife.common.climate;
 import com.eerussianguy.firmalife.common.blockentities.FoodShelfBlockEntity;
 import com.eerussianguy.firmalife.common.items.FLFoodTraits;
 import com.jccy.tfcmodernlife.common.ModFoodTraits;
+import com.jccy.tfcmodernlife.common.blockentity.RefrigeratorBlockEntity;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
@@ -18,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.IItemHandler;
@@ -166,9 +168,38 @@ public final class CellarPreservationHelper
         return removeTemporaryCellarTraits(stack);
     }
 
+    public static void sanitizeCellarContainerSlot(Slot slot)
+    {
+        sanitizeCellarContainerSlot(slot.container, slot.getContainerSlot(), slot.getItem());
+    }
+
+    private static void sanitizeCellarContainerSlot(Container container, int containerSlot, ItemStack stack)
+    {
+        if (container instanceof CellarCompoundContainerAccess compound)
+        {
+            final Container first = compound.tfcml$getContainer1();
+            final Container selected = containerSlot < first.getContainerSize() ? first : compound.tfcml$getContainer2();
+            sanitizeCellarContainerStack(selected, stack);
+            return;
+        }
+        sanitizeCellarContainerStack(container, stack);
+    }
+
+    private static void sanitizeCellarContainerStack(Container container, ItemStack stack)
+    {
+        if (!(container instanceof BlockEntity blockEntity))
+        {
+            return;
+        }
+        if (isActiveCellarContainer(blockEntity))
+        {
+            sanitizeStack(stack);
+        }
+    }
+
     public static void sanitizeInventoryForDrop(InventoryBlockEntity<?> inventory)
     {
-        if (!shouldHandleInventory(inventory))
+        if (!isActiveCellarContainer(inventory))
         {
             return;
         }
@@ -190,6 +221,10 @@ public final class CellarPreservationHelper
 
     public static void sanitizeContainerBlockEntityForDrop(BlockEntity blockEntity, Container container)
     {
+        if (!isActiveCellarContainer(blockEntity))
+        {
+            return;
+        }
         sanitizeContainerForDrop(blockEntity, container);
     }
 
@@ -240,11 +275,28 @@ public final class CellarPreservationHelper
 
     public static FoodTrait getCellarTrait(Level level, BlockPos pos)
     {
-        final ClimateStationAccess station = ClimateStationRegistry.findControllingCellarStation(level, pos);
+        final ClimateStationAccess structure = ClimateStationRegistry.findControllingCellarStation(level, pos);
         final float baseTemperature = GreenhouseTemperatureHelper.getAmbientTemperature(level, pos);
-        final float temperature = station != null
-            ? station.tfcml$getEffectiveCellarTemperature(baseTemperature)
-            : baseTemperature;
+        final ClimateStationAccess refrigeratorControl = structure != null
+            ? ClimateStationRegistry.findRunningCellarRefrigerator(level, pos)
+            : null;
+        final float temperature;
+        if (refrigeratorControl instanceof RefrigeratorBlockEntity refrigerator)
+        {
+            final float minimumTarget = Math.min(
+                baseTemperature,
+                GreenhouseTemperatureHelper.getCellarMinimumTemperature(refrigeratorControl)
+            );
+            temperature = Math.min(baseTemperature, Math.max(refrigerator.getTarget(), minimumTarget));
+        }
+        else if (structure != null)
+        {
+            temperature = structure.tfcml$getEffectiveCellarTemperature(baseTemperature);
+        }
+        else
+        {
+            temperature = baseTemperature;
+        }
         final float multiplier = GreenhouseTemperatureHelper.getCellarPreservationMultiplier(temperature);
         return ModFoodTraits.getCellarTraitForMultiplier(multiplier);
     }
@@ -565,6 +617,15 @@ public final class CellarPreservationHelper
     private static boolean shouldHandleExternalContainer(BlockEntity blockEntity)
     {
         return isWhitelistedContainerBlock(blockEntity);
+    }
+
+    private static boolean isActiveCellarContainer(BlockEntity blockEntity)
+    {
+        final Level level = blockEntity.getLevel();
+        return level != null
+            && !level.isClientSide()
+            && shouldHandleExternalContainer(blockEntity)
+            && getContextTrait(level, blockEntity.getBlockPos()) != null;
     }
 
     private static boolean shouldApplyContainerInputTraits(BlockEntity owner)

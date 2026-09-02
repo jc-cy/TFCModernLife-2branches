@@ -214,10 +214,10 @@ public final class ClimateControlConfig
     {
         final double value = switch (tier)
         {
-            case WOOD -> configValue(GREENHOUSE_WOOD_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
-            case COPPER -> configValue(GREENHOUSE_COPPER_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
-            case IRON -> configValue(GREENHOUSE_IRON_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
-            case STAINLESS_STEEL -> configValue(GREENHOUSE_STAINLESS_STEEL_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+            case WOOD -> GREENHOUSE_WOOD_POWER_MULTIPLIER.get();
+            case COPPER -> GREENHOUSE_COPPER_POWER_MULTIPLIER.get();
+            case IRON -> GREENHOUSE_IRON_POWER_MULTIPLIER.get();
+            case STAINLESS_STEEL -> GREENHOUSE_STAINLESS_STEEL_POWER_MULTIPLIER.get();
         };
         return (float) value;
     }
@@ -226,15 +226,10 @@ public final class ClimateControlConfig
     {
         final double value = switch (tier)
         {
-            case SEALED_BRICK -> configValue(CELLAR_SEALED_BRICK_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
-            case STAINLESS_STEEL_REINFORCED -> configValue(CELLAR_STAINLESS_STEEL_REINFORCED_POWER_MULTIPLIER, tier.defaultPowerMultiplier());
+            case SEALED_BRICK -> CELLAR_SEALED_BRICK_POWER_MULTIPLIER.get();
+            case STAINLESS_STEEL_REINFORCED -> CELLAR_STAINLESS_STEEL_REINFORCED_POWER_MULTIPLIER.get();
         };
         return (float) value;
-    }
-
-    private static double configValue(@Nullable ForgeConfigSpec.DoubleValue value, double fallback)
-    {
-        return value != null ? value.get() : fallback;
     }
 
     private static GreenhouseRuleSet parseGreenhouseRuleSet()

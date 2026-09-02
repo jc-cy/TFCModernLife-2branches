@@ -15,6 +15,7 @@ TFC Modern Life / 群峦现代化生活
 面向 TerraFirmaCraft 中后期流程的现代化生活扩展，包含电热烤箱、电热高压锅、温室用的恒温空调、地窖/冷库用的制冷器、新的不锈钢强化冷库和温室建材拆解。
 
 Immersive Engineering 为可选兼容。安装 IE 后提供四种电力设备的默认物品配方；不安装 IE 时不会阻止本模组启动，请通过其他电力模组或数据包自行添加替代配方。
+Artisanal 为可选兼容。安装 Artisanal 后，电热高压锅作为陶锅的上位替代，接管其可扩展锅类配方和 JEI 配方入口。
 
 功能与参数概览
 
@@ -96,6 +97,7 @@ Electric Kitchen - Electric Oven and Electric Soup Pot
 - 500 mB water + 1 sweetener -> 500 mB sugar water.
 - Sugar water + one fruit type -> jam; each jam serving consumes 100 mB sugar water.
 - FirmaLife jarring stations are optimized and can automatically jar jam from a facing Electric Soup Pot.
+- Artisanal is optional; when installed, the Electric Soup Pot replaces its ceramic pot for scalable pot recipes and JEI recipe access.
 - Strong automation support: the soup pot supports fluid input / output and output to jarring stations, while the oven only outputs finished products.
 
 Powered Greenhouse - Thermostatic Air Conditioner
@@ -187,6 +189,13 @@ side = "BOTH"
 
 [[dependencies.tfc_modern_life]]
 modId = "immersiveengineering"
+mandatory = false
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "artisanal"
 mandatory = false
 versionRange = "[0,)"
 ordering = "AFTER"
