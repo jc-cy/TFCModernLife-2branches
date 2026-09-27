@@ -1,0 +1,23 @@
+{
+  "name": "Greenhouse Material Disassembly",
+  "category": "tfc:modern_life",
+  "icon": "tfc:gem_saw",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:gem_saw",
+      "text": "Use a gem saw with greenhouse blocks to recover greenhouse materials. Recipes cover treated wood, copper, iron, and stainless steel walls, panel walls, roofs, panel roofs, roof tops, doors, trapdoors, and greenhouse piping."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Recipe Rules",
+      "text": "Disassembly uses this mod's own greenhouse salvage recipe: stack 2, 4, or 8 identical greenhouse blocks in one slot with the gem saw in another slot. Weathered, oxidized, and rusted variants have their own recipes and can be salvaged separately from their base material."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Greenhouse pipe disassembly returns the matching greenhouse wall and 1 copper pipe. The gem saw loses durability normally; use JEI to inspect the exact products and counts."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 6
+}

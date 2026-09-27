@@ -1,0 +1,25 @@
+{
+  "name": "Jarring Station Modifications",
+  "category": "tfc:modern_life",
+  "icon": "firmalife:jarring_station",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "firmalife:jarring_station",
+      "link_recipe": true,
+      "text": "The Jarring Station has been modified and reworked by this mod. It now supports normal input and output, produces jam correctly, has fixed animations, and recognizes both lidded and unlidded jars. The station can fill empty jars with jam from a Ceramic Pot or Electric Soup Pot placed directly in front of it."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "firmalife:crafting/jarring_station",
+      "text": "The FirmaLife recipe for the Jarring Station."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Automation Tips",
+      "text": "Sugar-water processing supports metered consumption: when the pot contains only sweetener and water as inputs, it consumes sweetener by the required amount. One pot can process sugar water, a second pot can use that sugar water to make jam, and the Jarring Station can output the finished jars for a fully automated setup."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 4
+}

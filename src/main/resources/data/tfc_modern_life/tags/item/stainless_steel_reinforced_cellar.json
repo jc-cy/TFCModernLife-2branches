@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+    "tfc_modern_life:stainless_steel_reinforced_sealed_brick_door",
+    "tfc_modern_life:stainless_steel_reinforced_sealed_brick_trapdoor"
+  ]
+}

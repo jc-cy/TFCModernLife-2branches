@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_orientable_trapdoor_top",
+  "textures": {
+    "texture": "tfc_modern_life:block/stainless_steel_reinforced_sealed_brick_trapdoor"
+  }
+}

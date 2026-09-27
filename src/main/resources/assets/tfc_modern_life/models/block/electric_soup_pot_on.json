@@ -1,0 +1,6 @@
+{
+  "parent": "tfc_modern_life:block/electric_soup_pot",
+  "textures": {
+    "accent": "tfc_modern_life:block/pot_accent_on"
+  }
+}

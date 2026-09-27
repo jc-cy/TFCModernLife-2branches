@@ -1,0 +1,150 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "All Rights Reserved (ARR)"
+
+[[mods]]
+modId = "tfc_modern_life"
+version = "${file.jarVersion}"
+displayName = "TFC Modern Life"
+authors = "交错次元"
+credits = "美术: witzig_heidi(鱼)"
+description = '''
+TFC Modern Life / 群峦现代化生活
+注：本模组是 FirmalifeEnhance / firmalife 增强 与 TFC Electric Cooking / 群峦电力烹饪 的合并重置版，请勿与这两个旧模组同时安装。
+
+面向 TerraFirmaCraft 中后期流程的现代化生活扩展，包含电热烤箱、电热高压锅、温室用的恒温空调、地窖/冷库用的制冷器、新的不锈钢强化冷库和温室建材拆解。
+
+Immersive Engineering 为可选兼容。安装 IE 后提供四种电力设备的默认物品配方；不安装 IE 时不会阻止本模组启动，请通过其他电力模组或数据包自行添加替代配方。
+
+功能与参数概览
+
+电力厨房-电热烤箱和电热高压锅
+- 电热烤箱: 6 输入槽，兼容 TFC 加热配方与 FirmaLife 烤箱配方。
+- 电热高压锅: 5 输入槽，支持锅类配方、糖水、糖水果酱和流体显示。
+- 储能: 16000 FE。
+- 最大输入 / 输出: 256 FE/t。
+- 基础耗电: 默认 20 FE/t，可在配置文件修改。
+- 温度范围: 0 ~ 800°C。
+- 通电升温: 每 tick 向目标温度靠近 3°C。
+- 断电降温: 每 tick 降低 1.5°C。
+- 高压锅预沸腾: 100 ticks。
+- 高压锅烹饪速度: 4x。
+- 电热烤箱产物附加“电热烤箱烤制”食物特性，腐败倍率 0.9x。
+- 500 mB 水 + 1 个甜味剂 -> 500 mB 糖水。
+- 糖水 + 单类水果 -> 果酱，每份果酱消耗 100 mB 糖水。
+- FirmaLife 装罐台已优化且可正对电热高压锅自动装取果酱。
+- 高度支持自动化，高压锅支持流体输入输出和装罐台输出，烤箱只输出成品。
+
+电力温室-恒温空调
+- 气象站保留结构刷新和每日 8:00 自动控温。
+- 恒温空调是上位气象站。
+- 木质温室: 耗电倍率 1.3x，恒温空调手动范围 ±5°C，气象站自动范围 ±3°C。
+- 铜温室: 耗电倍率 1.2x，恒温空调手动范围 ±10°C，气象站自动范围 ±5°C。
+- 铁温室: 耗电倍率 1.1x，恒温空调手动范围 ±18°C，气象站自动范围 ±7°C。
+- 不锈钢温室: 耗电倍率 1.0x，恒温空调手动范围 ±70°C，气象站自动范围 ±10°C。
+- 混合温室按保温墙数量加权计算等级。
+- 控温后温度会影响普通作物、耕地温度提示和 FirmaLife 蜂箱等温度判断。
+
+电力冷库-制冷器
+- 冷库结构材料现在为密封砖与不锈钢强化密封砖两档；不锈钢强化档显示为“不锈钢强化冷库”。
+- 制冷器用于地窖 / 冷库降温，在冷库内保存固定设定温度，只降温，不升温。
+- 恒温空调可在冷库中升温或降温，调节范围为当前自然温度 ±10°C，但降温侧不能突破冷库等级下限。
+- 自然温度已经低于冷库等级下限时，制冷器不会把低温反向抬高到结构下限。
+- 密封砖 / 不锈钢强化密封砖 + 气象站: 无耗电，无主动控温，以自然温度为准。
+- 密封砖 + 制冷器: 耗电倍率 1.1x，最低 -15°C，对应 4.5x 保鲜。
+- 不锈钢强化密封砖 + 制冷器: 耗电倍率 1.0x，最低 -30°C，对应 10x 保鲜。
+- 混合冷库最低温度按热墙材料数量加权平均；耗电倍率取数量最多的材料等级，打平时取耗电倍率更高的一档。
+- 保鲜倍率按实际冷库温度计算: >=0°C 为 2x，<0°C 为 2.5x，<=-6°C 为 3x，<=-9°C 为 3.5x，<=-12°C 为 4x，<=-15°C 为 4.5x，<=-18°C 为 5x，<=-21°C 为 6x，<=-24°C 为 7x，<=-27°C 为 8.5x，<=-30°C 为 10x。
+- 支持 FirmaLife 食物架、TFC 箱子等容器的地窖保鲜同步与清理。
+- 支持的容器在 mod 配置文件里面可以自由修改，未修改且不生效删除配置文件重新生成即可。
+
+控温设备通用参数
+- 设备: 恒温空调、制冷器。
+- 储能: 4000000 FE。
+- 最大输入: 4096 FE/t。
+- 启动阈值: 电量大于 25%，即 1000000 FE。
+- 耗电公式: round(有效空间 * 等级耗电倍率 * 温差 * 0.001)，其中的常数和各等级耗电倍率可以配置文件修改。
+- 最低运行耗电: 有控温需求时默认至少 20 FE/t，可在配置文件修改。
+- GUI 调节步长: -5 / -1 / +1 / +5°C。
+- 只消耗 FE，不输出电力；挖下后保留电量。
+
+温室建材拆解
+- 使用宝石锯 + 温室方块拆回原材料。
+
+模组兼容
+- 额外兼容 [LSO]传说生存 Legendary Survival Overhaul 的温度系统，温室和冷库内的温度将直接作为室内的环境温度。
+
+1.21 版本说明
+- 气候链路直接使用 TFC 原生气候，不引入 TFE；Immersive Engineering 仅作为可选配方扩展前置。
+
+English Summary
+Note: This mod is a merged reset of FirmalifeEnhance / firmalife enhancement and TFC Electric Cooking / electric cooking. Do not install it together with those two old mods.
+
+A mid-to-late-game modern life expansion for TerraFirmaCraft. It includes the Electric Oven, Electric Soup Pot, the Thermostatic Air Conditioner for greenhouses, the Refrigerator for cellars / cold storage, new stainless steel reinforced cold storage, and greenhouse material disassembly. Immersive Engineering is optional and only provides default item recipes for the four powered devices; the 1.21 build uses TFC's native climate instead of TFE.
+'''
+
+[[dependencies.tfc_modern_life]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.234,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "tfc"
+type = "required"
+versionRange = "[4.2.9,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "firmalife"
+type = "required"
+versionRange = "[3.0.14,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "patchouli"
+type = "optional"
+versionRange = "[1.21.1-92,1.22)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "immersiveengineering"
+type = "optional"
+versionRange = "[12.4.2,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "legendarysurvivaloverhaul"
+type = "optional"
+versionRange = "[2.4.7,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "jei"
+type = "optional"
+versionRange = "[19.25.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.tfc_modern_life]]
+modId = "jade"
+type = "optional"
+versionRange = "[15.10.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[mixins]]
+config = "tfc_modern_life.mixins.json"

@@ -1,0 +1,40 @@
+{
+  "required": true,
+  "package": "com.jccy.tfcmodernlife.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractContainerMenuMixin",
+    "BaseBeehiveBlockMixin",
+    "BananaPlantBlockMixin",
+    "CallbackSlotMixin",
+    "CellarContainerBlockEntityMixin",
+    "CellarCrateBlockEntityMixin",
+    "CellarInventoryBlockEntityMixin",
+    "ClimateStationBlockEntityMixin",
+    "ClimateStationBlockMixin",
+    "CompoundContainerMixin",
+    "ContainerMixin",
+    "CropHelpersMixin",
+    "FLBeehiveBlockEntityMixin",
+    "FarmlandBlockMixin",
+    "FoodShelfBlockEntityMixin",
+    "FoodTraitMixin",
+    "FruitTreeSaplingBlockMixin",
+    "GrowingFruitTreeBranchBlockMixin",
+    "InventoryBlockEntityMixin",
+    "JarringStationBlockEntityMixin",
+    "PlacedItemPickupMixin",
+    "ResultSlotMixin",
+    "SeasonalPlantBlockAccessor",
+    "SeasonalPlantBlockMixin",
+    "SlotMixin",
+    "SpreadingBushBlockMixin",
+    "StationaryBerryBushBlockMixin",
+    "TFCBlockEntityMixin",
+    "TFCChestBlockEntityMixin",
+    "TFCChestBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

@@ -1,0 +1,15 @@
+{
+    "type":  "tfc_modern_life:greenhouse_salvage",
+    "ingredient":  {
+                       "item":  "firmalife:weathered_treated_wood_greenhouse_port"
+                   },
+    "input_count":  1,
+    "result":  {
+                   "count":  1,
+                   "id":  "firmalife:treated_wood_greenhouse_wall"
+               },
+    "extra_result":  {
+                         "count":  1,
+                         "id":  "firmalife:copper_pipe"
+                     }
+}

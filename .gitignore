@@ -1,0 +1,25 @@
+# 白名单模式: 默认忽略全部文件，只放行构建和打包必需内容。
+*
+
+# 忽略规则本身
+!.gitignore
+
+# Gradle 构建脚本与 Wrapper
+!build.gradle.kts
+!settings.gradle.kts
+!gradle.properties
+!gradlew
+!gradlew.bat
+!gradle/
+!gradle/**
+
+# Mod 源码与资源
+!src/
+!src/**
+
+# 打包时写入 META-INF 的授权 / 免责声明
+!LICENSE
+!DISCLAIMER.md
+
+# 本地一键打包入口
+!一键打包.bat

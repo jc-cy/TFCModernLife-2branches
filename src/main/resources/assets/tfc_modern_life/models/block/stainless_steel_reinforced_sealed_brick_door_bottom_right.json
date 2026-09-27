@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_bottom_right",
+  "textures": {
+    "bottom": "tfc_modern_life:block/stainless_steel_reinforced_sealed_brick_door_bottom",
+    "top": "tfc_modern_life:block/stainless_steel_reinforced_sealed_brick_door_top"
+  }
+}

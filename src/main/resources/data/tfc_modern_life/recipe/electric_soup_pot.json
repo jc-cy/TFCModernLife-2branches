@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "immersiveengineering" }
+  ],
+  "pattern": [
+    "SPS",
+    "CDC",
+    "EAE"
+  ],
+  "key": {
+    "S": { "item": "firmalife:metal/sheet/stainless_steel" },
+    "P": { "item": "tfc:ceramic/pot" },
+    "C": { "item": "immersiveengineering:wirecoil_electrum" },
+    "D": { "item": "firmalife:metal/double_sheet/stainless_steel" },
+    "A": { "item": "immersiveengineering:component_electronic_adv" },
+    "E": { "item": "immersiveengineering:component_steel" }
+  },
+  "result": {
+    "id": "tfc_modern_life:electric_soup_pot",
+    "count": 1
+  }
+}
+

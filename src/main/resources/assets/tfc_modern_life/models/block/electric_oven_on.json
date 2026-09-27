@@ -1,0 +1,6 @@
+{
+  "parent": "tfc_modern_life:block/electric_oven",
+  "textures": {
+    "inside": "tfc_modern_life:block/oven_inside_on"
+  }
+}

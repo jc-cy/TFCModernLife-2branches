@@ -1,0 +1,19 @@
+{
+  "type": "tfc:advanced_shapeless_crafting",
+  "ingredients": [
+    { "item": "firmalife:metal/sheet/stainless_steel" },
+    { "item": "firmalife:sealed_bricks" },
+    { "item": "firmalife:sealed_bricks" },
+    { "tag": "c:tools/hammer" }
+  ],
+  "primary_ingredient": { "tag": "c:tools/hammer" },
+  "remainder": {
+    "modifiers": [
+      { "type": "tfc:damage_crafting_remainder" }
+    ]
+  },
+  "result": {
+    "id": "tfc_modern_life:stainless_steel_reinforced_sealed_bricks",
+    "count": 4
+  }
+}
