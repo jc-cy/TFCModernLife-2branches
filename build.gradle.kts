@@ -19,9 +19,12 @@ val legendarySurvivalOverhaulCurseVersion = "7603852"
 val patchouliVersion = "1.20.1-81-FORGE"
 
 val modId = "tfc_modern_life"
-val modVersion = System.getenv("VERSION") ?: "1.1.1"
-val tfcSourceDir = "../TerraFirmaCraft-3.2.21-1.20"
-val configuredModsDir = "C:/Users/g1739/Desktop/PCL/.minecraft/versions/TerraFirmaFarHorizons/mods"
+val modVersion = System.getenv("VERSION") ?: "1.1.2"
+// Fixed prerequisite copies (see the skill's 1.20 reference notes). PCL dev instances are disposable
+// and must not be used as a build input.
+val tfcSourceDir = "C:/Users/g1739/Desktop/群峦前置源码/1.20/TerraFirmaCraft-3.2.21"
+val stableJarDir = "C:/Users/g1739/Desktop/群峦前置源码/1.20/前置jar"
+val configuredModsDir = "$stableJarDir/immersiveengineering"
 val artisanalLocalJar = file("artisanal-1.7.5.jar")
 
 val tfcLocalJars = fileTree("$tfcSourceDir/build/libs") {
@@ -29,7 +32,7 @@ val tfcLocalJars = fileTree("$tfcSourceDir/build/libs") {
     exclude("*-sources.jar", "*-javadoc.jar")
 }
 val immersiveEngineeringLocalJars = fileTree(configuredModsDir) {
-    include("ImmersiveEngineering-1.20.1-*.jar")
+    include("*ImmersiveEngineering-1.20.1-*.jar")
 }
 
 group = "com.jccy.tfcmodernlife"

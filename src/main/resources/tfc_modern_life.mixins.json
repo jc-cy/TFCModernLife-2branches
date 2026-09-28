@@ -27,10 +27,8 @@
     "InventoryBlockEntityMixin",
     "JarringStationBlockEntityMixin",
     "TFCBlockEntityClimateMixin",
-    "TfeBananaPlantBlockMixin",
-    "TfeFruitTreeSaplingBlockMixin",
-    "TfeSeasonalPlantBlockAccessor",
-    "TfeStationaryBerryBushBlockMixin"
+    "TfeFLGrowingFruitTreeBranchBlockMixin",
+    "TfeGrapePlantBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 0
