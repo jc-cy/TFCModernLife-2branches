@@ -5,6 +5,7 @@
   "mixins": [
     "AbstractContainerMenuMixin",
     "BaseBeehiveBlockMixin",
+    "BeeComponentMixin",
     "BananaPlantBlockMixin",
     "CallbackSlotMixin",
     "CellarContainerBlockEntityMixin",
@@ -16,10 +17,12 @@
     "ContainerMixin",
     "CropHelpersMixin",
     "FLBeehiveBlockEntityMixin",
+    "FLGrowingFruitTreeBranchBlockMixin",
     "FarmlandBlockMixin",
     "FoodShelfBlockEntityMixin",
     "FoodTraitMixin",
     "FruitTreeSaplingBlockMixin",
+    "GrapePlantBlockEntityMixin",
     "GrowingFruitTreeBranchBlockMixin",
     "InventoryBlockEntityMixin",
     "JarringStationBlockEntityMixin",
@@ -29,10 +32,12 @@
     "SeasonalPlantBlockMixin",
     "SlotMixin",
     "SpreadingBushBlockMixin",
+    "SpreadingCaneBlockMixin",
     "StationaryBerryBushBlockMixin",
     "TFCBlockEntityMixin",
     "TFCChestBlockEntityMixin",
-    "TFCChestBlockMixin"
+    "TFCChestBlockMixin",
+    "WildBeehiveBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 0

@@ -12,7 +12,7 @@ val jeiVersion = "19.25.0.321"
 val patchouliVersion = "1.21.1-92-NEOFORGE"
 
 val modId = "tfc_modern_life"
-val modVersion = System.getenv("VERSION") ?: "1.1.1"
+val modVersion = System.getenv("VERSION") ?: "1.1.2"
 val modJavaVersion = "21"
 
 val tfcJar = file("C:/Users/g1739/Desktop/群峦前置源码/1.21/TerraFirmaCraft-4.2.9/[群峦传说] TerraFirmaCraft-NeoForge-1.21.1-4.2.9.jar")
