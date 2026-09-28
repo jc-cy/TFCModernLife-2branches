@@ -45,7 +45,7 @@ public final class TFCModernLife
         ModRecipeSerializers.RECIPE_SERIALIZERS.register(modBus);
         modBus.addListener(ModCapabilities::register);
         NeoForge.EVENT_BUS.addListener(TFCModernLife::preserveEnergyOnDrops);
-        LegendarySurvivalOverhaulCompat.register(modBus);
+        LegendarySurvivalOverhaulCompat.register();
 
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> {
             if (event.getServer().getTickCount() % 100 == 0)
