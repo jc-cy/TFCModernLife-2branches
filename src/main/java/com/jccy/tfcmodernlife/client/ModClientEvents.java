@@ -11,7 +11,10 @@ import com.jccy.tfcmodernlife.common.ModParticles;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
@@ -25,6 +28,15 @@ public final class ModClientEvents
         modBus.addListener(ModClientEvents::registerScreens);
         modBus.addListener(ModClientEvents::registerParticleProviders);
         modBus.addListener(ModClientEvents::clientSetup);
+    }
+
+    /**
+     * 把 NeoForge 官方配置界面挂到本模组的容器上。不注册的话，模组列表里的"配置"按钮会一直是灰的、
+     * 点了也打不开，而且不会有任何报错（NeoForge 只对注册了 {@code IConfigScreenFactory} 的模组启用该按钮）。
+     */
+    public static void registerConfigScreen(ModContainer container)
+    {
+        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     /**

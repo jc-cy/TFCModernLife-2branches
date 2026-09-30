@@ -57,6 +57,7 @@ public final class TFCModernLife
         if (FMLEnvironment.dist == Dist.CLIENT)
         {
             ModClientEvents.register(modBus);
+            ModClientEvents.registerConfigScreen(mod);
         }
     }
 

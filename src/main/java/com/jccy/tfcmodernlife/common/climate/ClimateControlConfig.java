@@ -2,6 +2,7 @@ package com.jccy.tfcmodernlife.common.climate;
 
 import com.eerussianguy.firmalife.common.util.GreenhouseType;
 import com.jccy.tfcmodernlife.TFCModernLife;
+import com.jccy.tfcmodernlife.common.ModConfig;
 import com.mojang.logging.LogUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -61,77 +62,108 @@ public final class ClimateControlConfig
 
     public static void define(ModConfigSpec.Builder builder)
     {
-        builder.push("climateControl");
+        builder.translation(ModConfig.configTranslationKey("climateControl")).push("climateControl");
 
-        builder.push("greenhouse");
+        builder.translation(ModConfig.configTranslationKey("climateControl.greenhouse")).push("greenhouse");
         GREENHOUSE_RADIUS_MULTIPLIER = builder
-            .comment("Multiplier applied to FirmaLife greenhouse search radius.")
+            .translation(ModConfig.configTranslationKey("climateControl.greenhouse.greenhouseRadiusMultiplier"))
+            .comment("FirmaLife 温室检测半径的倍率。", "Multiplier applied to FirmaLife greenhouse search radius.")
             .defineInRange("greenhouseRadiusMultiplier", 3.0d, 0.1d, 16.0d);
         GREENHOUSE_THERMAL_WALLS = builder
-            .comment("Insulated greenhouse wall rules. Format: block_or_tag=firmalifeTier[,greenhouseTier]. greenhouseTier values: wood, copper, iron, stainless_steel.")
+            .translation(ModConfig.configTranslationKey("climateControl.greenhouse.greenhouseThermalWalls"))
+            .comment("保温温室墙规则。格式: 方块或标签=firmalife等级[,温室等级]。温室等级可选值: wood, copper, iron, stainless_steel。",
+                "Insulated greenhouse wall rules. Format: block_or_tag=firmalifeTier[,greenhouseTier]. greenhouseTier values: wood, copper, iron, stainless_steel.")
             .defineListAllowEmpty(List.of("greenhouseThermalWalls"), ClimateControlConfig::defaultGreenhouseThermalWalls, value -> value instanceof String);
         GREENHOUSE_SEAL_ONLY_WALLS = builder
-            .comment("Blocks or tags that seal greenhouses but do not provide a tier.")
+            .translation(ModConfig.configTranslationKey("climateControl.greenhouse.greenhouseSealOnlyWalls"))
+            .comment("只用于密封温室、不提供保温等级的方块或标签。",
+                "Blocks or tags that seal greenhouses but do not provide a tier.")
             .defineListAllowEmpty(List.of("greenhouseSealOnlyWalls"), ClimateControlConfig::defaultGreenhouseSealOnlyWalls, value -> value instanceof String);
         GREENHOUSE_ALWAYS_VALID_WALLS = builder
-            .comment("Blocks or tags that can seal a greenhouse without a sturdy-face check.")
+            .translation(ModConfig.configTranslationKey("climateControl.greenhouse.greenhouseAlwaysValidWalls"))
+            .comment("无需坚固面检测即可密封温室的方块或标签。",
+                "Blocks or tags that can seal a greenhouse without a sturdy-face check.")
             .defineListAllowEmpty(List.of("greenhouseAlwaysValidWalls"), ClimateControlConfig::defaultGreenhouseAlwaysValidWalls, value -> value instanceof String);
         GREENHOUSE_MINIMUM_THERMAL_COVERAGE = builder
-            .comment("Minimum insulated shell coverage for a mixed greenhouse.")
+            .translation(ModConfig.configTranslationKey("climateControl.greenhouse.greenhouseMinimumThermalCoverage"))
+            .comment("混合温室中保温墙所占的最低比例。", "Minimum insulated shell coverage for a mixed greenhouse.")
             .defineInRange("greenhouseMinimumThermalCoverage", 0.95d, 0d, 1d);
         GREENHOUSE_MINIMUM_THERMAL_BLOCKS = builder
-            .comment("Minimum insulated greenhouse shell blocks.")
+            .translation(ModConfig.configTranslationKey("climateControl.greenhouse.greenhouseMinimumThermalBlocks"))
+            .comment("保温温室墙的最少方块数量。", "Minimum insulated greenhouse shell blocks.")
             .defineInRange("greenhouseMinimumThermalBlocks", 8, 0, 65536);
         GREENHOUSE_TIER_MODE = builder
-            .comment("How mixed greenhouse walls resolve tier: weighted_average, minimum, maximum.")
+            .translation(ModConfig.configTranslationKey("climateControl.greenhouse.greenhouseTierMode"))
+            .comment("混合温室等级的计算方式: weighted_average（加权平均）, minimum（取最低）, maximum（取最高）。",
+                "How mixed greenhouse walls resolve tier: weighted_average, minimum, maximum.")
             .define("greenhouseTierMode", "weighted_average");
         builder.pop();
 
-        builder.push("cellar");
+        builder.translation(ModConfig.configTranslationKey("climateControl.cellar")).push("cellar");
         CELLAR_RADIUS_MULTIPLIER = builder
-            .comment("Multiplier applied to FirmaLife cellar search radius.")
+            .translation(ModConfig.configTranslationKey("climateControl.cellar.cellarRadiusMultiplier"))
+            .comment("FirmaLife 地窖检测半径的倍率。", "Multiplier applied to FirmaLife cellar search radius.")
             .defineInRange("cellarRadiusMultiplier", 2.0d, 0.1d, 16.0d);
         CELLAR_THERMAL_WALLS = builder
-            .comment("Insulated cellar wall rules. Format: block_or_tag=sealed_brick|stainless_steel_reinforced.")
+            .translation(ModConfig.configTranslationKey("climateControl.cellar.cellarThermalWalls"))
+            .comment("保温地窖墙规则。格式: 方块或标签=sealed_brick|stainless_steel_reinforced。",
+                "Insulated cellar wall rules. Format: block_or_tag=sealed_brick|stainless_steel_reinforced.")
             .defineListAllowEmpty(List.of("cellarThermalWalls"), ClimateControlConfig::defaultCellarThermalWalls, value -> value instanceof String);
         CELLAR_SEAL_ONLY_WALLS = builder
-            .comment("Blocks or tags that seal cellars but do not provide a tier.")
+            .translation(ModConfig.configTranslationKey("climateControl.cellar.cellarSealOnlyWalls"))
+            .comment("只用于密封地窖、不提供保温等级的方块或标签。",
+                "Blocks or tags that seal cellars but do not provide a tier.")
             .defineListAllowEmpty(List.of("cellarSealOnlyWalls"), ClimateControlConfig::defaultCellarSealOnlyWalls, value -> value instanceof String);
         CELLAR_PRESERVABLE_CONTAINERS = builder
-            .comment("Block ids or block tags whose inventories may receive temporary cellar preservation. Use block ids like 'minecraft:chest' or tags like '#tfc:fired_large_vessels'.")
+            .translation(ModConfig.configTranslationKey("climateControl.cellar.cellarPreservableContainers"))
+            .comment("可以享受地窖保鲜的容器方块 id 或方块标签（如 'minecraft:chest'、'#tfc:fired_large_vessels'）。",
+                "Block ids or block tags whose inventories may receive temporary cellar preservation. Use block ids like 'minecraft:chest' or tags like '#tfc:fired_large_vessels'.")
             .defineListAllowEmpty(List.of("cellarPreservableContainers"), ClimateControlConfig::defaultCellarPreservableContainers, value -> value instanceof String);
         CELLAR_NESTED_ITEM_CONTAINERS = builder
-            .comment("Item ids or item tags for item containers whose internal slots should be checked when the item is inside a cellar-preservable container. Use item ids like 'tfc:ceramic/vessel' or tags like '#tfc:fired_vessels'.")
+            .translation(ModConfig.configTranslationKey("climateControl.cellar.cellarNestedItemContainers"))
+            .comment("放在地窖保鲜容器里、需要连内部物品一起同步保鲜的物品容器 id 或物品标签（如 'tfc:ceramic/vessel'、'#tfc:fired_vessels'）。",
+                "Item ids or item tags for item containers whose internal slots should be checked when the item is inside a cellar-preservable container. Use item ids like 'tfc:ceramic/vessel' or tags like '#tfc:fired_vessels'.")
             .defineListAllowEmpty(List.of("cellarNestedItemContainers"), ClimateControlConfig::defaultCellarNestedItemContainers, value -> value instanceof String);
         CELLAR_MINIMUM_THERMAL_COVERAGE = builder
-            .comment("Minimum insulated shell coverage for a cellar.")
+            .translation(ModConfig.configTranslationKey("climateControl.cellar.cellarMinimumThermalCoverage"))
+            .comment("地窖中保温墙所占的最低比例。", "Minimum insulated shell coverage for a cellar.")
             .defineInRange("cellarMinimumThermalCoverage", 0.95d, 0d, 1d);
         builder.pop();
 
-        builder.push("power");
+        builder.translation(ModConfig.configTranslationKey("climateControl.power")).push("power");
         CLIMATE_CONTROL_MIN_ENERGY_USE = builder
-            .comment("Minimum FE/t consumed by Thermostatic Air Conditioners and Refrigerators when active climate control is needed. Set to 0 to disable the minimum.")
+            .translation(ModConfig.configTranslationKey("climateControl.power.climateControlMinEnergyUse"))
+            .comment("恒温空调与制冷器在需要控温时消耗的最低 FE/t。设为 0 则取消最低耗能。",
+                "Minimum FE/t consumed by Thermostatic Air Conditioners and Refrigerators when active climate control is needed. Set to 0 to disable the minimum.")
             .defineInRange("climateControlMinEnergyUse", 20, 0, 1_000_000);
         CLIMATE_CONTROL_ENERGY_USE_SCALE = builder
-            .comment("Constant used by Thermostatic Air Conditioners and Refrigerators: FE/t = round(effectiveSpace * tierPowerMultiplier * temperatureDelta * this value).")
+            .translation(ModConfig.configTranslationKey("climateControl.power.climateControlEnergyUseScale"))
+            .comment("恒温空调与制冷器的耗能系数: FE/t = round(有效空间 * 等级耗电倍率 * 温差 * 本值)。",
+                "Constant used by Thermostatic Air Conditioners and Refrigerators: FE/t = round(effectiveSpace * tierPowerMultiplier * temperatureDelta * this value).")
             .defineInRange("climateControlEnergyUseScale", 0.001d, 0d, 1_000d);
         GREENHOUSE_WOOD_POWER_MULTIPLIER = builder
-            .comment("Power multiplier for treated wood greenhouse climate control.")
+            .translation(ModConfig.configTranslationKey("climateControl.power.greenhouseWoodPowerMultiplier"))
+            .comment("木质（防腐木）温室的耗电倍率。", "Power multiplier for treated wood greenhouse climate control.")
             .defineInRange("greenhouseWoodPowerMultiplier", 1.3d, 0d, 1_000d);
         GREENHOUSE_COPPER_POWER_MULTIPLIER = builder
-            .comment("Power multiplier for copper greenhouse climate control.")
+            .translation(ModConfig.configTranslationKey("climateControl.power.greenhouseCopperPowerMultiplier"))
+            .comment("铜质温室的耗电倍率。", "Power multiplier for copper greenhouse climate control.")
             .defineInRange("greenhouseCopperPowerMultiplier", 1.2d, 0d, 1_000d);
         GREENHOUSE_IRON_POWER_MULTIPLIER = builder
-            .comment("Power multiplier for iron greenhouse climate control.")
+            .translation(ModConfig.configTranslationKey("climateControl.power.greenhouseIronPowerMultiplier"))
+            .comment("铁质温室的耗电倍率。", "Power multiplier for iron greenhouse climate control.")
             .defineInRange("greenhouseIronPowerMultiplier", 1.1d, 0d, 1_000d);
         GREENHOUSE_STAINLESS_STEEL_POWER_MULTIPLIER = builder
-            .comment("Power multiplier for stainless steel greenhouse climate control.")
+            .translation(ModConfig.configTranslationKey("climateControl.power.greenhouseStainlessSteelPowerMultiplier"))
+            .comment("不锈钢温室的耗电倍率。", "Power multiplier for stainless steel greenhouse climate control.")
             .defineInRange("greenhouseStainlessSteelPowerMultiplier", 1.0d, 0d, 1_000d);
         CELLAR_SEALED_BRICK_POWER_MULTIPLIER = builder
-            .comment("Power multiplier for sealed brick cold storage climate control.")
+            .translation(ModConfig.configTranslationKey("climateControl.power.cellarSealedBrickPowerMultiplier"))
+            .comment("密封砖冷库的耗电倍率。", "Power multiplier for sealed brick cold storage climate control.")
             .defineInRange("cellarSealedBrickPowerMultiplier", 1.1d, 0d, 1_000d);
         CELLAR_STAINLESS_STEEL_REINFORCED_POWER_MULTIPLIER = builder
-            .comment("Power multiplier for stainless steel reinforced cold storage climate control.")
+            .translation(ModConfig.configTranslationKey("climateControl.power.cellarStainlessSteelReinforcedPowerMultiplier"))
+            .comment("不锈钢强化冷库的耗电倍率。", "Power multiplier for stainless steel reinforced cold storage climate control.")
             .defineInRange("cellarStainlessSteelReinforcedPowerMultiplier", 1.0d, 0d, 1_000d);
         builder.pop();
 

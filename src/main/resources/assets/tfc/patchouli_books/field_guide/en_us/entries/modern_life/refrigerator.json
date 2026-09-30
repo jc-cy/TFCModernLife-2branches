@@ -22,7 +22,7 @@
     {
       "type": "patchouli:text",
       "title": "Preservation",
-      "text": "Actual temperature determines preservation: 2x at or above 0°C, 2.5x below 0°C, then 3x, 3.5x, 4x, 4.5x, 5x, 6x, 7x, 8.5x, and 10x at -6, -9, -12, -15, -18, -21, -24, -27, and -30°C. Supported TFC, FirmaLife, and Immersive Engineering containers synchronize and clean up cellar preservation, including the contents of large vessels and other nested containers."
+      "text": "Actual temperature determines preservation: 2x at or above 0°C, 2.5x below 0°C, then 3x, 3.5x, 4x, 4.5x, 5x, 6x, 7x, 8.5x, and 10x at -6, -9, -12, -15, -18, -21, -24, -27, and -30°C. Supported TFC, FirmaLife, vanilla, and Immersive Engineering containers synchronize and clean up cellar preservation, including the contents of large vessels and other nested containers."
     }
   ],
   "read_by_default": true,

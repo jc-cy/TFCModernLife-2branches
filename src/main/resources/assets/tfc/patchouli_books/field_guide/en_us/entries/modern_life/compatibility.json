@@ -16,7 +16,7 @@
     {
       "type": "patchouli:text",
       "title": "Configuration",
-      "text": "Base device usage, the climate-control usage constant, minimum running cost, greenhouse and cold-storage tier multipliers, and the cellar container allowlist can be changed in this mod's configuration. If changes do not apply, delete the old config and let the game regenerate it. The 1.21 build uses TFC's native climate and no longer needs TFE."
+      "text": "Base device usage, the climate-control usage constant, minimum running cost, greenhouse and cold-storage tier multipliers, and the cellar container allowlist can be changed in this mod's configuration. Containers not in the list do not receive cellar preservation. If changes do not apply, delete the old config and let the game regenerate it. The 1.21 build uses TFC's native climate and no longer needs TFE."
     }
   ],
   "read_by_default": true,
