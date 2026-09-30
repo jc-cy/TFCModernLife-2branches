@@ -80,6 +80,9 @@ Note: This mod is a merged reset of FirmalifeEnhance / firmalife enhancement and
 
 A mid-to-late-game modern life expansion for TerraFirmaCraft. It includes the Electric Oven, Electric Soup Pot, the Thermostatic Air Conditioner for greenhouses, the Refrigerator for cellars / cold storage, new stainless steel reinforced cold storage, and greenhouse material disassembly.
 
+Immersive Engineering is optional. When IE is installed, this mod provides default item recipes for all four powered devices; without IE, startup still works, but you must add replacement recipes through another power mod or a datapack.
+Artisanal is optional. When Artisanal is installed, the Electric Soup Pot replaces its ceramic pot for scalable pot recipes and JEI recipe access.
+
 Feature and parameter overview
 
 Electric Kitchen - Electric Oven and Electric Soup Pot
@@ -97,7 +100,6 @@ Electric Kitchen - Electric Oven and Electric Soup Pot
 - 500 mB water + 1 sweetener -> 500 mB sugar water.
 - Sugar water + one fruit type -> jam; each jam serving consumes 100 mB sugar water.
 - FirmaLife jarring stations are optimized and can automatically jar jam from a facing Electric Soup Pot.
-- Artisanal is optional; when installed, the Electric Soup Pot replaces its ceramic pot for scalable pot recipes and JEI recipe access.
 - Strong automation support: the soup pot supports fluid input / output and output to jarring stations, while the oven only outputs finished products.
 
 Powered Greenhouse - Thermostatic Air Conditioner
@@ -138,7 +140,6 @@ Greenhouse Material Disassembly
 
 Mod Compatibility
 - Adds temperature-system compatibility for [LSO] Legendary Survival Overhaul. Temperatures inside greenhouses and cold storage structures are used directly as the indoor environmental temperature.
-- Immersive Engineering is optional. When IE is installed, this mod provides default item recipes for all four powered devices; without IE, startup still works, but you must add replacement recipes through another power mod or a datapack.
 
 '''
 
@@ -148,6 +149,7 @@ version = "${file.jarVersion}"
 displayName = "TFC Modern Life - TFE Greenhouse Compatibility Bridge"
 authors = "交错次元"
 description = '''
+TFE 旧版温室反射钩子保留的兼容桥，仅用于识别，不重新提供旧版温室功能。
 Compatibility bridge kept only for TFE's legacy Firmalife greenhouse reflection hook.
 This entry does not re-add the old greenhouse mod features.
 '''
