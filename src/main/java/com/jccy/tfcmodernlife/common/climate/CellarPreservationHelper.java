@@ -9,7 +9,6 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import net.dries007.tfc.common.blockentities.InventoryBlockEntity;
-import net.dries007.tfc.common.blockentities.TFCChestBlockEntity;
 import net.dries007.tfc.common.capabilities.Capabilities;
 import net.dries007.tfc.common.capabilities.VesselLike;
 import net.dries007.tfc.common.capabilities.food.FoodCapability;
@@ -22,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.Nullable;
@@ -100,7 +100,7 @@ public final class CellarPreservationHelper
         }
     }
 
-    public static void syncTFCChestBlockEntity(TFCChestBlockEntity chest)
+    public static void syncChestBlockEntity(ChestBlockEntity chest)
     {
         final Level level = chest.getLevel();
         if (level == null || level.isClientSide() || !isWhitelistedContainerBlock(chest))
@@ -127,7 +127,7 @@ public final class CellarPreservationHelper
         {
             return;
         }
-        syncFoodShelfBlockEntity(shelf, preserved ? getCellarTrait(level, shelf.getBlockPos()) : null);
+        syncFoodShelfBlockEntity(shelf, preserved ? getContextTrait(level, shelf.getBlockPos()) : null);
     }
 
     public static void syncExternalContainer(Container container)
@@ -334,7 +334,7 @@ public final class CellarPreservationHelper
         {
             syncInventoryBlockEntity(inventory, trait);
         }
-        else if (target instanceof TFCChestBlockEntity chest && isWhitelistedContainerBlock(chest))
+        else if (target instanceof ChestBlockEntity chest && isWhitelistedContainerBlock(chest))
         {
             syncContainer(chest, chest, trait);
         }
@@ -348,7 +348,7 @@ public final class CellarPreservationHelper
     {
         return target instanceof FoodShelfBlockEntity
             || (target instanceof InventoryBlockEntity<?> inventory && shouldHandleInventory(inventory))
-            || (target instanceof TFCChestBlockEntity chest && isWhitelistedContainerBlock(chest))
+            || (target instanceof ChestBlockEntity chest && isWhitelistedContainerBlock(chest))
             || (target instanceof Container && shouldHandleExternalContainer(target));
     }
 
@@ -386,7 +386,7 @@ public final class CellarPreservationHelper
         logTemporaryLargeVesselResult(inventory, changed);
         if (changed)
         {
-            inventory.setChanged();
+            markChanged(inventory);
         }
     }
 
@@ -415,7 +415,6 @@ public final class CellarPreservationHelper
         }
         if (changed)
         {
-            shelf.setChanged();
             shelf.markForSync();
         }
     }
@@ -438,7 +437,22 @@ public final class CellarPreservationHelper
         {
             SYNCING.remove(owner);
         }
-        if (changed && owner instanceof BlockEntity blockEntity)
+        if (changed)
+        {
+            markChanged(owner);
+        }
+    }
+
+    /**
+     * 内容改写后通知客户端：TFC 方块实体走 markForSync（内部会 setChanged），原版箱子这类只有 setChanged。
+     */
+    private static void markChanged(Object owner)
+    {
+        if (owner instanceof net.dries007.tfc.common.blockentities.TFCBlockEntity tfc)
+        {
+            tfc.markForSync();
+        }
+        else if (owner instanceof BlockEntity blockEntity)
         {
             blockEntity.setChanged();
         }

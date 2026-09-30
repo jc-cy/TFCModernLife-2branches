@@ -56,7 +56,7 @@ Artisanal 为可选兼容。安装 Artisanal 后，电热高压锅作为陶锅�
 - 不锈钢强化密封砖 + 制冷器: 耗电倍率 1.0x，最低 -30°C，对应 10x 保鲜。
 - 混合冷库最低温度按热墙材料数量加权平均；耗电倍率取数量最多的材料等级，打平时取耗电倍率更高的一档。
 - 保鲜倍率按实际冷库温度计算: >=0°C 为 2x，<0°C 为 2.5x，<=-6°C 为 3x，<=-9°C 为 3.5x，<=-12°C 为 4x，<=-15°C 为 4.5x，<=-18°C 为 5x，<=-21°C 为 6x，<=-24°C 为 7x，<=-27°C 为 8.5x，<=-30°C 为 10x。
-- 支持 FirmaLife 食物架、TFC 箱子等容器的地窖保鲜同步与清理；安装 Immersive Engineering 时额外兼容其木制储物箱 / 强化储物箱。
+- 支持 FirmaLife 食物架、原版和各类 TFC 箱子等容器的地窖保鲜同步与清理；安装 Immersive Engineering 时额外兼容其木制储物箱 / 强化储物箱。
 - 支持的容器在mod配置文件里面可以自由修改，未修改且不生效删除配置文件重新生成即可。
 
 控温设备通用参数
@@ -120,7 +120,7 @@ Powered Cold Storage - Refrigerator
 - Stainless steel reinforced sealed bricks with Refrigerator: power multiplier 1.0x, minimum -30°C, corresponding preservation 10x.
 - Mixed cold storage structures average the minimum temperature by thermal wall counts; power multiplier uses the most common material tier, with ties using the higher-cost tier.
 - Preservation is based on actual cold storage temperature: >=0°C is 2x, <0°C is 2.5x, <=-6°C is 3x, <=-9°C is 3.5x, <=-12°C is 4x, <=-15°C is 4.5x, <=-18°C is 5x, <=-21°C is 6x, <=-24°C is 7x, <=-27°C is 8.5x, <=-30°C is 10x.
-- Supports cellar preservation sync and cleanup for FirmaLife food shelves, TFC chests, and Immersive Engineering wooden / reinforced crates.
+- Supports cellar preservation sync and cleanup for FirmaLife food shelves, vanilla and TFC chests, and Immersive Engineering wooden / reinforced crates.
 - Supported containers can be freely modified in the mod configuration file; if changes are not applied, simply delete the configuration file and regenerate it.
 
 Climate Control Device Parameters

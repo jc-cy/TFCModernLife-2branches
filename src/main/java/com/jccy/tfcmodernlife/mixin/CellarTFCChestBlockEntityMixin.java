@@ -22,7 +22,7 @@ public abstract class CellarTFCChestBlockEntityMixin
     @Inject(method = {"createMenu", "m_6555_"}, at = @At("HEAD"), require = 0)
     private void tfc_modern_life$syncCellarTraitsOnOpen(int id, Inventory inventory, CallbackInfoReturnable<AbstractContainerMenu> cir)
     {
-        CellarPreservationHelper.syncTFCChestBlockEntity((TFCChestBlockEntity) (Object) this);
+        CellarPreservationHelper.syncChestBlockEntity((TFCChestBlockEntity) (Object) this);
     }
 
     @Inject(method = "getCapability(Lnet/minecraftforge/common/capabilities/Capability;Lnet/minecraft/core/Direction;)Lnet/minecraftforge/common/util/LazyOptional;", at = @At("RETURN"), cancellable = true)

@@ -30,6 +30,12 @@
     "TfeFLGrowingFruitTreeBranchBlockMixin",
     "TfeGrapePlantBlockEntityMixin"
   ],
+  "client": [
+    "ConfiguredForgeFolderEntryMixin",
+    "ConfiguredForgeValueMixin",
+    "ForgeConfigScreensCategoryEntryDataAccess",
+    "ForgeConfigScreensEntryDataMixin"
+  ],
   "injectors": {
     "defaultRequire": 0
   }

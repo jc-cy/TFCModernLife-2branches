@@ -1,7 +1,7 @@
 package com.jccy.tfcmodernlife.mixin;
 
 import com.jccy.tfcmodernlife.common.climate.CellarPreservationHelper;
-import net.dries007.tfc.common.blockentities.TFCChestBlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.dries007.tfc.common.blocks.wood.TFCChestBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,9 +35,9 @@ public abstract class CellarTFCChestBlockMixin
     private void tfc_modern_life$syncChestAt(Level level, BlockPos pos)
     {
         final BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof TFCChestBlockEntity chest)
+        if (blockEntity instanceof ChestBlockEntity chest)
         {
-            CellarPreservationHelper.syncTFCChestBlockEntity(chest);
+            CellarPreservationHelper.syncChestBlockEntity(chest);
         }
     }
 }
