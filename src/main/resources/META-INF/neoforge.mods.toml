@@ -80,7 +80,70 @@ Immersive Engineering 为可选兼容。安装 IE 后提供四种电力设备的
 English Summary
 Note: This mod is a merged reset of FirmalifeEnhance / firmalife enhancement and TFC Electric Cooking / electric cooking. Do not install it together with those two old mods.
 
-A mid-to-late-game modern life expansion for TerraFirmaCraft. It includes the Electric Oven, Electric Soup Pot, the Thermostatic Air Conditioner for greenhouses, the Refrigerator for cellars / cold storage, new stainless steel reinforced cold storage, and greenhouse material disassembly. Immersive Engineering is optional and only provides default item recipes for the four powered devices; the 1.21 build uses TFC's native climate instead of TFE.
+A mid-to-late-game modern life expansion for TerraFirmaCraft. It includes the Electric Oven, Electric Soup Pot, the Thermostatic Air Conditioner for greenhouses, the Refrigerator for cellars / cold storage, new stainless steel reinforced cold storage, and greenhouse material disassembly.
+
+Immersive Engineering is optional. When IE is installed, this mod provides default item recipes for all four powered devices; without IE, startup still works, but you must add replacement recipes through another power mod or a datapack.
+
+Feature and parameter overview
+
+Electric Kitchen - Electric Oven and Electric Soup Pot
+- Electric Oven: 6 input slots, compatible with TFC heating recipes and FirmaLife oven recipes.
+- Electric Soup Pot: 5 input slots, supports pot recipes, sugar water, sugar-water jam, and fluid display.
+- Energy capacity: 16000 FE.
+- Max input / output: 256 FE/t.
+- Base energy cost: 20 FE/t by default, configurable.
+- Temperature range: 0 ~ 800°C.
+- Powered heating: moves toward the target temperature by 3°C per tick.
+- Unpowered cooling: cools down by 1.5°C per tick.
+- Soup pot pre-boil time: 100 ticks.
+- Soup pot cooking speed: 4x.
+- Electric Oven outputs receive the Electric Oven Baked food trait with a 0.9x decay modifier.
+- 500 mB water + 1 sweetener -> 500 mB sugar water.
+- Sugar water + one fruit type -> jam; each jam serving consumes 100 mB sugar water.
+- FirmaLife jarring stations are optimized and can automatically jar jam from a facing Electric Soup Pot.
+- Strong automation support: the soup pot supports fluid input / output and output to jarring stations, while the oven only outputs finished products.
+
+Powered Greenhouse - Thermostatic Air Conditioner
+- Climate Stations keep structure refresh and daily automatic climate control at 8:00.
+- The Thermostatic Air Conditioner is an advanced climate station.
+- Treated wood greenhouse: power multiplier 1.3x, air conditioner manual range ±5°C, climate station auto range ±3°C.
+- Copper greenhouse: power multiplier 1.2x, air conditioner manual range ±10°C, climate station auto range ±5°C.
+- Iron greenhouse: power multiplier 1.1x, air conditioner manual range ±18°C, climate station auto range ±7°C.
+- Stainless steel greenhouse: power multiplier 1.0x, air conditioner manual range ±70°C, climate station auto range ±10°C.
+- Mixed greenhouses calculate their tier by weighted greenhouse wall counts.
+- Controlled temperature affects normal crops, farmland temperature tooltips, and FirmaLife beehives.
+
+Powered Cold Storage - Refrigerator
+- Cold storage structures now use two material tiers: sealed bricks and stainless steel reinforced sealed bricks. The reinforced tier is displayed as Stainless Steel Reinforced Cold Storage.
+- The Refrigerator cools cellar / cold-storage structures only. In cold storage it stores a fixed target temperature and never heats.
+- The Thermostatic Air Conditioner can heat or cool in cold storage within current natural temperature ±10°C, but cooling cannot go below the structure tier limit.
+- If natural temperature is already below the structure tier limit, the Refrigerator will not raise it back up to that limit.
+- Sealed bricks / stainless steel reinforced sealed bricks with a climate station: no power use and no active temperature control; uses natural temperature.
+- Sealed bricks with Refrigerator: power multiplier 1.1x, minimum -15°C, corresponding preservation 4.5x.
+- Stainless steel reinforced sealed bricks with Refrigerator: power multiplier 1.0x, minimum -30°C, corresponding preservation 10x.
+- Mixed cold storage structures average the minimum temperature by thermal wall counts; power multiplier uses the most common material tier, with ties using the higher-cost tier.
+- Preservation is based on actual cold storage temperature: >=0°C is 2x, <0°C is 2.5x, <=-6°C is 3x, <=-9°C is 3.5x, <=-12°C is 4x, <=-15°C is 4.5x, <=-18°C is 5x, <=-21°C is 6x, <=-24°C is 7x, <=-27°C is 8.5x, <=-30°C is 10x.
+- Supports cellar preservation sync and cleanup for FirmaLife food shelves, vanilla and TFC chests, and other containers.
+- Supported containers can be freely modified in the mod configuration file; if changes are not applied, simply delete the configuration file and regenerate it.
+
+Climate Control Device Parameters
+- Devices: Thermostatic Air Conditioner and Refrigerator.
+- Energy capacity: 4000000 FE.
+- Max input: 4096 FE/t.
+- Start threshold: energy must be above 25%, equal to 1000000 FE.
+- Energy formula: round(effective space * tier power multiplier * temperature delta * 0.001); the constant and tier power multipliers are configurable.
+- Minimum running cost: at least 20 FE/t by default when climate control is needed, configurable.
+- GUI adjustment steps: -5 / -1 / +1 / +5°C.
+- Devices consume FE only, do not output power, and keep stored energy when broken.
+
+Greenhouse Material Disassembly
+- Use a gem saw + greenhouse blocks to recover materials.
+
+Mod Compatibility
+- Adds temperature-system compatibility for [LSO] Legendary Survival Overhaul. Temperatures inside greenhouses and cold storage structures are used directly as the indoor environmental temperature.
+
+1.21 Notes
+- The climate chain uses TFC's native climate; TFE is not required. Immersive Engineering is only an optional recipe expansion.
 '''
 
 [[dependencies.tfc_modern_life]]
